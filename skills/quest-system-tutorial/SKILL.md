@@ -70,6 +70,38 @@ you own — no external services, no database, no sync.
 
 ---
 
+## Quest Lifecycle
+
+Two layers: the quest lifecycle (one per feature) and the expedition routine (every session).
+
+**Quest lifecycle:**
+
+```
+/new-quest ──► [/counsel-quest] ──► expeditions... ──► /complete-quest
+                     ▲                                        |
+                     └── re-run when blocked or new riddles ──┘
+```
+
+**Expedition routine — the repeating loop inside every quest:**
+
+```
+Open Claude ──► /embark ──► [code / build / explore] ──► /make-camp ──► Close Claude
+                  ▲                                                          |
+                  └──────────────────── next session ────────────────────────┘
+```
+
+**Command frequency at a glance:**
+
+```
+Every session   /embark (open), /make-camp (close)
+As needed       /counsel-quest (blocked or new riddle), /quest-log (status check)
+Health check    /summon-witch-doctor (scrolls feel stale or broken)
+Once per quest  /new-quest (start), /complete-quest (ship)
+Parallel work   /change-quest (switch between active quests)
+```
+
+---
+
 ## The fictional project
 
 Throughout this tutorial, we are building a `login-redesign` feature
@@ -273,6 +305,36 @@ LAContext reuse            Silent auth failure        Instantiate fresh per atte
 Files updated: ADVENTURE_JOURNAL.md, STRATEGY_SCROLL.md, TOME_OF_DANGERS.md,
                WORLD_MAP.md (AuthCoordinator.swift added to key files)
 ```
+
+---
+
+## The Expedition Loop
+
+Phase 2 and 3 above show one expedition. A real quest runs that loop many times:
+
+```
+Session 1:  /embark → work → /make-camp
+Session 2:  /embark → work → /make-camp
+Session 3:  /embark → work → /make-camp  ← /counsel-quest if new riddles block you
+...
+Session N:  /embark → work → /make-camp → /complete-quest
+```
+
+**What persists between sessions:** everything in the scrolls.
+`/make-camp` writes them. `/embark` reads them. Claude starts each expedition
+fully briefed without you re-explaining context.
+
+**What does NOT persist:** conversation history, Claude's in-memory context.
+`/make-camp` is the save point. Skip it and the next Claude starts blind.
+
+**When to re-run `/counsel-quest` mid-quest:**
+- New open riddles appear that block the next expedition
+- The battle plan is stale after a major discovery during scouting
+- The commander wants to lock a decision before executing (not mid-expedition)
+
+`/counsel-quest` is NOT required before every expedition — only when riddles
+need resolving or the plan needs updating. If the path is clear, go straight
+to `/embark`.
 
 ---
 
@@ -516,12 +578,21 @@ No database. No sync. Claude reads them at the start of every expedition.
 
 ```
 Your commands:
-  /new-quest           — create your first feature quest
-  /counsel-quest       — lock decisions before first execution (and when blocked)
-  /embark              — at the start of every expedition
-  /make-camp           — before closing Claude Code (don't skip this)
-  /quest-log           — quick status check between expeditions
-  /summon-witch-doctor — if scroll files feel stale or broken
-  /complete-quest      — when the feature ships
-  /change-quest        — when switching between parallel features
+
+  -- Every session --
+  /embark              — start of every work session (loads context, proposes plan)
+  /make-camp           — end of every work session (saves to scrolls — do not skip)
+
+  -- Once per quest --
+  /new-quest           — create a new quest (interview → 5 scrolls → set active)
+  /complete-quest      — ship the feature (distill lessons, archive, clear active)
+
+  -- As needed --
+  /counsel-quest       — resolve open riddles and lock decisions (before first
+                         expedition, or when blocked mid-quest)
+  /quest-log           — fast status check between expeditions (no full scroll load)
+  /change-quest        — switch active quest when running parallel features
+
+  -- Health check --
+  /summon-witch-doctor — inspect and repair scrolls (run when something feels off)
 ```

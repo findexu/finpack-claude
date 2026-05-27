@@ -14,9 +14,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install-quest-system.sh}")" 2>/de
 LOCAL_COMMANDS="$SCRIPT_DIR/../skills/quest-system/commands"
 LOCAL_HOOKS="$SCRIPT_DIR/../hooks"
 LOCAL_TUTORIAL_SKILL="$SCRIPT_DIR/../skills/quest-system-tutorial/SKILL.md"
+LOCAL_SETTINGS_EXAMPLE="$SCRIPT_DIR/../settings.local.json.example"
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
 TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
+SETTINGS_LOCAL_DEST=".claude/settings.local.json"
+VERIFY_RULE='Bash(.claude/hooks/quest-system-verify.sh *)'
 
 # Fallback list used for remote installs where directory listing is unavailable.
 REMOTE_COMMANDS=(
@@ -37,6 +40,7 @@ REMOTE_COMMANDS=(
 
 HOOKS=(
   session-start.sh
+  quest-system-verify.sh
 )
 
 mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")"
@@ -85,6 +89,29 @@ if [ -d "$LOCAL_COMMANDS" ]; then
   else
     echo "  SKIP (not found): skills/quest-system-tutorial/SKILL.md" >&2
   fi
+
+  if [ -f "$LOCAL_SETTINGS_EXAMPLE" ] && [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
+    cp "$LOCAL_SETTINGS_EXAMPLE" "$SETTINGS_LOCAL_DEST"
+  fi
+
+  if [ -f "$SETTINGS_LOCAL_DEST" ]; then
+    python3 - "$SETTINGS_LOCAL_DEST" "$VERIFY_RULE" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+rule = sys.argv[2]
+data = json.loads(path.read_text())
+permissions = data.setdefault("permissions", {})
+allow = permissions.setdefault("allow", [])
+if rule not in allow:
+    allow.insert(0, rule)
+path.write_text(json.dumps(data, indent=2) + "\n")
+PY
+    echo "  settings.local.json"
+    UPDATED=$((UPDATED + 1))
+  fi
 else
   # Remote install — download from GitHub
   COMMANDS=("${REMOTE_COMMANDS[@]}")
@@ -119,6 +146,30 @@ else
     UPDATED=$((UPDATED + 1))
   else
     echo "  FAIL: skills/quest-system-tutorial/SKILL.md (HTTP error)" >&2
+  fi
+
+  if [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
+    if curl -fsSL "$REPO/settings.local.json.example" -o "$SETTINGS_LOCAL_DEST"; then
+      UPDATED=$((UPDATED + 1))
+    fi
+  fi
+
+  if [ -f "$SETTINGS_LOCAL_DEST" ]; then
+    python3 - "$SETTINGS_LOCAL_DEST" "$VERIFY_RULE" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+rule = sys.argv[2]
+data = json.loads(path.read_text())
+permissions = data.setdefault("permissions", {})
+allow = permissions.setdefault("allow", [])
+if rule not in allow:
+    allow.insert(0, rule)
+    path.write_text(json.dumps(data, indent=2) + "\n")
+PY
+    echo "  settings.local.json"
   fi
 fi
 

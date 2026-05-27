@@ -52,6 +52,7 @@ cp -r rules                        "$TEMPLATE/"
 cp -r skills                       "$TEMPLATE/"
 cp -r agents                       "$TEMPLATE/"
 cp -r hooks                        "$TEMPLATE/"
+rm -f "$TEMPLATE/hooks/quest-system-verify.sh"
 
 echo "  bundle setup-finpack/template (full finpack-claude content)"
 echo "Done."

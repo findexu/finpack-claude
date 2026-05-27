@@ -2,12 +2,14 @@
 name: install-quest-system
 description: >
   Bootstrap quest-system in the current project. Copies all command files to
-  .claude/commands/ and installs the quest-system tutorial skill to
+  .claude/commands/ and install the quest-system tutorial skill to
   .claude/skills/quest-system-tutorial/SKILL.md so /new-quest, /counsel-quest,
   /embark, /make-camp, /quest-log, /change-quest, /complete-quest,
   /summon-witch-doctor, /quest-xp, /ask-sages, /init-xp, /counsel-prompt,
-  /counsel-plan, and /quest-system-tutorial become available. Run once per
-  project. Safe to re-run — confirms before overwriting.
+  /counsel-plan, and /quest-system-tutorial become available. It also installs
+  a stable verifier hook and a project-local permission override so the
+  verification step does not keep triggering ad hoc approval prompts. Run once
+  per project. Safe to re-run — confirms before overwriting.
 ---
 
 # Install Quest System
@@ -15,6 +17,9 @@ description: >
 Copy the quest-system command files into this project's `.claude/commands/`
 and install the tutorial skill into `.claude/skills/quest-system-tutorial/`
 so all quest-system slash commands plus `/quest-system-tutorial` become available.
+The install also writes a stable verifier hook at
+`.claude/hooks/quest-system-verify.sh` and adds a local permissions override
+for that one helper when needed.
 
 ## Step 1: Check for existing installation
 
@@ -87,6 +92,25 @@ If not found, report:
 SKIP: quest-system-tutorial skill source not found
 ```
 
+## Step 4.6: Install update skill
+
+Try these source paths in order:
+
+1. `.claude/skills/update-quest-system/SKILL.md`
+2. `skills/update-quest-system/SKILL.md`
+
+If found, write to `.claude/skills/update-quest-system/SKILL.md`.
+Create parent directories if needed.
+If not found, skip silently.
+
+## Step 4.7: Install stable verifier hook and local permission override
+
+Copy `hooks/quest-system-verify.sh` to `.claude/hooks/quest-system-verify.sh`
+when present. If `.claude/settings.local.json` does not already exist, copy
+`settings.local.json.example` to `.claude/settings.local.json`, then add the
+allow rule for `.claude/hooks/quest-system-verify.sh` so the verifier can run
+without repeated approval prompts.
+
 ## Step 5: Source not found
 
 If no source location was found in Step 2:
@@ -133,8 +157,12 @@ Commands now available:
   /counsel-plan        — review a plan.md and produce copyable structured feedback
   /quest-system-tutorial — dry-run walkthrough of the full quest workflow
 
+Installed skills:
+  /quest-system-tutorial — full dry-run walkthrough of the quest workflow
+  /update-quest-system   — update to the latest version after pulling finpack-claude
+
 Next steps:
-  /quest-system-tutorial   — see a dry-run of the full workflow
+  /quest-system-tutorial    — see a dry-run of the full workflow
   /new-quest {name} {realm} — start your first quest
 ```
 
