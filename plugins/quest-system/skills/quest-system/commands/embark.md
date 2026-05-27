@@ -71,3 +71,48 @@ Then present a briefing:
 6. **Open riddles** — list from STRATEGY_SCROLL index
 
 Await the commander's orders.
+
+## Step 6: Refresh .ai-context/
+
+If `.ai-context/` directory exists, write all three files using data already loaded:
+
+**`.ai-context/quest.md`:**
+```
+# Active Quest: {quest-name}
+Realm: {realm}  |  Last updated: {date}
+
+## Battle Status
+{battle status table from STRATEGY_SCROLL}
+
+## Open Riddles
+{open riddles from STRATEGY_SCROLL, or "None"}
+
+## Road Ahead
+{last expedition's "The Road Ahead" entry from ADVENTURE_JOURNAL, or "No expeditions yet"}
+```
+
+**`.ai-context/dangers.md`:**
+```
+# Known Dangers
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Dangers
+{fast-read summary from TOME_OF_DANGERS index — top 5, or "None yet"}
+
+## Project Dangers
+{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
+```
+
+**`.ai-context/decisions.md`:**
+```
+# Locked Decisions
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Decisions
+{entries from STRATEGY_SCROLL Oaths Sworn section, or "None yet"}
+
+## Project Decisions
+{rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
+```
+
+If `.ai-context/` does not exist, skip silently.

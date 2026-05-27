@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /embark, /make-camp,
   /quest-log, /change-quest, /install-quest-system,
   /summon-witch-doctor.
-version: 1.3.0
+version: 1.5.0
 ---
 
 # Quest System — Skill Definition
@@ -41,6 +41,7 @@ never loses context between conversations.
 | `/change-quest` | Switch quest or realm |
 | `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, template drift |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
+| `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
 
 ## Key concepts
 
@@ -185,6 +186,155 @@ If issues are found, `/summon-witch-doctor` asks: "Repair affected scrolls? (y/n
 - **n**: exits after reporting.
 
 Never rewrites existing content. Never touches OK scrolls. Never merges or reorganizes split subfiles.
+
+## .ai-context/ — portable AI context
+
+Three lightweight files kept in sync with the active quest.
+Committed to git so the whole team benefits.
+Any AI (Copilot, Gemini, etc.) can read them — paste at chat start or add to custom instructions.
+
+| File | Contents | Updated by |
+|---|---|---|
+| `.ai-context/quest.md` | Battle status, open riddles, road ahead | `/embark`, `/make-camp` |
+| `.ai-context/dangers.md` | Quest dangers + project registry fast-read | `/embark`, `/make-camp` |
+| `.ai-context/decisions.md` | Quest oaths + project decisions log | `/embark`, `/make-camp` |
+| `.ai-context/README.md` | How to use with each AI tool | Created once by `/new-quest` |
+
+Created by `/new-quest`. Cleared by `/complete-quest` (quest.md set to "No active quest").
+
+### quest.md format
+```
+# Active Quest: {quest-name}
+Realm: {realm}  |  Last updated: {date}
+
+## Battle Status
+{battle status table from STRATEGY_SCROLL}
+
+## Open Riddles
+{open riddles from STRATEGY_SCROLL, or "None"}
+
+## Road Ahead
+{last expedition's "The Road Ahead" entry from ADVENTURE_JOURNAL}
+```
+
+### dangers.md format
+```
+# Known Dangers
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Dangers
+{fast-read summary from TOME_OF_DANGERS index — top 5}
+
+## Project Dangers
+{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
+```
+
+### decisions.md format
+```
+# Locked Decisions
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Decisions
+{oaths from STRATEGY_SCROLL Oaths Sworn section}
+
+## Project Decisions
+{rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
+```
+
+## XP system
+
+Developers earn EXP for completing work. Profile is stored in `.claude/quest-xp/`
+(gitignored — local to your machine, not shared).
+
+### Profile files
+
+| File | Purpose |
+|---|---|
+| `.claude/quest-xp/profile.md` | Adventurer stats, level, EXP, badges |
+| `.claude/quest-xp/quest-history.md` | EXP log per completed quest |
+
+Created by `/new-quest` on first use. Both files gitignored automatically.
+
+### EXP formula (awarded by /complete-quest)
+
+EXP is derived from quest data — no manual difficulty rating needed.
+
+| Source | EXP |
+|---|---|
+| Base reward | 100 |
+| Per module conquered | 25 |
+| Per expedition logged | 10 |
+| Per danger in TOME_OF_DANGERS | 15 |
+| Per oath sworn | 20 |
+| Per split scroll | 50 |
+| Clean sweep (zero open riddles at completion) | +75 bonus |
+| Speed run (completed in ≤ 3 expeditions) | +50 bonus |
+
+Per-session EXP (awarded by /make-camp):
+
+| Source | EXP |
+|---|---|
+| Completing an expedition | 5 |
+| New danger discovered this session | +10 |
+| New oath sworn this session | +10 |
+
+### Level table
+
+Each level requires `level × 150` EXP from the previous level.
+
+| Level | Title | Total EXP needed |
+|---|---|---|
+| 1 | Apprentice Coder | 0 |
+| 2 | Journeyman Developer | 150 |
+| 3 | Skilled Developer | 450 |
+| 4 | Senior Developer | 900 |
+| 5 | Expert Architect | 1500 |
+| 6 | Master Builder | 2250 |
+| 7 | Grand Master | 3150 |
+| 8 | Legendary Coder | 4200 |
+| 9 | Mythic Developer | 5400 |
+| 10 | Transcendent Engineer | 6750 |
+
+### Badges
+
+| Badge | Name | Unlock condition |
+|---|---|---|
+| 🗡️ | First Blood | Complete your first quest |
+| 📜 | Scroll Keeper | Complete 5 quests |
+| ⚔️ | Veteran Adventurer | Complete 10 quests |
+| 🏆 | Legend | Complete 25 quests |
+| 🕵️ | Danger Mapper | Map 10 total dangers |
+| ☠️ | Danger Hoarder | Map 50 total dangers |
+| 🤝 | Oath Keeper | Swear 10 total oaths |
+| 📚 | Lore Master | Swear 50 total oaths |
+| 🚀 | Speed Runner | Complete a quest in ≤ 3 expeditions |
+| 🧘 | Marathoner | Log 50 total expeditions |
+| 🔥 | Unstoppable | Log 200 total expeditions |
+| ✨ | Clean Sweep | Complete a quest with zero open riddles |
+| 📂 | Split Master | Trigger 5 scroll splits |
+| 🌟 | Rising Star | Reach level 5 |
+| 💎 | Diamond | Reach level 10 |
+
+### Profile file format
+
+`.claude/quest-xp/profile.md`:
+```
+---
+adventurer: {git user.name or "Adventurer"}
+level: 1
+total-exp: 0
+quests-completed: 0
+total-expeditions: 0
+total-dangers-mapped: 0
+total-oaths-sworn: 0
+total-splits: 0
+badges: []
+---
+# {adventurer}'s Adventurer Profile
+...rendered by /quest-xp...
+```
+
+`.claude/quest-xp/quest-history.md`: append-only log, one entry per completed quest.
 
 ## Installation
 

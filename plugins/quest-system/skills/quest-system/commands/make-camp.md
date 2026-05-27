@@ -97,11 +97,90 @@ For each file that exceeds 500 lines:
    - TOME_OF_DANGERS: keep 3 most critical dangers as fast-read summary
 6. Confirm: "Split complete. {filename} → {list of subfiles created}."
 
-## Step 8: Confirm
+## Step 8: Refresh .ai-context/
+
+If `.ai-context/` directory exists, write all three files using data from the scrolls just updated:
+
+**`.ai-context/quest.md`:**
+```
+# Active Quest: {quest-name}
+Realm: {realm}  |  Last updated: {date}
+
+## Battle Status
+{battle status table from STRATEGY_SCROLL — updated version}
+
+## Open Riddles
+{open riddles from STRATEGY_SCROLL — updated version, or "None"}
+
+## Road Ahead
+{this expedition's "The Road Ahead" entry just written to ADVENTURE_JOURNAL}
+```
+
+**`.ai-context/dangers.md`:**
+```
+# Known Dangers
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Dangers
+{fast-read summary from TOME_OF_DANGERS index — top 5, updated if new dangers were added}
+
+## Project Dangers
+{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
+```
+
+**`.ai-context/decisions.md`:**
+```
+# Locked Decisions
+Quest: {quest-name}  |  Last updated: {date}
+
+## Quest Decisions
+{entries from STRATEGY_SCROLL Oaths Sworn section — updated version}
+
+## Project Decisions
+{rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
+```
+
+If `.ai-context/` does not exist, skip silently.
+
+## Step 9: Award expedition EXP
+
+If `.claude/quest-xp/profile.md` does not exist, skip this step silently.
+
+Calculate EXP earned this expedition:
+- Base: 5 XP (completing the expedition)
+- +10 XP if any new dangers were reported in Step 2
+- +10 XP if any new oaths were reported in Step 2
+
+Read profile frontmatter from `.claude/quest-xp/profile.md`.
+Add earned EXP to `total-exp`.
+Increment `total-expeditions` by 1.
+Add any new dangers count to `total-dangers-mapped`.
+Add any new oaths count to `total-oaths-sworn`.
+If a split occurred in Step 7, increment `total-splits` by 1.
+
+Recalculate level: find the highest level whose threshold ≤ new `total-exp`
+using the level table in `.claude/skills/quest-system/SKILL.md`.
+
+If new level > old level: record level-up (announce in Step 10).
+
+Write updated values back to the YAML frontmatter of `.claude/quest-xp/profile.md`.
+
+## Step 10: Confirm
 
 Report:
 ```
 ⛺ Camp made. Expedition {date} recorded.
 Files updated: {list}
 {any split announcements}
+
++{exp_earned} XP  ({reason breakdown})
+Total EXP: {total-exp}  |  Level {level} — {title}
+```
+
+If level-up occurred:
+```
+╔══════════════════════════════════════╗
+║  🌟  LEVEL UP!  Level {new level}     ║
+║  {new title}                          ║
+╚══════════════════════════════════════╝
 ```
