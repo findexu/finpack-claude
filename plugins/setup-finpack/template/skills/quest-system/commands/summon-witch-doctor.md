@@ -39,9 +39,13 @@ Read the block between the opening and closing `---` markers.
 Flag as WARN if any of these keys are absent: `quest`, `realm`, `scroll`, `last-updated`.
 
 ### 3c. Required headings
-Read the required headings for this scroll type from
-`.claude/skills/quest-system/SKILL.md` — section `## Scroll templates`.
-Flag each missing heading as WARN.
+Check for required headings per scroll type (flag each missing one as WARN):
+
+- **WORLD_MAP.md**: `## Realm`, `## Module Map`, `## Navigation Flow`, `## Data Flow`, `## Key Files`, `## Retired Files`
+- **STRATEGY_SCROLL.md**: `## Battle Status`, `## Oaths Sworn (Resolved Decisions)`, `## Fallen Strategies (Rejected Approaches)`, `## Scouting Findings (Audit Results)`, `## Open Riddles (Decisions Needed)`, `## The Battle Plan (Implementation Sequence)`
+- **ADVENTURE_JOURNAL.md**: no required headings (append-only, content varies)
+- **TOME_OF_DANGERS.md**: `## Confirmed Safe Paths`, `## Known Dangers`, `## Fallen Strategies (Tried and Abandoned)`, `## Unsolved Riddles (Open Verification Items)`
+- **ADVENTURERS_HANDBOOK.md**: `## WORLD_MAP.md`, `## STRATEGY_SCROLL.md`, `## ADVENTURE_JOURNAL.md`, `## TOME_OF_DANGERS.md`, `## Sacred Laws`
 
 ### 3d. Split state
 Check whether the scroll's split subfolder exists on disk:
@@ -94,8 +98,110 @@ Ask: "Repair affected scrolls? (y/n)"
 If n: stop.
 
 If y, for each affected scroll:
-- **MISSING**: recreate from the template in `.claude/skills/quest-system/SKILL.md`.
-  Fill in quest name, realm, scroll type, and today's date.
+- **MISSING**: recreate using the appropriate template below.
+  Fill in quest name, realm, and today's date.
+
+  WORLD_MAP.md:
+  ```
+  ---
+  quest: {quest-name}
+  realm: {realm}
+  scroll: WORLD_MAP
+  last-updated: {date}
+  ---
+  # World Map — {quest-name}
+  ## Realm
+  All work this quest is scoped to **{realm}** only.
+  ## Module Map
+  (to be charted)
+  ## Navigation Flow
+  (to be charted)
+  ## Data Flow
+  (to be charted)
+  ## Key Files
+  | File | Role |
+  |---|---|
+  ## Retired Files
+  (none yet)
+  ```
+
+  STRATEGY_SCROLL.md:
+  ```
+  ---
+  quest: {quest-name}
+  realm: {realm}
+  scroll: STRATEGY_SCROLL
+  last-updated: {date}
+  ---
+  # Strategy Scroll — {quest-name}
+  ## Battle Status
+  | Module | Status |
+  |---|---|
+  ## Oaths Sworn (Resolved Decisions)
+  (none yet)
+  ## Fallen Strategies (Rejected Approaches)
+  (none yet)
+  ## Scouting Findings (Audit Results)
+  (none yet)
+  ## Open Riddles (Decisions Needed)
+  (none yet)
+  ## The Battle Plan (Implementation Sequence)
+  (to be written)
+  ```
+
+  ADVENTURE_JOURNAL.md:
+  ```
+  ---
+  quest: {quest-name}
+  realm: {realm}
+  scroll: ADVENTURE_JOURNAL
+  last-updated: {date}
+  ---
+  # Adventure Journal — {quest-name}
+  Append-only. One entry per expedition. Never rewrite history.
+  ```
+
+  TOME_OF_DANGERS.md:
+  ```
+  ---
+  quest: {quest-name}
+  realm: {realm}
+  scroll: TOME_OF_DANGERS
+  last-updated: {date}
+  ---
+  # Tome of Dangers — {quest-name}
+  ## Confirmed Safe Paths
+  (to be discovered)
+  ## Known Dangers
+  | Danger | Impact | Remedy |
+  |---|---|---|
+  ## Fallen Strategies (Tried and Abandoned)
+  (none yet)
+  ## Unsolved Riddles (Open Verification Items)
+  (none yet)
+  ```
+
+  ADVENTURERS_HANDBOOK.md:
+  ```
+  ---
+  quest: {quest-name}
+  realm: {realm}
+  scroll: ADVENTURERS_HANDBOOK
+  last-updated: {date}
+  ---
+  # Adventurer's Handbook — How to Use the Scrolls
+  ## WORLD_MAP.md
+  The map of the realm — codebase structure, key files, retired files.
+  ## STRATEGY_SCROLL.md
+  Battle plan — status, oaths, strategies, open riddles.
+  ## ADVENTURE_JOURNAL.md
+  Append-only chronicle. Never rewrite history.
+  ## TOME_OF_DANGERS.md
+  Every confirmed danger and remedy. Update immediately when found.
+  ## Sacred Laws
+  - Not in the scrolls = does not exist as shared knowledge
+  - ADVENTURE_JOURNAL.md is append-only — history is sacred
+  ```
 - **WARN — missing frontmatter keys**: add the missing keys with placeholder values
   and append `<!-- repaired by /summon-witch-doctor -->`.
 - **WARN — missing headings**: append the missing headings at the end of the file

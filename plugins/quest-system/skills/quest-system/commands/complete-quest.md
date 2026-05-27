@@ -30,8 +30,33 @@ Extract every entry from `## Known Dangers` and `## Confirmed Safe Paths`.
 Skip entries marked as superseded or resolved.
 
 Append to `docs/dev/DANGER_REGISTRY.md`:
-- Create the file from the template in `.claude/skills/quest-system/SKILL.md`
-  if it does not exist yet.
+- If it does not exist yet, create it with this template:
+  ```
+  ---
+  type: danger-registry
+  last-updated: {date}
+  ---
+  # Project Danger Registry
+
+  Distilled from completed quests. Read before proposing any strategy.
+  Each entry survived at least one real quest — do not ignore.
+
+  ## Rendering Dangers
+  | Danger | Impact | Remedy | Quest |
+  |---|---|---|---|
+
+  ## Memory Dangers
+  | Danger | Impact | Remedy | Quest |
+  |---|---|---|---|
+
+  ## Concurrency Dangers
+  | Danger | Impact | Remedy | Quest |
+  |---|---|---|---|
+
+  ## Architecture Dangers
+  | Danger | Impact | Remedy | Quest |
+  |---|---|---|---|
+  ```
 - Add each danger to the appropriate category section.
 - Set the `Quest` column to the quest name.
 - Update `last-updated` in YAML frontmatter.
@@ -46,8 +71,20 @@ Extract every entry from `## Oaths Sworn (Resolved Decisions)`.
 Skip entries that are implementation details rather than architectural decisions.
 
 Append to `docs/dev/DECISIONS_LOG.md`:
-- Create the file from the template in `.claude/skills/quest-system/SKILL.md`
-  if it does not exist yet.
+- If it does not exist yet, create it with this template:
+  ```
+  ---
+  type: decisions-log
+  last-updated: {date}
+  ---
+  # Project Decisions Log
+
+  Architectural decisions locked during completed quests.
+  These are oaths — do not re-open without the commander's explicit order.
+
+  | Decision | Reason | Quest | Date |
+  |---|---|---|---|
+  ```
 - Add each decision as a row: Decision | Reason | Quest | Date.
 - Update `last-updated` in YAML frontmatter.
 
@@ -140,13 +177,46 @@ Read profile frontmatter from `.claude/quest-xp/profile.md`.
 Add `exp` to `total-exp`.
 Increment `quests-completed` by 1.
 
-Recalculate level using the level table in `.claude/skills/quest-system/SKILL.md`.
+Recalculate level — find highest level whose threshold ≤ new `total-exp`:
+
+| Level | Title                 | Total EXP needed |
+|-------|-----------------------|------------------|
+| 1     | Apprentice Coder      | 0                |
+| 2     | Journeyman Developer  | 150              |
+| 3     | Skilled Developer     | 450              |
+| 4     | Senior Developer      | 900              |
+| 5     | Expert Architect      | 1500             |
+| 6     | Master Builder        | 2250             |
+| 7     | Grand Master          | 3150             |
+| 8     | Legendary Coder       | 4200             |
+| 9     | Mythic Developer      | 5400             |
+| 10    | Transcendent Engineer | 6750             |
+
 Record old level and new level.
 
 **Check badge unlocks:**
 Read current `badges` array.
-For each badge in the badge table (SKILL.md `## XP system`), check unlock condition
-against updated profile stats. Collect any newly unlocked badges.
+Check each badge below against updated profile stats. Collect any newly unlocked:
+
+| Badge | Name               | Unlock condition                        |
+|-------|--------------------|-----------------------------------------|
+| 🗡️    | First Blood        | quests-completed >= 1                   |
+| 📜    | Scroll Keeper      | quests-completed >= 5                   |
+| ⚔️    | Veteran Adventurer | quests-completed >= 10                  |
+| 🏆    | Legend             | quests-completed >= 25                  |
+| 🕵️    | Danger Mapper      | total-dangers-mapped >= 10              |
+| ☠️    | Danger Hoarder     | total-dangers-mapped >= 50              |
+| 🤝    | Oath Keeper        | total-oaths-sworn >= 10                 |
+| 📚    | Lore Master        | total-oaths-sworn >= 50                 |
+| 🚀    | Speed Runner       | speed_run == true (this quest)          |
+| 🧘    | Marathoner         | total-expeditions >= 50                 |
+| 🔥    | Unstoppable        | total-expeditions >= 200                |
+| ✨    | Clean Sweep        | clean_sweep == true (this quest)        |
+| 📂    | Split Master       | total-splits >= 5                       |
+| 🌟    | Rising Star        | level >= 5                              |
+| 💎    | Diamond            | level >= 10                             |
+
+Append newly unlocked badge names to the `badges` array.
 Append newly unlocked badge names to the `badges` array.
 
 Write updated values back to YAML frontmatter of `.claude/quest-xp/profile.md`.

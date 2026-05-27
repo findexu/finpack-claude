@@ -85,7 +85,14 @@ After every write, count lines in each modified scroll file (index files only fo
 
 For each file that exceeds 500 lines:
 1. Announce: "📜 {filename} has grown beyond 500 lines. Splitting into subfiles..."
-2. Read the split rules from `.claude/skills/quest-system/SKILL.md` — section `## Split rules`.
+2. Apply split rules:
+   | Scroll | Split folder | Split by |
+   |---|---|---|
+   | TOME_OF_DANGERS.md | dangers/ | category: rendering, memory, swift-concurrency, ui, file-io |
+   | STRATEGY_SCROLL.md | strategy/ | one file per major module |
+   | ADVENTURE_JOURNAL.md | journal/ | one file per month: YYYY-MM.md |
+   | WORLD_MAP.md | map/ | area: navigation, data-flow, key-files |
+   | ADVENTURERS_HANDBOOK.md | never splits | — |
 3. Create the split subfolder if it does not exist.
 4. Move content into subfiles according to the split rules for that scroll type.
 5. Rewrite the main file as a lightweight index:
@@ -158,8 +165,20 @@ Add any new dangers count to `total-dangers-mapped`.
 Add any new oaths count to `total-oaths-sworn`.
 If a split occurred in Step 7, increment `total-splits` by 1.
 
-Recalculate level: find the highest level whose threshold ≤ new `total-exp`
-using the level table in `.claude/skills/quest-system/SKILL.md`.
+Recalculate level using this table — find highest level whose threshold ≤ new `total-exp`:
+
+| Level | Title                 | Total EXP needed |
+|-------|-----------------------|------------------|
+| 1     | Apprentice Coder      | 0                |
+| 2     | Journeyman Developer  | 150              |
+| 3     | Skilled Developer     | 450              |
+| 4     | Senior Developer      | 900              |
+| 5     | Expert Architect      | 1500             |
+| 6     | Master Builder        | 2250             |
+| 7     | Grand Master          | 3150             |
+| 8     | Legendary Coder       | 4200             |
+| 9     | Mythic Developer      | 5400             |
+| 10    | Transcendent Engineer | 6750             |
 
 If new level > old level: record level-up (announce in Step 10).
 

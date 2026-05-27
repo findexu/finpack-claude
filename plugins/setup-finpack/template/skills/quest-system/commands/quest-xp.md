@@ -11,7 +11,7 @@ Display your adventurer profile for this project.
 Read `.claude/quest-xp/profile.md`.
 
 If it does not exist:
-"No adventurer profile found. Run /new-quest to start your first quest and create a profile." Stop.
+"No adventurer profile found. Run /init-xp to create one without affecting your active quest." Stop.
 
 Extract from YAML frontmatter:
 - `adventurer`, `level`, `total-exp`, `quests-completed`, `total-expeditions`
@@ -19,8 +19,20 @@ Extract from YAML frontmatter:
 
 ## Step 2: Calculate level progress
 
-Look up the current level and next level EXP thresholds from the level table
-in `.claude/skills/quest-system/SKILL.md` section `## XP system`.
+Use this level table (no file lookup needed):
+
+| Level | Title                  | Total EXP needed |
+|-------|------------------------|------------------|
+| 1     | Apprentice Coder       | 0                |
+| 2     | Journeyman Developer   | 150              |
+| 3     | Skilled Developer      | 450              |
+| 4     | Senior Developer       | 900              |
+| 5     | Expert Architect       | 1500             |
+| 6     | Master Builder         | 2250             |
+| 7     | Grand Master           | 3150             |
+| 8     | Legendary Coder        | 4200             |
+| 9     | Mythic Developer       | 5400             |
+| 10    | Transcendent Engineer  | 6750             |
 
 ```
 exp_this_level = total-exp - threshold[current level]
@@ -34,13 +46,33 @@ Build a 20-character ASCII progress bar:
 
 ## Step 3: Determine title
 
-Look up title for current level from the level table.
+Use the level table above to get the title for the current level.
 
 ## Step 4: Build badge list
 
+All badges:
+
+| Badge | Name               | Unlock condition                          |
+|-------|--------------------|-------------------------------------------|
+| 🗡️    | First Blood        | Complete your first quest                 |
+| 📜    | Scroll Keeper      | Complete 5 quests                         |
+| ⚔️    | Veteran Adventurer | Complete 10 quests                        |
+| 🏆    | Legend             | Complete 25 quests                        |
+| 🕵️    | Danger Mapper      | Map 10 total dangers                      |
+| ☠️    | Danger Hoarder     | Map 50 total dangers                      |
+| 🤝    | Oath Keeper        | Swear 10 total oaths                      |
+| 📚    | Lore Master        | Swear 50 total oaths                      |
+| 🚀    | Speed Runner       | Complete a quest in ≤ 3 expeditions       |
+| 🧘    | Marathoner         | Log 50 total expeditions                  |
+| 🔥    | Unstoppable        | Log 200 total expeditions                 |
+| ✨    | Clean Sweep        | Complete a quest with zero open riddles   |
+| 📂    | Split Master       | Trigger 5 scroll splits                   |
+| 🌟    | Rising Star        | Reach level 5                             |
+| 💎    | Diamond            | Reach level 10                            |
+
 Split badges into two groups:
 - **Unlocked**: badges listed in the `badges` frontmatter array
-- **Locked**: all other badges from the badge table in SKILL.md
+- **Locked**: all others
 
 For locked badges, calculate progress counters where applicable:
 - Scroll Keeper: {quests-completed}/5
