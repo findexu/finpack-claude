@@ -1,0 +1,8 @@
+{
+  "name": "install-quest-system",
+  "description": "Bootstrap quest-system in any project. Copies all seven command files to .claude/commands/ in one step.",
+  "author": { "name": "findexu" },
+  "license": "MIT",
+  "homepage": "https://github.com/findexu/dotclaude",
+  "repository": "https://github.com/findexu/dotclaude"
+}

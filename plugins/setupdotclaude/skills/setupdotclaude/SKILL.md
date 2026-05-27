@@ -22,7 +22,7 @@ When bootstrapping:
 
 1. Use AskUserQuestion: "This project has no `.claude/` set up yet. Bootstrap it from the dotclaude template bundled in this plugin?" Options: `yes` / `no`.
 
-2. If the user says **no**, stop with: "setupdotclaude needs dotclaude's content to operate. Either clone https://github.com/poshan0126/dotclaude and copy the files in, or re-run and choose `yes` to use the bundled template."
+2. If the user says **no**, stop with: "setupdotclaude needs dotclaude's content to operate. Either clone https://github.com/findexu/dotclaude and copy the files in, or re-run and choose `yes` to use the bundled template."
 
 3. If the user says **yes**, run these Bash commands to copy the bundled template (Claude Code sets `$CLAUDE_PLUGIN_ROOT` to this plugin's installation directory):
 
@@ -52,7 +52,7 @@ When bootstrapping:
 
 4. Tell the user what was placed and continue to Phase 0.
 
-If `$CLAUDE_PLUGIN_ROOT` is unset (rare, only when this skill is run from a non-plugin location like a direct clone), tell the user to either re-install via the marketplace or follow the manual clone+copy flow at https://github.com/poshan0126/dotclaude.
+If `$CLAUDE_PLUGIN_ROOT` is unset (rare, only when this skill is run from a non-plugin location like a direct clone), tell the user to either re-install via the marketplace or follow the manual clone+copy flow at https://github.com/findexu/dotclaude.
 
 ## Phase 0: Clean Up Non-Config Files
 

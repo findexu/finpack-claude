@@ -1,0 +1,321 @@
+---
+name: quest-system
+description: >
+  RPG-themed epic and session management system for Claude Code.
+  Tracks quests (features/epics), expeditions (sessions), realms (app targets),
+  and maintains persistent scrolls (docs) across all sessions.
+  Use this skill when working on any feature development in a mono-repo
+  with multiple app targets. Triggers: /new-quest, /embark, /make-camp,
+  /quest-log, /change-quest, /install-quest-system,
+  /summon-witch-doctor.
+version: 1.3.0
+---
+
+# Quest System — Skill Definition
+
+## What this skill does
+
+Provides a complete session memory and workflow system for feature development.
+Every feature is a Quest. Every work session is an Expedition.
+Five persistent scrolls track all knowledge across sessions so Claude Code
+never loses context between conversations.
+
+## Scroll structure (created per quest)
+
+| Scroll | Purpose |
+|---|---|
+| `WORLD_MAP.md` | Codebase structure, navigation, key files |
+| `STRATEGY_SCROLL.md` | Battle plan, oaths, fallen strategies, status |
+| `ADVENTURE_JOURNAL.md` | Append-only expedition history |
+| `TOME_OF_DANGERS.md` | Technical constraints, dangers, workarounds |
+| `ADVENTURERS_HANDBOOK.md` | Guide explaining what belongs in each scroll |
+
+## Commands provided (installed by /install-quest-system)
+
+| Command | When to use |
+|---|---|
+| `/new-quest` | Begin a brand new feature from scratch |
+| `/embark` | Start a work session |
+| `/make-camp` | End a work session and update all scrolls |
+| `/quest-log` | Quick status check without opening a session |
+| `/change-quest` | Switch quest or realm |
+| `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, template drift |
+| `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
+
+## Key concepts
+
+- **Quest** — a feature or epic (e.g. "scan-alignment-floor-annotation")
+- **Realm** — the app target in scope (e.g. "WeScanX")
+- **Expedition** — a single work session
+- **Conquered** — completed step
+- **Cursed** — blocked or uncertain
+- **Oath** — a resolved decision
+- **Fallen strategy** — a rejected approach (must be recorded to prevent re-proposing)
+- **Unsolved riddle** — an open verification item
+
+## active-quest.txt format
+
+Located at `.claude/active-quest.txt`
+Line 1: path to quest scrolls folder (e.g. `docs/dev/scan-alignment-floor-annotation`)
+Line 2: realm in scope (e.g. `WeScanX`)
+
+All commands read this file first. Change it with `/change-quest`.
+
+## Sacred laws (enforced by all commands)
+
+- Never rely on conversation history — always write to the scrolls
+- TOME_OF_DANGERS.md must be updated the moment a new danger is found
+- ADVENTURE_JOURNAL.md is append-only — history is never rewritten
+- Work is always scoped to the active realm only
+- No code is written until the commander approves the battle plan
+
+## Split rules
+
+Scrolls beyond 500 lines are split into subfiles to keep context loading efficient.
+
+### Split targets
+
+| Scroll | Split folder | Split by |
+|---|---|---|
+| TOME_OF_DANGERS.md | dangers/ | category: rendering, memory, swift-concurrency, ui, file-io |
+| STRATEGY_SCROLL.md | strategy/ | one file per major module |
+| ADVENTURE_JOURNAL.md | journal/ | one file per month: YYYY-MM.md |
+| WORLD_MAP.md | map/ | area: navigation, data-flow, key-files |
+| ADVENTURERS_HANDBOOK.md | never splits | — |
+
+### Index format after split
+
+After splitting, the main scroll becomes a lightweight index:
+- Keep YAML frontmatter (update `last-updated`)
+- Keep summary / overview (~50 lines max)
+- Add a `## Content Index` table pointing to subfiles
+- STRATEGY_SCROLL: always keep battle status table in the index
+- ADVENTURE_JOURNAL: keep last 3 entries in the index
+- TOME_OF_DANGERS: keep 3 most critical dangers as a fast-read summary
+
+### Announce on split
+
+When a split occurs, announce:
+"📜 {filename} has grown beyond 500 lines. Splitting into subfiles..."
+
+## Project-level files
+
+Two lightweight files live at `docs/dev/` and persist across all quests.
+Created by `/complete-quest`. Read by `/embark` before quest scrolls.
+
+| File | Purpose |
+|---|---|
+| `DANGER_REGISTRY.md` | Distilled dangers from all completed quests — the project's institutional memory |
+| `DECISIONS_LOG.md` | Locked architectural decisions from all completed quests |
+
+These files are small by design. They contain only the lessons that survived — not trial-and-error history.
+`/embark` loads them first. Quest scrolls load second.
+
+### DANGER_REGISTRY.md template
+---
+type: danger-registry
+last-updated: {date}
+---
+# Project Danger Registry
+
+Distilled from completed quests. Read before proposing any strategy.
+Each entry survived at least one real quest — do not ignore.
+
+## Rendering Dangers
+| Danger | Impact | Remedy | Quest |
+|---|---|---|---|
+
+## Memory Dangers
+| Danger | Impact | Remedy | Quest |
+|---|---|---|---|
+
+## Concurrency Dangers
+| Danger | Impact | Remedy | Quest |
+|---|---|---|---|
+
+## Architecture Dangers
+| Danger | Impact | Remedy | Quest |
+|---|---|---|---|
+
+### DECISIONS_LOG.md template
+---
+type: decisions-log
+last-updated: {date}
+---
+# Project Decisions Log
+
+Architectural decisions locked during completed quests.
+These are oaths — do not re-open without the commander's explicit order.
+
+| Decision | Reason | Quest | Date |
+|---|---|---|---|
+
+## /summon-witch-doctor — Scroll health check
+
+Reads the active quest's scrolls and reports their health without modifying anything.
+
+### What it checks
+
+1. `.claude/active-quest.txt` — exists, 2 non-empty lines, quest folder path exists on disk
+2. Each scroll — exists, non-empty, all required headings present
+3. YAML frontmatter — each scroll must have `quest`, `realm`, `scroll`, `last-updated` keys
+4. Template drift — compares required headings from this SKILL.md's `## Scroll templates` section against actual scroll content; flags any headings added to the template after the scroll was created
+5. Split state — if a split subfolder (dangers/, journal/, strategy/, map/) exists, check: at least one subfile exists, each subfile is non-empty, index has a `## Content Index` section; if no subfolder but file is >500 lines, flag as SPLIT_NEEDED
+
+### Output format
+
+```
+Quest: scan-alignment-floor-annotation  |  Realm: WeScanX
+
+Scroll                   Status        Issues
+-----------------------  ------------  ------
+WORLD_MAP.md             OK
+STRATEGY_SCROLL.md       WARN          Missing frontmatter: last-updated
+ADVENTURE_JOURNAL.md     SPLIT         journal/ (3 subfiles, current: 2026-05.md)
+TOME_OF_DANGERS.md       MISSING       File does not exist
+ADVENTURERS_HANDBOOK.md  SPLIT_NEEDED  File is 612 lines — run /make-camp to trigger split
+
+📁 Split scrolls: ADVENTURE_JOURNAL (journal/)
+```
+
+### Repair
+
+If issues are found, `/summon-witch-doctor` asks: "Repair affected scrolls? (y/n)"
+- **y**: recreates missing scrolls from the current template; for scrolls with missing sections only, appends the missing sections at the end with a `<!-- repaired by /summon-witch-doctor -->` marker; adds missing frontmatter keys to scrolls that have an incomplete frontmatter block.
+- **n**: exits after reporting.
+
+Never rewrites existing content. Never touches OK scrolls. Never merges or reorganizes split subfiles.
+
+## Installation
+
+Run `/install-quest-system` once per project.
+To reuse in a new project: copy this SKILL.md file, then run `/install-quest-system`.
+
+## Scroll templates
+
+These templates are used by /new-quest to create fresh scrolls.
+Claude Code should reference these when creating quest folders.
+
+### WORLD_MAP.md template
+---
+quest: {quest-name}
+realm: {realm}
+scroll: WORLD_MAP
+last-updated: {date}
+---
+# World Map — {quest-name}
+## Realm
+This workspace contains multiple realms (app targets).
+All work this quest is scoped to **{realm}** only.
+Do not venture into other realms unless explicitly commanded.
+## Module Map
+(to be charted during Phase 1 scouting)
+## Navigation Flow
+(to be charted during Phase 1 scouting)
+## Data Flow
+(to be charted during Phase 1 scouting)
+## Key Files
+| File | Role |
+|---|---|
+## Retired Files
+(none yet)
+
+### STRATEGY_SCROLL.md template
+---
+quest: {quest-name}
+realm: {realm}
+scroll: STRATEGY_SCROLL
+last-updated: {date}
+---
+# Strategy Scroll — {quest-name}
+## Battle Status
+| Module | Status |
+|---|---|
+## Oaths Sworn (Resolved Decisions)
+(none yet)
+## Fallen Strategies (Rejected Approaches)
+(none yet)
+## Scouting Findings (Audit Results)
+(none yet)
+## Open Riddles (Decisions Needed)
+(none yet)
+## The Battle Plan (Implementation Sequence)
+(to be written after Phase 3)
+
+### ADVENTURE_JOURNAL.md template
+---
+quest: {quest-name}
+realm: {realm}
+scroll: ADVENTURE_JOURNAL
+last-updated: {date}
+---
+# Adventure Journal — {quest-name}
+Append-only. One entry per expedition. Never rewrite history.
+
+### TOME_OF_DANGERS.md template
+---
+quest: {quest-name}
+realm: {realm}
+scroll: TOME_OF_DANGERS
+last-updated: {date}
+---
+# Tome of Dangers — {quest-name}
+Source of truth for every monster, trap, and curse encountered.
+Always read before proposing any strategy involving rendering,
+memory, or architecture.
+## Confirmed Safe Paths
+(to be discovered during scouting)
+## Known Dangers
+| Danger | Impact | Remedy |
+|---|---|---|
+## Fallen Strategies (Tried and Abandoned)
+(none yet)
+## Unsolved Riddles (Open Verification Items)
+(none yet)
+
+### ADVENTURERS_HANDBOOK.md template
+---
+quest: {quest-name}
+realm: {realm}
+scroll: ADVENTURERS_HANDBOOK
+last-updated: {date}
+---
+# Adventurer's Handbook — How to Use the Scrolls
+
+Read this scroll if you are unsure what belongs where.
+These scrolls are the party's shared memory.
+Never rely on conversation history — always inscribe to the scrolls.
+
+## WORLD_MAP.md
+The map of the realm — how the codebase is structured.
+Inscribe: module map, navigation flow, data flow, key files, retired files.
+Do NOT inscribe: decisions, constraints, expedition history.
+Update when: any structural or navigational change is made.
+
+## STRATEGY_SCROLL.md
+The agreed battle plan — what we are building and why.
+Inscribe: battle status, implementation sequence, oaths, fallen strategies,
+scouting findings, open riddles.
+Do NOT inscribe: realm structure, dangers, expedition history.
+Update when: step conquered, oath sworn, strategy falls, riddle resolved.
+
+## ADVENTURE_JOURNAL.md
+Append-only chronicle. Format every entry as:
+## Expedition [DATE]
+### Conquered
+### Oaths Sworn
+### Cursed / Uncertain
+### The Road Ahead
+Update when: end of every expedition, no exceptions.
+
+## TOME_OF_DANGERS.md
+Every confirmed danger, curse, and trap encountered.
+Inscribe: safe paths, known dangers, remedies, fallen strategies,
+unsolved riddles, safe limits.
+Update when: new danger found, remedy validated, assumption confirmed.
+STOP mid-expedition and inscribe immediately when a new danger is found.
+
+## Sacred Laws
+- Not in the scrolls = does not exist as shared knowledge
+- TOME_OF_DANGERS.md prevents fighting the same monster twice — keep it current
+- ADVENTURE_JOURNAL.md is append-only — history is sacred

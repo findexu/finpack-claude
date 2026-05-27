@@ -1,6 +1,7 @@
 # dotclaude
 
 A lean `.claude/` setup for daily development. Five reviewer agents, nine workflow skills, six modular rules, and a few safety hooks. No bloat, no model assignments, no opinions you can't override.
+NOTE: This plagiarised work is hugely copied from https://github.com/poshan0126/dotclaude.git. Big clap and please go check it out for the original work.
 
 ## Get started
 
@@ -11,7 +12,7 @@ Two paths to the same place: a customized `.claude/` in your project. Most peopl
 Add the marketplace once on your machine, then install the all-in-one setup plugin:
 
 ```
-/plugin marketplace add poshan0126/dotclaude
+/plugin marketplace add findexu/dotclaude
 /plugin install setupdotclaude@dotclaude
 ```
 
@@ -33,14 +34,14 @@ If you only want one or two pieces instead of the full kit, install them individ
 /plugin install ship@dotclaude
 ```
 
-Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, `doc-reviewer`, `frontend-designer`, `setupdotclaude`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`.
+Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, `doc-reviewer`, `frontend-designer`, `setupdotclaude`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `quest-system-tutorial`, `install-quest-system`.
 
 ### Option 2: clone the repo
 
 Pick this if you'd rather own the files in your dotfiles repo or skip the plugin layer entirely.
 
 ```bash
-git clone https://github.com/poshan0126/dotclaude.git /tmp/dotclaude
+git clone https://github.com/findexu/dotclaude.git /tmp/dotclaude
 
 cd your-project
 mkdir -p .claude
@@ -97,6 +98,9 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 | `/refactor` | `[file, function, or pattern]` | Safe refactoring with tests as a safety net. Writes tests first if none exist, plans transformations, makes small testable steps, and verifies after each one. Never mixes refactoring with behavior changes. |
 | `/test-writer` | *(auto-triggers)* | Writes comprehensive tests for new or changed code. Discovers changes via `git diff`, maps all code paths (happy, edge, error, concurrency), writes one test per scenario with Arrange-Act-Assert. The only skill that can auto-trigger. Claude may invoke it after you add new features. |
 | `/context-budget` | `[--api]` | Estimates per-turn token cost of this project's `.claude/` and `CLAUDE.md`. Reports always-loaded vs path-scoped vs invoked-only, ranks top contributors, flags entries over budget. Default heuristic is `chars/4`. Add `--api` for Anthropic-tokenizer exact counts (requires `$ANTHROPIC_API_KEY`). |
+| `/quest-system` | *(manual only)* | RPG-themed session and epic management. Tracks quests (features/epics), expeditions (sessions), and realms (app targets) across sessions using five persistent scrolls. Commands: `/new-quest`, `/embark`, `/make-camp`, `/quest-log`, `/change-quest`, `/summon-witch-doctor` (scroll health diagnostics and repair). Run `/install-quest-system` once per project. |
+| `/quest-system-tutorial` | *(manual only)* | Dry-run tutorial for quest-system. Simulates the full quest lifecycle (all 7 commands) using a fictional project with no files written. Includes a plain-language vocabulary decoder for developers new to the RPG terminology. Run this before using quest-system for the first time. |
+| `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all seven command files to `.claude/commands/`. Run once per project before using `/new-quest`. Safe to re-run. |
 
 ## Agents (subagents)
 
@@ -168,7 +172,7 @@ dotclaude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
 ├── .gitignore                          # Gitignore for the dotclaude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
-│   └── marketplace.json                #   14 plugin entries pointing at ./plugins/<name>
+│   └── marketplace.json                #   18 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/
 │   ├── code-quality.md                 #   Principles, naming, comments, markers, file organization
 │   ├── testing.md                      #   Testing conventions (always loaded)
@@ -185,7 +189,18 @@ dotclaude/
 │   ├── explain/SKILL.md                #   /explain <file or function>.
 │   ├── refactor/SKILL.md               #   /refactor <target>.
 │   ├── test-writer/SKILL.md            #   Auto-triggers on new features. Comprehensive tests.
-│   └── context-budget/SKILL.md         #   /context-budget [--api]. Estimates per-turn token cost of .claude/ + CLAUDE.md.
+│   ├── context-budget/SKILL.md         #   /context-budget [--api]. Estimates per-turn token cost of .claude/ + CLAUDE.md.
+│   ├── quest-system/                   #   /quest-system. RPG-themed session and epic management.
+│   │   ├── SKILL.md                    #     Skill definition, split rules, scroll templates.
+│   │   └── commands/                   #     Individual command files (installed to .claude/commands/)
+│   │       ├── new-quest.md            #       /new-quest. Create quest folder and five scrolls.
+│   │       ├── embark.md               #       /embark. Start expedition, split-aware scroll loading.
+│   │       ├── make-camp.md            #       /make-camp. Record session, update scrolls, trigger splits.
+│   │       ├── quest-log.md            #       /quest-log. Frontmatter-only status check.
+│   │       ├── change-quest.md         #       /change-quest. Switch quest or realm.
+│   │       └── complete-quest.md       #       /complete-quest. Distill, archive, clear active quest.
+│   ├── quest-system-tutorial/SKILL.md  #   /quest-system-tutorial. Dry-run lifecycle tutorial.
+│   └── install-quest-system/SKILL.md  #   /install-quest-system. Bootstrap commands into .claude/commands/.
 ├── agents/                             # Specialized subagents, copy to .claude/agents/   (also published as plugins)
 │   ├── frontend-designer.md            #   Distinctive UI, anti-AI-slop.
 │   ├── security-reviewer.md            #   Security-focused code review.
@@ -200,7 +215,7 @@ dotclaude/
 │   ├── format-on-save.sh               #   Auto-format after edits. Detects Prettier, Black, Ruff, Biome, rustfmt, gofmt.
 │   └── session-start.sh                #   Inject branch, commit, stash, and PR context at session start.
 ├── plugins/                            # Per-plugin self-contained copies (only used by the plugin install path)
-│   └── <14 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
+│   └── <15 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
 └── scripts/
     └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setupdotclaude
 ```

@@ -1,0 +1,8 @@
+{
+  "name": "quest-system-tutorial",
+  "description": "Dry-run tutorial for quest-system. Simulates full quest lifecycle with no files written.",
+  "author": { "name": "findexu" },
+  "license": "MIT",
+  "homepage": "https://github.com/findexu/dotclaude",
+  "repository": "https://github.com/findexu/dotclaude"
+}

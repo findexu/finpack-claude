@@ -1,7 +1,7 @@
 {
   "name": "dotclaude",
   "owner": {
-    "name": "poshan0126"
+    "name": "findexu"
   },
   "description": "Lean, token-efficient agents and skills for daily Claude Code development. Install the whole kit by cloning the repo, or pick individual plugins from this marketplace.",
   "plugins": [
@@ -87,6 +87,24 @@
       "name": "context-budget",
       "source": "./plugins/context-budget",
       "description": "Estimate per-turn token cost of your .claude/ configuration and CLAUDE.md. Always-loaded vs path-scoped vs invoked-only, with top contributors. Use --api for exact counts.",
+      "license": "MIT"
+    },
+    {
+      "name": "quest-system",
+      "source": "./plugins/quest-system",
+      "description": "RPG-themed epic and session management for mono-repo development.",
+      "license": "MIT"
+    },
+    {
+      "name": "quest-system-tutorial",
+      "source": "./plugins/quest-system-tutorial",
+      "description": "Dry-run tutorial for quest-system. Simulates full quest lifecycle with no files written.",
+      "license": "MIT"
+    },
+    {
+      "name": "install-quest-system",
+      "source": "./plugins/install-quest-system",
+      "description": "Bootstrap quest-system in any project. Copies all seven command files to .claude/commands/ in one step.",
       "license": "MIT"
     }
   ]

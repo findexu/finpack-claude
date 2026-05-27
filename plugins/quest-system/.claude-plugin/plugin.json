@@ -1,0 +1,8 @@
+{
+  "name": "quest-system",
+  "description": "RPG-themed epic and session management. Tracks quests, expeditions, realms, and persistent scrolls across all sessions. Includes /summon-witch-doctor for scroll health diagnostics and repair.",
+  "author": { "name": "findexu" },
+  "license": "MIT",
+  "homepage": "https://github.com/findexu/dotclaude",
+  "repository": "https://github.com/findexu/dotclaude"
+}

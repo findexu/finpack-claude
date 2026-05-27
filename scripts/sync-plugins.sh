@@ -24,12 +24,18 @@ for f in agents/*.md; do
 done
 
 # 2. Sync skills: skills/<name>/SKILL.md -> plugins/<name>/skills/<name>/SKILL.md
+#    Also sync skills/<name>/commands/*.md -> plugins/<name>/skills/<name>/commands/*.md
 for d in skills/*/; do
   name="$(basename "$d")"
   [ -f "${d}SKILL.md" ] || continue
   mkdir -p "plugins/$name/skills/$name"
   cp "${d}SKILL.md" "plugins/$name/skills/$name/SKILL.md"
   echo "  skill  $name"
+  if [ -d "${d}commands" ]; then
+    mkdir -p "plugins/$name/skills/$name/commands"
+    cp "${d}commands/"*.md "plugins/$name/skills/$name/commands/"
+    echo "  commands  $name"
+  fi
 done
 
 # 3. Bundle the full dotclaude template into the setupdotclaude plugin
