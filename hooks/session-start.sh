@@ -2,14 +2,14 @@
 # Injects dynamic project context at session start.
 #
 # Default (minimal): branch + dirty/clean indicator. ~5-10 tokens.
-# Set DOTCLAUDE_SESSION_VERBOSE=1 to also emit last commit, file count,
+# Set FINPACK_SESSION_VERBOSE=1 to also emit last commit, file count,
 # staged status, stash count, and active PR info. ~30-90 tokens, plus
 # a network round-trip if `gh` is installed.
 
 # Bail early if not in a git repo (nothing useful to inject).
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
-VERBOSE="${DOTCLAUDE_SESSION_VERBOSE:-0}"
+VERBOSE="${FINPACK_SESSION_VERBOSE:-0}"
 CONTEXT=""
 
 # Branch (essential, cheap).
@@ -26,7 +26,7 @@ if ! git diff-index --quiet HEAD -- 2>/dev/null; then
   CONTEXT="$CONTEXT | dirty"
 fi
 
-# Verbose extras (opt-in via DOTCLAUDE_SESSION_VERBOSE=1).
+# Verbose extras (opt-in via FINPACK_SESSION_VERBOSE=1).
 if [ "$VERBOSE" = "1" ]; then
   LAST_COMMIT=$(git log --oneline -1 2>/dev/null)
   [ -n "$LAST_COMMIT" ] && CONTEXT="$CONTEXT | Last: $LAST_COMMIT"

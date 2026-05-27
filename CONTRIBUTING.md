@@ -22,7 +22,7 @@ Thanks for wanting to make this better. This project aims to be the standard `.c
 - Project scaffolding skills. This repo is for daily work, not project creation.
 - Vendor-specific configurations (specific CI providers, cloud platforms, etc.)
 
-> Plugin packaging is welcome. Dotclaude itself ships as a marketplace (see the main README). Improvements to `marketplace.json`, the per-plugin `plugin.json` files, or `scripts/sync-plugins.sh` count as documentation improvements.
+> Plugin packaging is welcome. Finpack-claude itself ships as a marketplace (see the main README). Improvements to `marketplace.json`, the per-plugin `plugin.json` files, or `scripts/sync-plugins.sh` count as documentation improvements.
 
 ## PR rules
 

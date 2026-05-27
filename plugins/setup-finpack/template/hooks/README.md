@@ -58,7 +58,7 @@ Injects dynamic project context at session start.
 
 **Default (minimal, ~5 to 10 tokens)**: current branch (or detached HEAD warning) and a `dirty` tag if there are uncommitted changes. That's it. No network calls, no extra detail.
 
-**Verbose**: set `DOTCLAUDE_SESSION_VERBOSE=1` in your shell to also emit:
+**Verbose**: set `FINPACK_SESSION_VERBOSE=1` in your shell to also emit:
 - Last commit oneline.
 - Uncommitted file count.
 - Staged indicator.
