@@ -25,6 +25,8 @@ COMMANDS=(
   quest-xp.md
   ask-sages.md
   init-xp.md
+  counsel-prompt.md
+  counsel-plan.md
 )
 
 mkdir -p "$DEST"

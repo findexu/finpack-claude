@@ -1,7 +1,7 @@
 ---
 name: install-quest-system
 description: >
-  Bootstrap quest-system in the current project. Copies all ten command files
+  Bootstrap quest-system in the current project. Copies all twelve command files
   to .claude/commands/ so /new-quest, /embark, /make-camp, /quest-log,
   /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp,
   /ask-sages, and /init-xp become available. Run once per project. Safe to
@@ -11,7 +11,7 @@ description: >
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-so all ten slash commands become available.
+so all twelve slash commands become available.
 
 ## Step 1: Check for existing installation
 
@@ -56,6 +56,8 @@ Read each of the following files from `{source}` and write to `.claude/commands/
 - `quest-xp.md`
 - `ask-sages.md`
 - `init-xp.md`
+- `counsel-prompt.md`
+- `counsel-plan.md`
 
 For each file: read content from source path, write to `.claude/commands/{filename}`.
 Report each file as it is written.
@@ -100,6 +102,8 @@ Commands now available:
   /quest-xp            — view XP, level, and badge progress
   /ask-sages           — summon three specialist sages for a second opinion
   /init-xp             — bootstrap XP profile on migrated/existing projects
+  /counsel-prompt      — rewrite a rough prompt into a sharp copyable Claude prompt
+  /counsel-plan        — review a plan.md and produce copyable structured feedback
 
 Next steps:
   /quest-system-tutorial   — see a dry-run of the full workflow
