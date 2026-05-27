@@ -28,7 +28,7 @@ Stop if n.
 
 Try these locations in order — use the first one that contains `new-quest.md`:
 
-1. `.claude/skills/quest-system/commands/` — present if you ran `/setupdotclaude`
+1. `.claude/skills/quest-system/commands/` — present if you ran `/setup-finpack`
    or copied the finpack-claude repo manually into `.claude/`
 2. `skills/quest-system/commands/` — present if you are running this inside
    the finpack-claude repo itself

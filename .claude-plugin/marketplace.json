@@ -36,8 +36,8 @@
       "license": "MIT"
     },
     {
-      "name": "setupdotclaude",
-      "source": "./plugins/setupdotclaude",
+      "name": "setup-finpack",
+      "source": "./plugins/setup-finpack",
       "description": "Bootstrap and customize finpack-claude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",
       "license": "MIT"
     },

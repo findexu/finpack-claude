@@ -1,5 +1,5 @@
 ---
-name: setupdotclaude
+name: setup-finpack
 description: Set up finpack-claude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.
 argument-hint: "[optional: focus area like 'frontend' or 'backend']"
 disable-model-invocation: true
@@ -22,7 +22,7 @@ When bootstrapping:
 
 1. Use AskUserQuestion: "This project has no `.claude/` set up yet. Bootstrap it from the finpack-claude template bundled in this plugin?" Options: `yes` / `no`.
 
-2. If the user says **no**, stop with: "setupdotclaude needs finpack-claude's content to operate. Either clone https://github.com/findexu/finpack-claude and copy the files in, or re-run and choose `yes` to use the bundled template."
+2. If the user says **no**, stop with: "setup-finpack needs finpack-claude's content to operate. Either clone https://github.com/findexu/finpack-claude and copy the files in, or re-run and choose `yes` to use the bundled template."
 
 3. If the user says **yes**, run these Bash commands to copy the bundled template (Claude Code sets `$CLAUDE_PLUGIN_ROOT` to this plugin's installation directory):
 

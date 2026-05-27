@@ -1,5 +1,5 @@
 {
-  "name": "setupdotclaude",
+  "name": "setup-finpack",
   "description": "Bootstrap and customize finpack-claude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",
   "author": { "name": "findexu" },
   "license": "MIT",

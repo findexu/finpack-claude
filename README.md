@@ -13,16 +13,16 @@ Add the marketplace once on your machine, then install the all-in-one setup plug
 
 ```
 /plugin marketplace add findexu/finpack-claude
-/plugin install setupdotclaude@finpack-claude
+/plugin install setup-finpack@finpack-claude
 ```
 
 Open your project in Claude Code and run:
 
 ```
-/setupdotclaude
+/setup-finpack
 ```
 
-That's the whole flow. The `setupdotclaude` plugin bundles the complete finpack-claude template (settings, rules, hooks, all agents and skills, `CLAUDE.md`). When you run the slash command it asks you to confirm, copies the bundled template into your project's `.claude/` and `CLAUDE.md` at the project root, then scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and tunes every config file to match. Every change is confirmed before it's applied.
+That's the whole flow. The `setup-finpack` plugin bundles the complete finpack-claude template (settings, rules, hooks, all agents and skills, `CLAUDE.md`). When you run the slash command it asks you to confirm, copies the bundled template into your project's `.claude/` and `CLAUDE.md` at the project root, then scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and tunes every config file to match. Every change is confirmed before it's applied.
 
 After it finishes, restart Claude Code so the new agents, skills, rules, and hooks load.
 
@@ -34,7 +34,7 @@ If you only want one or two pieces instead of the full kit, install them individ
 /plugin install ship@finpack-claude
 ```
 
-Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, `doc-reviewer`, `frontend-designer`, `setupdotclaude`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `quest-system-tutorial`, `install-quest-system`.
+Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, `doc-reviewer`, `frontend-designer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `quest-system-tutorial`, `install-quest-system`.
 
 ### Option 2: clone the repo
 
@@ -57,7 +57,7 @@ rm -rf /tmp/finpack-claude
 echo "CLAUDE.local.md" >> .gitignore
 ```
 
-Reload Claude Code, then run `/setupdotclaude`. It's the same skill as Option 1, just operating on files you copied yourself instead of files the plugin bundled. It also strips out anything you might have dragged in by accident: the `.claude-plugin/`, `plugins/`, and `scripts/` folders if you did a bulk `cp -r`, plus the README files in each subfolder.
+Reload Claude Code, then run `/setup-finpack`. It's the same skill as Option 1, just operating on files you copied yourself instead of files the plugin bundled. It also strips out anything you might have dragged in by accident: the `.claude-plugin/`, `plugins/`, and `scripts/` folders if you did a bulk `cp -r`, plus the README files in each subfolder.
 
 ## Troubleshooting
 
@@ -68,11 +68,11 @@ Reload Claude Code, then run `/setupdotclaude`. It's the same skill as Option 1,
 | "jq not found" blocking everything | Install jq: `brew install jq` (macOS) or `apt install jq` (Linux). |
 | format-on-save not formatting | Make sure the formatter binary is installed and its config file exists in the project root. |
 | Permission denied on allowed commands | Check the glob in `settings.json`. `Bash(npm run test *)` matches arguments after `test`. |
-| `/setupdotclaude` asks to confirm `settings.json` edits | Expected. `protect-files.sh` prompts when editing `settings.json`. Hook scripts stay hard-blocked. |
+| `/setup-finpack` asks to confirm `settings.json` edits | Expected. `protect-files.sh` prompts when editing `settings.json`. Hook scripts stay hard-blocked. |
 
 ## Make it yours
 
-`/setupdotclaude` gets you most of the way. To take it the rest of the way:
+`/setup-finpack` gets you most of the way. To take it the rest of the way:
 
 - `rules/code-quality.md`. Naming conventions to match your team's style. Comment guidelines, code marker format, import order.
 - `rules/frontend.md`. Pick your design principle. Highlight the component framework your project actually uses.
@@ -89,7 +89,7 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 
 | Command | Arguments | Description |
 |---------|-----------|-------------|
-| `/setupdotclaude` | `[focus area]` | Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
+| `/setup-finpack` | `[focus area]` | Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
 | `/debug-fix` | `[issue #, error, or description] [--fast]` | Find and fix a bug. Default is the careful path: reproduce, investigate, write a regression test, fix, commit. Add `--fast` for emergency production mode (`hotfix/` branch from production, minimal change, critical tests only, ships a `[HOTFIX]` PR). Warns if a fast fix turns out to be complex. |
 | `/ship` | `[commit message or PR title]` | Full shipping workflow. Scans changes, stages files (skipping secrets, locks, and build output), drafts a commit message in the repo's style, pushes, and creates a PR. Every step requires confirmation. |
 | `/pr-review` | `[PR #, "staged", file path, or omit]` | Delegates review to specialist agents: `@code-reviewer`, `@security-reviewer` (if security-related code changed), `@performance-reviewer` (if perf-sensitive), `@doc-reviewer` (if docs changed). Synthesizes a unified report with severity-ranked findings. |
@@ -182,7 +182,7 @@ finpack-claude/
 │   ├── security.md                     #   Security rules (loads near API and auth files)
 │   └── frontend.md                     #   Design tokens, principles, accessibility (loads near UI files)
 ├── skills/                             # Slash commands, copy to .claude/skills/   (also published as plugins)
-│   ├── setupdotclaude/SKILL.md         #   /setupdotclaude. Bootstrap and customize all config files.
+│   ├── setup-finpack/SKILL.md         #   /setup-finpack. Bootstrap and customize all config files.
 │   ├── debug-fix/SKILL.md              #   /debug-fix [--fast]. Bug fix, careful by default, hotfix mode opt-in.
 │   ├── ship/SKILL.md                   #   /ship. Commit, push, PR with confirmations.
 │   ├── pr-review/SKILL.md              #   /pr-review. Review PR or staged changes via specialist agents.
@@ -218,7 +218,7 @@ finpack-claude/
 ├── plugins/                            # Per-plugin self-contained copies (only used by the plugin install path)
 │   └── <15 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
 └── scripts/
-    └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setupdotclaude
+    └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setup-finpack
 ```
 
 ## What NOT to put in .claude/

@@ -63,7 +63,7 @@ This is a template. Keep it framework-agnostic.
 - Don't hardcode specific component libraries, CSS frameworks, or test runners.
 - Don't assign `model` to agents or skills. Let users choose.
 - Present options as tables or lists, not mandates.
-- The `/setupdotclaude` skill handles project-specific customization at runtime.
+- The `/setup-finpack` skill handles project-specific customization at runtime.
 
 ### Token consciousness
 
@@ -82,9 +82,9 @@ If you add or rename a skill or agent, also:
 
 - Add or update its entry in `.claude-plugin/marketplace.json`.
 - Add or update its `plugins/<name>/.claude-plugin/plugin.json`.
-- Run `scripts/sync-plugins.sh` to mirror the file into `plugins/<name>/` and (if it's a skill) into `plugins/setupdotclaude/template/`.
+- Run `scripts/sync-plugins.sh` to mirror the file into `plugins/<name>/` and (if it's a skill) into `plugins/setup-finpack/template/`.
 
-The sync script is the source of truth. Don't hand-edit files inside `plugins/` or `plugins/setupdotclaude/template/`. They will be overwritten on the next sync.
+The sync script is the source of truth. Don't hand-edit files inside `plugins/` or `plugins/setup-finpack/template/`. They will be overwritten on the next sync.
 
 ### Hooks require tests
 

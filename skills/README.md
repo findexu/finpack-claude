@@ -7,7 +7,7 @@ Skills are slash commands you invoke with `/name`. They run in the main conversa
 
 ## Available skills
 
-### /setupdotclaude
+### /setup-finpack
 **Trigger**: Manual only
 
 Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans the codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. Run this once after installing the plugin or after copying finpack-claude into a new project.
