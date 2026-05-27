@@ -1,4 +1,4 @@
-# dotclaude
+# finpack-claude
 
 A lean `.claude/` setup for daily development. Five reviewer agents, nine workflow skills, six modular rules, and a few safety hooks. No bloat, no model assignments, no opinions you can't override.
 NOTE: This plagiarised work is hugely copied from https://github.com/poshan0126/dotclaude.git. Big clap and please go check it out for the original work.
@@ -12,8 +12,8 @@ Two paths to the same place: a customized `.claude/` in your project. Most peopl
 Add the marketplace once on your machine, then install the all-in-one setup plugin:
 
 ```
-/plugin marketplace add findexu/dotclaude
-/plugin install setupdotclaude@dotclaude
+/plugin marketplace add findexu/finpack-claude
+/plugin install setupdotclaude@finpack-claude
 ```
 
 Open your project in Claude Code and run:
@@ -22,16 +22,16 @@ Open your project in Claude Code and run:
 /setupdotclaude
 ```
 
-That's the whole flow. The `setupdotclaude` plugin bundles the complete dotclaude template (settings, rules, hooks, all agents and skills, `CLAUDE.md`). When you run the slash command it asks you to confirm, copies the bundled template into your project's `.claude/` and `CLAUDE.md` at the project root, then scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and tunes every config file to match. Every change is confirmed before it's applied.
+That's the whole flow. The `setupdotclaude` plugin bundles the complete finpack-claude template (settings, rules, hooks, all agents and skills, `CLAUDE.md`). When you run the slash command it asks you to confirm, copies the bundled template into your project's `.claude/` and `CLAUDE.md` at the project root, then scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and tunes every config file to match. Every change is confirmed before it's applied.
 
 After it finishes, restart Claude Code so the new agents, skills, rules, and hooks load.
 
 If you only want one or two pieces instead of the full kit, install them individually:
 
 ```
-/plugin install code-reviewer@dotclaude
-/plugin install pr-review@dotclaude
-/plugin install ship@dotclaude
+/plugin install code-reviewer@finpack-claude
+/plugin install pr-review@finpack-claude
+/plugin install ship@finpack-claude
 ```
 
 Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, `doc-reviewer`, `frontend-designer`, `setupdotclaude`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `quest-system-tutorial`, `install-quest-system`.
@@ -41,18 +41,18 @@ Full plugin list: `code-reviewer`, `security-reviewer`, `performance-reviewer`, 
 Pick this if you'd rather own the files in your dotfiles repo or skip the plugin layer entirely.
 
 ```bash
-git clone https://github.com/findexu/dotclaude.git /tmp/dotclaude
+git clone https://github.com/findexu/finpack-claude.git /tmp/finpack-claude
 
 cd your-project
 mkdir -p .claude
 
-cp /tmp/dotclaude/settings.json .claude/
-cp -r /tmp/dotclaude/{rules,skills,agents,hooks} .claude/
-cp /tmp/dotclaude/CLAUDE.md ./
-cp /tmp/dotclaude/CLAUDE.local.md.example ./
+cp /tmp/finpack-claude/settings.json .claude/
+cp -r /tmp/finpack-claude/{rules,skills,agents,hooks} .claude/
+cp /tmp/finpack-claude/CLAUDE.md ./
+cp /tmp/finpack-claude/CLAUDE.local.md.example ./
 
 chmod +x .claude/hooks/*.sh
-rm -rf /tmp/dotclaude
+rm -rf /tmp/finpack-claude
 
 echo "CLAUDE.local.md" >> .gitignore
 ```
@@ -89,7 +89,7 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 
 | Command | Arguments | Description |
 |---------|-----------|-------------|
-| `/setupdotclaude` | `[focus area]` | Bootstrap and customize dotclaude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
+| `/setupdotclaude` | `[focus area]` | Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
 | `/debug-fix` | `[issue #, error, or description] [--fast]` | Find and fix a bug. Default is the careful path: reproduce, investigate, write a regression test, fix, commit. Add `--fast` for emergency production mode (`hotfix/` branch from production, minimal change, critical tests only, ships a `[HOTFIX]` PR). Warns if a fast fix turns out to be complex. |
 | `/ship` | `[commit message or PR title]` | Full shipping workflow. Scans changes, stages files (skipping secrets, locks, and build output), drafts a commit message in the repo's style, pushes, and creates a PR. Every step requires confirmation. |
 | `/pr-review` | `[PR #, "staged", file path, or omit]` | Delegates review to specialist agents: `@code-reviewer`, `@security-reviewer` (if security-related code changed), `@performance-reviewer` (if perf-sensitive), `@doc-reviewer` (if docs changed). Synthesizes a unified report with severity-ranked findings. |
@@ -165,13 +165,13 @@ paths:
 > The repo is flat, not nested inside `.claude/`. `CLAUDE.md` belongs at your project root and everything else goes inside `.claude/`. Both setup paths above handle the separation for you.
 
 ```
-dotclaude/
+finpack-claude/
 ├── CLAUDE.md                           # Template project instructions, copy to your project root
 ├── CLAUDE.local.md.example             # Personal overrides template, rename to CLAUDE.local.md
 ├── LICENSE                             # MIT
 ├── settings.json                       # Project settings, copy to .claude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
-├── .gitignore                          # Gitignore for the dotclaude repo (not for your project's .claude/)
+├── .gitignore                          # Gitignore for the finpack-claude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
 │   └── marketplace.json                #   18 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/

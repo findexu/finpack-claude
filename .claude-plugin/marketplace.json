@@ -1,5 +1,5 @@
 {
-  "name": "dotclaude",
+  "name": "finpack-claude",
   "owner": {
     "name": "findexu"
   },
@@ -38,7 +38,7 @@
     {
       "name": "setupdotclaude",
       "source": "./plugins/setupdotclaude",
-      "description": "Bootstrap and customize dotclaude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",
+      "description": "Bootstrap and customize finpack-claude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",
       "license": "MIT"
     },
     {

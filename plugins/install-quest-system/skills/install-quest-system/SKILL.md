@@ -29,9 +29,9 @@ Stop if n.
 Try these locations in order — use the first one that contains `new-quest.md`:
 
 1. `.claude/skills/quest-system/commands/` — present if you ran `/setupdotclaude`
-   or copied the dotclaude repo manually into `.claude/`
+   or copied the finpack-claude repo manually into `.claude/`
 2. `skills/quest-system/commands/` — present if you are running this inside
-   the dotclaude repo itself
+   the finpack-claude repo itself
 
 Record which location was found as `{source}`.
 
@@ -66,13 +66,13 @@ If no source location was found in Step 2:
 Command source files not found automatically.
 
 Manual install:
-  Find your dotclaude installation and run:
+  Find your finpack-claude installation and run:
 
-  cp /path/to/dotclaude/skills/quest-system/commands/*.md .claude/commands/
+  cp /path/to/finpack-claude/skills/quest-system/commands/*.md .claude/commands/
 
   Common locations:
-    ~/dotfiles/dotclaude/skills/quest-system/commands/
-    /tmp/dotclaude/skills/quest-system/commands/
+    ~/dotfiles/finpack-claude/skills/quest-system/commands/
+    /tmp/finpack-claude/skills/quest-system/commands/
 
 Then run /install-quest-system again to verify.
 ```

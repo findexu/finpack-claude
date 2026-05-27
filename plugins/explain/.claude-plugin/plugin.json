@@ -3,6 +3,6 @@
   "description": "Explain code with one-sentence summary, mental model, ASCII diagram, and modification guide.",
   "author": { "name": "findexu" },
   "license": "MIT",
-  "homepage": "https://github.com/findexu/dotclaude",
-  "repository": "https://github.com/findexu/dotclaude"
+  "homepage": "https://github.com/findexu/finpack-claude",
+  "repository": "https://github.com/findexu/finpack-claude"
 }

@@ -3,6 +3,6 @@
   "description": "Cross-references docs against actual source. Flags drift, missing params, dead references.",
   "author": { "name": "findexu" },
   "license": "MIT",
-  "homepage": "https://github.com/findexu/dotclaude",
-  "repository": "https://github.com/findexu/dotclaude"
+  "homepage": "https://github.com/findexu/finpack-claude",
+  "repository": "https://github.com/findexu/finpack-claude"
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sync source agents/ and skills/ into per-plugin directories, and bundle the
-# full dotclaude template into plugins/setupdotclaude/template/ so that plugin
+# full finpack-claude template into plugins/setupdotclaude/template/ so that plugin
 # can bootstrap .claude/ from scratch in any project.
 #
 # Plugins must be self-contained (Claude Code copies each plugin to a cache
@@ -38,7 +38,7 @@ for d in skills/*/; do
   fi
 done
 
-# 3. Bundle the full dotclaude template into the setupdotclaude plugin
+# 3. Bundle the full finpack-claude template into the setupdotclaude plugin
 #    so it can bootstrap .claude/ in any project at install time.
 TEMPLATE="plugins/setupdotclaude/template"
 rm -rf "$TEMPLATE"
@@ -53,5 +53,5 @@ cp -r skills                       "$TEMPLATE/"
 cp -r agents                       "$TEMPLATE/"
 cp -r hooks                        "$TEMPLATE/"
 
-echo "  bundle setupdotclaude/template (full dotclaude content)"
+echo "  bundle setupdotclaude/template (full finpack-claude content)"
 echo "Done."

@@ -1,11 +1,11 @@
 ---
 name: setupdotclaude
-description: Set up dotclaude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.
+description: Set up finpack-claude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.
 argument-hint: "[optional: focus area like 'frontend' or 'backend']"
 disable-model-invocation: true
 ---
 
-Set up dotclaude in this project end-to-end. If `.claude/` doesn't exist yet, bootstrap it from the template bundled inside this plugin; then customize every config file to match the actual tech stack, conventions, and patterns in use. Confirm with the user before each change using AskUserQuestion.
+Set up finpack-claude in this project end-to-end. If `.claude/` doesn't exist yet, bootstrap it from the template bundled inside this plugin; then customize every config file to match the actual tech stack, conventions, and patterns in use. Confirm with the user before each change using AskUserQuestion.
 
 `CLAUDE.md` must be at the project root (`./CLAUDE.md`), NOT inside `.claude/`. All other config files live inside `.claude/`.
 
@@ -20,9 +20,9 @@ Decide whether to bootstrap by checking for `.claude/settings.json`:
 
 When bootstrapping:
 
-1. Use AskUserQuestion: "This project has no `.claude/` set up yet. Bootstrap it from the dotclaude template bundled in this plugin?" Options: `yes` / `no`.
+1. Use AskUserQuestion: "This project has no `.claude/` set up yet. Bootstrap it from the finpack-claude template bundled in this plugin?" Options: `yes` / `no`.
 
-2. If the user says **no**, stop with: "setupdotclaude needs dotclaude's content to operate. Either clone https://github.com/findexu/dotclaude and copy the files in, or re-run and choose `yes` to use the bundled template."
+2. If the user says **no**, stop with: "setupdotclaude needs finpack-claude's content to operate. Either clone https://github.com/findexu/finpack-claude and copy the files in, or re-run and choose `yes` to use the bundled template."
 
 3. If the user says **yes**, run these Bash commands to copy the bundled template (Claude Code sets `$CLAUDE_PLUGIN_ROOT` to this plugin's installation directory):
 
@@ -52,22 +52,22 @@ When bootstrapping:
 
 4. Tell the user what was placed and continue to Phase 0.
 
-If `$CLAUDE_PLUGIN_ROOT` is unset (rare, only when this skill is run from a non-plugin location like a direct clone), tell the user to either re-install via the marketplace or follow the manual clone+copy flow at https://github.com/findexu/dotclaude.
+If `$CLAUDE_PLUGIN_ROOT` is unset (rare, only when this skill is run from a non-plugin location like a direct clone), tell the user to either re-install via the marketplace or follow the manual clone+copy flow at https://github.com/findexu/finpack-claude.
 
 ## Phase 0: Clean Up Non-Config Files
 
-Before continuing, delete files and directories inside `.claude/` that come along with a clone+copy of the dotclaude repo but don't belong in a project's `.claude/`. They waste tokens at runtime or just clutter the directory. Use Bash with `rm -rf` (or `rm -f` for files). Don't error on missing entries.
+Before continuing, delete files and directories inside `.claude/` that come along with a clone+copy of the finpack-claude repo but don't belong in a project's `.claude/`. They waste tokens at runtime or just clutter the directory. Use Bash with `rm -rf` (or `rm -f` for files). Don't error on missing entries.
 
 **Files** to remove from `.claude/`:
 - `.claude/README.md` (repo README accidentally copied in)
 - `.claude/CONTRIBUTING.md` (repo contributing guide)
 - `.claude/LICENSE` (repo license)
 - `.claude/CLAUDE.md` (`CLAUDE.md` belongs at the project root, not inside `.claude/`)
-- `.claude/.gitignore` (for the dotclaude repo, not the project; the project has its own root `.gitignore`)
+- `.claude/.gitignore` (for the finpack-claude repo, not the project; the project has its own root `.gitignore`)
 - `.claude/settings.local.json.example` (example template, not used at runtime)
 - `.claude/rules/README.md`, `.claude/agents/README.md`, `.claude/hooks/README.md`, `.claude/skills/README.md` (folder descriptions for GitHub browsing only)
 
-**Directories** to remove from `.claude/` (only exist when a user did a bulk `cp -r dotclaude/* .claude/`; they belong to the dotclaude repo, not to a consuming project):
+**Directories** to remove from `.claude/` (only exist when a user did a bulk `cp -r finpack-claude/* .claude/`; they belong to the finpack-claude repo, not to a consuming project):
 - `.claude/.claude-plugin/` (marketplace catalog, only used for plugin distribution)
 - `.claude/plugins/` (per-plugin self-contained copies, only used for plugin distribution)
 - `.claude/scripts/` (repo maintenance scripts like sync-plugins.sh)

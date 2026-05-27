@@ -1,4 +1,4 @@
-# Contributing to dotclaude
+# Contributing to finpack-claude
 
 Thanks for wanting to make this better. This project aims to be the standard `.claude/` folder structure. Contributions that help more developers ship faster are welcome.
 
