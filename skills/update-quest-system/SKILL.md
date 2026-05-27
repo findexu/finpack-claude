@@ -31,16 +31,34 @@ Try these locations in order — use the first that contains `new-quest.md`:
 
 Record the found path as `{source}`.
 
-If neither contains `new-quest.md`:
-```
-Source not found. Cannot update.
-Pull the latest finpack-claude and try again.
+If neither contains `new-quest.md`, go to Step 2b.
 
-Expected locations:
-  .claude/skills/quest-system/commands/
-  skills/quest-system/commands/
+## Step 2b: No local source — offer script fallback
+
+Output:
 ```
-Stop.
+Local source not found. The marketplace plugin update only refreshes the
+plugin registry — it does not copy source files to disk.
+
+To update, run the install script (safe to re-run, overwrites in place):
+
+  # If you have a local finpack-claude clone:
+  bash /path/to/finpack-claude/scripts/install-quest-system.sh
+
+  # Or via curl (fetches latest from GitHub):
+  curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash
+
+Run the script now? (y to run curl / n to cancel)
+```
+
+If n: stop.
+
+If y: run the following bash command and then stop:
+```bash
+curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash
+```
+
+Report the script output to the commander. Do not proceed to Step 3.
 
 ## Step 3: Show what will be updated and confirm
 
