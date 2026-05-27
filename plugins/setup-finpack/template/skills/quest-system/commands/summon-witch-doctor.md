@@ -1,5 +1,5 @@
 ---
-description: Diagnose the health of the active quest's scrolls. Checks for missing files, missing sections, invalid frontmatter, template drift, and split state. Offers repair if issues are found.
+description: Diagnose the health of the active quest's scrolls. Checks for missing files, missing sections, invalid frontmatter, split state, and legacy pre-expedition terminology that needs migration. Offers repair if issues are found.
 ---
 
 # Summon Witch Doctor
@@ -63,6 +63,16 @@ If split subfolder exists:
 If no split subfolder but file exceeds 500 lines:
 - Report as SPLIT_NEEDED with line count
 
+### 3e. Expedition migration checks (legacy format detection)
+Check scroll content for legacy pre-expedition wording that should be migrated:
+
+- **ADVENTURE_JOURNAL.md**: headings that begin with `## Session ` or
+  `## Work Session ` (legacy entries should be `## Expedition `)
+- **WORLD_MAP.md**: placeholders containing `Phase 1 scouting`
+- **STRATEGY_SCROLL.md**: placeholders containing `Phase 3`
+
+If found, report `WARN` with issue `MIGRATION_NEEDED: legacy phase/session terms detected`.
+
 ## Step 4: Output report
 
 ```
@@ -81,7 +91,7 @@ ADVENTURERS_HANDBOOK.md  {status}      {issues or blank}
 
 Status values:
 - `OK` — all checks passed
-- `WARN` — exists but has issues (missing headings, missing frontmatter keys)
+- `WARN` — exists but has issues (missing headings, missing frontmatter keys, or migration needed)
 - `MISSING` — file does not exist
 - `EMPTY` — file exists with no content
 - `SPLIT` — correctly split into subfiles
@@ -206,8 +216,16 @@ If y, for each affected scroll:
   and append `<!-- repaired by /summon-witch-doctor -->`.
 - **WARN — missing headings**: append the missing headings at the end of the file
   with their empty template content and append `<!-- repaired by /summon-witch-doctor -->`.
+- **WARN — migration needed**: apply targeted terminology migrations in-place,
+  then append `<!-- repaired by /summon-witch-doctor -->`:
+  - In `ADVENTURE_JOURNAL.md`: `## Session ` -> `## Expedition `;
+    `## Work Session ` -> `## Expedition `
+  - In `WORLD_MAP.md`: `Phase 1 scouting` -> `first expedition scouting`
+  - In `STRATEGY_SCROLL.md`: `after Phase 3` -> `before the next expedition`
 
-Never rewrite existing content. Never touch OK or SPLIT scrolls.
+These migrations are intentionally narrow. Do not rewrite unrelated prose.
+
+Never rewrite unrelated content. Never touch OK or SPLIT scrolls.
 Never merge or reorganize split subfiles.
 
 Confirm each repaired file.

@@ -3,9 +3,10 @@ name: quest-system-tutorial
 description: >
   Dry-run tutorial for the quest-system skill. Simulates the full quest lifecycle
   using a fictional example project with no files written. Run this before using
-  quest-system for the first time. Shows realistic output for all 7 commands:
-  /new-quest, /embark, /make-camp, /quest-log, /summon-witch-doctor,
-  /complete-quest. Targeted at developers new to the system and its terminology.
+  quest-system for the first time. Shows realistic output for the current
+  command flow: /new-quest, /counsel-quest, /embark, /make-camp, /quest-log,
+  /summon-witch-doctor, /complete-quest. Targeted at developers new to the
+  system and its terminology.
 ---
 
 # Quest System Tutorial
@@ -52,8 +53,8 @@ The quest-system uses RPG metaphors. Here is the plain-language translation:
 ```
 Quest           = a feature or epic you are building
 Realm           = the app target in scope (e.g. the iOS app, the backend API)
-Expedition      = a single work session — one Claude Code conversation
-Scrolls         = the five markdown files that store all context between sessions
+Expedition      = a focused work loop (/embark -> implementation -> /make-camp)
+Scrolls         = the five markdown files that store all context between expeditions
 Conquered       = done, complete
 Cursed          = blocked or uncertain — needs attention
 Oath            = a locked decision that will not be re-debated
@@ -64,7 +65,7 @@ Witch Doctor    = /summon-witch-doctor — the health-check command for scrolls
 **The problem quest-system solves:**
 Claude Code starts fresh every conversation. Without quest-system, you copy-paste
 the same context into every chat or Claude re-discovers the same landmines repeatedly.
-Quest-system gives Claude persistent memory across sessions using plain markdown files
+Quest-system gives Claude persistent memory across expeditions using plain markdown files
 you own — no external services, no database, no sync.
 
 ---
@@ -119,17 +120,42 @@ MobileApp
 
 **Output:**
 ```
-⚔️  Quest created: login-redesign
+⚔️  Quest inscribed: login-redesign
 Realm: MobileApp
-Scrolls: 5 files in docs/dev/login-redesign/
-Active quest set.
+Scrolls created in docs/dev/login-redesign/
+  ✓ STRATEGY_SCROLL.md
+  ✓ TOME_OF_DANGERS.md
+  ✓ ADVENTURE_JOURNAL.md
+  ✓ WORLD_MAP.md
+  ✓ ADVENTURERS_HANDBOOK.md
 
-Run /embark to start your first expedition.
+Next steps:
+  /counsel-quest  — lock decisions and finalize the battle plan
+  /embark         — start the first expedition
 ```
 
 ---
 
-## Phase 2 — Start your first work session
+## Phase 2 — Lock decisions, then start the first expedition
+
+**Command:** `/counsel-quest`
+
+Counsel quest resolves open riddles and locks decisions before execution.
+It can also be re-run later when a new expedition focus appears.
+
+Example output:
+
+```
+⚔️  Counsel complete — login-redesign
+
+Oaths sworn this expedition planning round:
+- Token storage uses Keychain, not UserDefaults
+
+Battle plan: 4 steps defined
+Open riddles remaining: none
+
+Run /embark to begin the expedition.
+```
 
 **Command:** `/embark`
 
@@ -164,18 +190,18 @@ Await orders. Claude is now context-loaded and ready to work.
 
 ---
 
-## Phase 3 — End your first work session
+## Phase 3 — End your first expedition
 
 **Command:** `/make-camp`
 
 make-camp = "save everything to the scrolls before closing Claude Code."
-If you skip this step, the next session starts blind — Claude will have
+If you skip this step, the next expedition starts blind — Claude will have
 no memory of what happened.
 
 Claude presents 6 prompts and records your answers:
 
 ```
-1. What was conquered (completed) this session?
+1. What was conquered (completed) this expedition?
    > Audited the existing login flow. Mapped all auth-related files.
      Identified that LoginViewController handles both biometric and
      password — needs splitting.
@@ -188,7 +214,7 @@ Claude presents 6 prompts and records your answers:
    > BiometricAuthManager has undocumented state machine. Need to
      understand it before touching it.
 
-4. What is the road ahead for next session?
+4. What is the road ahead for next expedition?
    > Split LoginViewController. Start on auth flow redesign.
 
 5. Any new dangers discovered?
@@ -250,7 +276,7 @@ Files updated: ADVENTURE_JOURNAL.md, STRATEGY_SCROLL.md, TOME_OF_DANGERS.md,
 
 ---
 
-## Phase 4 — Quick status check (no session needed)
+## Phase 4 — Quick status check (no expedition needed)
 
 **Command:** `/quest-log`
 
@@ -342,7 +368,7 @@ Files updated: ADVENTURE_JOURNAL.md, STRATEGY_SCROLL.md
 
 ---
 
-## Phase 6 — Health check
+## Phase 6 — Health check (including migration readiness)
 
 **Command:** `/summon-witch-doctor`
 
@@ -481,19 +507,20 @@ travel forward.
 You just saw the full lifecycle:
 
 ```
-create feature  →  work across sessions  →  scrolls grow and split
+create feature  →  work across expeditions  →  scrolls grow and split
 →  diagnose health  →  ship the feature  →  institutional memory persists
 ```
 
 Everything lives in markdown files in your repo. No external services.
-No database. No sync. Claude reads them at the start of every session.
+No database. No sync. Claude reads them at the start of every expedition.
 
 ```
 Your commands:
   /new-quest           — create your first feature quest
-  /embark              — at the start of every work session
+  /counsel-quest       — lock decisions before first execution (and when blocked)
+  /embark              — at the start of every expedition
   /make-camp           — before closing Claude Code (don't skip this)
-  /quest-log           — quick status check between sessions
+  /quest-log           — quick status check between expeditions
   /summon-witch-doctor — if scroll files feel stale or broken
   /complete-quest      — when the feature ships
   /change-quest        — when switching between parallel features

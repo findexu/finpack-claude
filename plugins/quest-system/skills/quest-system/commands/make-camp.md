@@ -1,5 +1,5 @@
 ---
-description: End a work session. Records expedition results, updates all touched scrolls, updates YAML frontmatter, and splits any scroll that has grown beyond 500 lines.
+description: End an expedition. Records expedition results, updates all touched scrolls, updates YAML frontmatter, and splits any scroll that has grown beyond 500 lines.
 ---
 
 # Make Camp

@@ -1,17 +1,20 @@
 ---
 name: install-quest-system
 description: >
-  Bootstrap quest-system in the current project. Copies all twelve command files
-  to .claude/commands/ so /new-quest, /embark, /make-camp, /quest-log,
-  /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp,
-  /ask-sages, and /init-xp become available. Run once per project. Safe to
-  re-run — confirms before overwriting.
+  Bootstrap quest-system in the current project. Copies all command files to
+  .claude/commands/ and installs the quest-system tutorial skill to
+  .claude/skills/quest-system-tutorial/SKILL.md so /new-quest, /counsel-quest,
+  /embark, /make-camp, /quest-log, /change-quest, /complete-quest,
+  /summon-witch-doctor, /quest-xp, /ask-sages, /init-xp, /counsel-prompt,
+  /counsel-plan, and /quest-system-tutorial become available. Run once per
+  project. Safe to re-run — confirms before overwriting.
 ---
 
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-so all twelve slash commands become available.
+and install the tutorial skill into `.claude/skills/quest-system-tutorial/`
+so all quest-system slash commands plus `/quest-system-tutorial` become available.
 
 ## Step 1: Check for existing installation
 
@@ -25,7 +28,7 @@ quest-system is already installed.
 ```
 Stop if n.
 
-## Step 2: Locate source command files
+## Step 2: Locate source files
 
 Try these locations in order — use the first one that contains `new-quest.md`:
 
@@ -47,6 +50,7 @@ Check if `.claude/commands/` exists. Create it if not.
 Read each of the following files from `{source}` and write to `.claude/commands/`:
 
 - `new-quest.md`
+- `counsel-quest.md`
 - `embark.md`
 - `make-camp.md`
 - `quest-log.md`
@@ -64,6 +68,25 @@ Report each file as it is written.
 
 Skip any file not found at `{source}` — do not error, just skip and note it.
 
+## Step 4.5: Install tutorial skill
+
+Try these source paths in order:
+
+1. `.claude/skills/quest-system-tutorial/SKILL.md`
+2. `skills/quest-system-tutorial/SKILL.md`
+
+If found, write to:
+
+- `.claude/skills/quest-system-tutorial/SKILL.md`
+
+Create parent directories if needed.
+
+If not found, report:
+
+```
+SKIP: quest-system-tutorial skill source not found
+```
+
 ## Step 5: Source not found
 
 If no source location was found in Step 2:
@@ -75,6 +98,9 @@ Manual install:
   Find your finpack-claude installation and run:
 
   cp /path/to/finpack-claude/skills/quest-system/commands/*.md .claude/commands/
+  mkdir -p .claude/skills/quest-system-tutorial
+  cp /path/to/finpack-claude/skills/quest-system-tutorial/SKILL.md \
+     .claude/skills/quest-system-tutorial/SKILL.md
 
   Common locations:
     ~/dotfiles/finpack-claude/skills/quest-system/commands/
@@ -93,6 +119,7 @@ After writing, confirm each file exists at `.claude/commands/`:
 
 Commands now available:
   /new-quest           — create a feature quest (run this first)
+  /counsel-quest       — lock implementation decisions before execution
   /embark              — start of every work session
   /make-camp           — end of every work session — DO NOT SKIP
   /quest-log           — quick status check, no session needed
@@ -104,6 +131,7 @@ Commands now available:
   /init-xp             — bootstrap XP profile on migrated/existing projects
   /counsel-prompt      — rewrite a rough prompt into a sharp copyable Claude prompt
   /counsel-plan        — review a plan.md and produce copyable structured feedback
+  /quest-system-tutorial — dry-run walkthrough of the full quest workflow
 
 Next steps:
   /quest-system-tutorial   — see a dry-run of the full workflow

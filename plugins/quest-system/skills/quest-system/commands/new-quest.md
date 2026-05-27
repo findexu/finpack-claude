@@ -1,21 +1,78 @@
 ---
-description: Begin a brand new quest (feature/epic) from scratch. Creates all five scrolls in the quest folder with YAML frontmatter and sets the active quest.
+description: Begin a brand new quest (feature/epic) from scratch. Interviews the commander to extract real context, then creates all five scrolls populated with that knowledge.
 argument-hint: "[quest-name] [realm]"
 ---
 
 # New Quest
 
-Create a new quest. A quest is a feature or epic tracked with five persistent scrolls.
+Begin a new quest. A quest is a feature or epic tracked with five persistent scrolls.
 
-## Step 1: Get quest details
+**Do not create any files until the discovery interview is complete and the commander approves.**
 
-If $ARGUMENTS is empty, ask:
-- Quest name (kebab-case slug, e.g. `scan-alignment-floor-annotation`)
-- Realm (the app target in scope, e.g. `WeScanX`)
+## Step 1: Discovery Interview
 
-If provided in $ARGUMENTS, parse: first token = quest name, second token = realm.
+### 1a. Open the conversation
 
-## Step 2: Create quest folder
+Ask plainly — not as a structured form:
+
+> "What are we building?"
+
+Wait for the response. This answer gives you the thread to follow.
+
+### 1b. Follow the thread
+
+Based on what they said, ask follow-up questions that dig deeper. Use structured
+options (2-4 choices) when they help the commander think — present concrete
+interpretations to react to, not open-ended blanks.
+
+Keep following threads. Each answer opens new ones.
+
+Track these as a **background checklist** — not a sequential script. Weave
+questions naturally as gaps appear:
+
+- [ ] **What it is** — specific enough to explain to a stranger
+- [ ] **Why now** — the problem or desire driving it
+- [ ] **What done looks like** — observable acceptance criteria, not vague goals
+- [ ] **Scope** — what's in v1, what's explicitly excluded
+- [ ] **Known dangers** — constraints, technical risks, or traps already suspected
+- [ ] **Approach sketch** — any strong opinions on how to tackle it
+
+**Clarify vagueness — never accept fuzzy answers:**
+- "faster" → faster how? sub-second? handles 10k rows?
+- "users" → which users? internal team? mobile-only?
+- "simple" → simple compared to what? what's being removed?
+- "improve" → improve by what measure? how will we know it worked?
+
+**Anti-patterns to avoid:**
+- Checklist-walking ("Next question: what are your constraints?")
+- Canned corporate questions ("What are your success criteria?")
+- Accepting vague answers without probing
+- Rushing to scroll creation before the vision is clear
+- Asking about tech stack before understanding the problem
+
+### 1c. Decision gate
+
+When you have enough to populate the scrolls with real content, ask:
+
+> "I think I have what I need to set up the quest. Ready to inscribe the scrolls?"
+
+Options:
+- "Yes, inscribe the scrolls" — proceed to Step 2
+- "Not yet, keep exploring" — ask what's unclear, probe the gaps
+
+Loop until the commander approves.
+
+## Step 2: Confirm quest name and realm
+
+If $ARGUMENTS was provided, parse: first token = quest name, second token = realm.
+
+Otherwise, propose both derived from the discovery interview:
+- Quest name: a kebab-case slug that captures what this is (e.g. `scan-alignment-floor-annotation`)
+- Realm: the app target in scope (e.g. `WeScanX`)
+
+Confirm with the commander before proceeding.
+
+## Step 3: Create quest folder
 
 Create the folder: `docs/dev/{quest-name}/`
 
@@ -23,9 +80,12 @@ If the folder already exists and any scroll files are present, warn:
 "Quest folder already exists. Continue and overwrite scrolls? (y/n)"
 Stop if n.
 
-## Step 3: Create all five scrolls
+## Step 4: Create all five scrolls
 
-Use the templates below. Fill in `{quest-name}`, `{realm}`, `{date}` (YYYY-MM-DD).
+**Populate scrolls from the discovery interview. Do not leave placeholders where
+you have actual knowledge.** Empty scaffolding is worse than no scaffolding.
+
+Fill in `{quest-name}`, `{realm}`, `{date}` (YYYY-MM-DD) throughout.
 
 Create each file with the full template content below:
 
@@ -43,11 +103,11 @@ This workspace contains multiple realms (app targets).
 All work this quest is scoped to **{realm}** only.
 Do not venture into other realms unless explicitly commanded.
 ## Module Map
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Navigation Flow
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Data Flow
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Key Files
 | File | Role |
 |---|---|
@@ -56,6 +116,10 @@ Do not venture into other realms unless explicitly commanded.
 ```
 
 **`docs/dev/{quest-name}/STRATEGY_SCROLL.md`:**
+
+Populate from the discovery interview. Fill every section you have real answers for.
+Do not write "(to be charted)" if the commander already told you.
+
 ```
 ---
 quest: {quest-name}
@@ -64,19 +128,37 @@ scroll: STRATEGY_SCROLL
 last-updated: {date}
 ---
 # Strategy Scroll — {quest-name}
+
+## Quest Overview
+{1-3 sentence summary of what this quest is and why it exists — from the interview}
+
+## Acceptance Criteria
+What "done" looks like for this quest (observable outcomes, not tasks):
+{list from the interview — be specific. Vague criteria are useless.}
+
+## Scope
+**In scope:** {what the commander confirmed is in v1}
+**Out of scope:** {what the commander explicitly excluded, with brief reason}
+
 ## Battle Status
 | Module | Status |
 |---|---|
+
 ## Oaths Sworn (Resolved Decisions)
-(none yet)
+{any decisions locked during the interview, or "(none yet)"}
+
 ## Fallen Strategies (Rejected Approaches)
 (none yet)
+
 ## Scouting Findings (Audit Results)
 (none yet)
+
 ## Open Riddles (Decisions Needed)
-(none yet)
+{gray areas raised in the interview that were not resolved, or "(none yet — run /counsel-quest before first expedition)"}
+
 ## The Battle Plan (Implementation Sequence)
-(to be written after Phase 3)
+{initial approach sketch from the interview as ordered steps.
+If none given: "(not yet defined — run /counsel-quest to lock the plan before embarking)"}
 ```
 
 **`docs/dev/{quest-name}/ADVENTURE_JOURNAL.md`:**
@@ -92,6 +174,11 @@ Append-only. One entry per expedition. Never rewrite history.
 ```
 
 **`docs/dev/{quest-name}/TOME_OF_DANGERS.md`:**
+
+Populate known dangers from the interview. If the commander described constraints,
+technical risks, or "things that could go wrong" — they belong here now, not
+discovered later mid-expedition.
+
 ```
 ---
 quest: {quest-name}
@@ -108,6 +195,7 @@ memory, or architecture.
 ## Known Dangers
 | Danger | Impact | Remedy |
 |---|---|---|
+{populate from interview if any dangers/constraints were mentioned, otherwise leave table empty}
 ## Fallen Strategies (Tried and Abandoned)
 (none yet)
 ## Unsolved Riddles (Open Verification Items)
@@ -163,7 +251,7 @@ STOP mid-expedition and inscribe immediately when a new danger is found.
 - ADVENTURE_JOURNAL.md is append-only — history is sacred
 ```
 
-## Step 4: Set active quest
+## Step 5: Set active quest
 
 Write `.claude/active-quest.txt`:
 ```
@@ -171,7 +259,7 @@ docs/dev/{quest-name}
 {realm}
 ```
 
-## Step 5: Bootstrap adventurer profile (first quest only)
+## Step 6: Bootstrap adventurer profile (first quest only)
 
 Check if `.claude/quest-xp/profile.md` exists.
 
@@ -210,7 +298,7 @@ Append-only EXP log. One entry per completed quest.
 5. Ensure `.gitignore` contains `.claude/quest-xp/`.
    Read `.gitignore` if it exists. If the line is absent, append it.
 
-## Step 6: Bootstrap .ai-context/ (first quest only)
+## Step 7: Bootstrap .ai-context/ (first quest only)
 
 Check if `.ai-context/` exists.
 
@@ -250,16 +338,22 @@ Paste quest.md, dangers.md, and decisions.md at the start of your chat.
    - `.ai-context/dangers.md` with content: `# Known Dangers\n(run /embark to populate)`
    - `.ai-context/decisions.md` with content: `# Locked Decisions\n(run /embark to populate)`
 
-## Step 7: Confirm
+## Step 8: Announce
 
-Report:
+Output:
 ```
-⚔️  Quest created: {quest-name}
+⚔️  Quest inscribed: {quest-name}
 Realm: {realm}
-Scrolls: 5 files in docs/dev/{quest-name}/
-Active quest set.
-{if first quest: "Adventurer profile created. Run /quest-xp to view your profile."}
-{if .ai-context/ created: ".ai-context/ created — run /embark to populate for Copilot/Gemini use."}
 
-Run /embark to start your first expedition.
+Scrolls created in docs/dev/{quest-name}/:
+  ✓ STRATEGY_SCROLL.md  — overview, acceptance criteria, battle plan
+  ✓ TOME_OF_DANGERS.md  — {N pre-loaded dangers, or "no pre-loaded dangers"}
+  ✓ ADVENTURE_JOURNAL.md
+  ✓ WORLD_MAP.md
+  ✓ ADVENTURERS_HANDBOOK.md
+{if first quest: "\n  ✓ Adventurer profile created. Run /quest-xp to view."}
+
+Next steps:
+  /counsel-quest  — lock implementation decisions and finalize the battle plan
+  /embark         — start the first expedition (skip /counsel-quest if the plan is clear)
 ```

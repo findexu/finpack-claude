@@ -1,5 +1,5 @@
 ---
-description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition session.
+description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition.
 ---
 
 # Quest Log

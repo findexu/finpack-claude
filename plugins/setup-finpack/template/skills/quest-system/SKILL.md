@@ -1,23 +1,23 @@
 ---
 name: quest-system
 description: >
-  RPG-themed epic and session management system for Claude Code.
-  Tracks quests (features/epics), expeditions (sessions), realms (app targets),
-  and maintains persistent scrolls (docs) across all sessions.
+  RPG-themed epic and expedition management system for Claude Code.
+  Tracks quests (features/epics), expeditions (work loops), realms (app targets),
+  and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
   with multiple app targets. Triggers: /new-quest, /embark, /make-camp,
   /quest-log, /change-quest, /install-quest-system,
   /summon-witch-doctor.
-version: 1.5.0
+version: 1.5.1
 ---
 
 # Quest System — Skill Definition
 
 ## What this skill does
 
-Provides a complete session memory and workflow system for feature development.
-Every feature is a Quest. Every work session is an Expedition.
-Five persistent scrolls track all knowledge across sessions so Claude Code
+Provides a complete expedition memory and workflow system for feature development.
+Every feature is a Quest. Every work loop is an Expedition.
+Five persistent scrolls track all knowledge across expeditions so Claude Code
 never loses context between conversations.
 
 ## Scroll structure (created per quest)
@@ -35,11 +35,11 @@ never loses context between conversations.
 | Command | When to use |
 |---|---|
 | `/new-quest` | Begin a brand new feature from scratch |
-| `/embark` | Start a work session |
-| `/make-camp` | End a work session and update all scrolls |
-| `/quest-log` | Quick status check without opening a session |
+| `/embark` | Start an expedition |
+| `/make-camp` | End an expedition and update all scrolls |
+| `/quest-log` | Quick status check without opening a full expedition |
 | `/change-quest` | Switch quest or realm |
-| `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, template drift |
+| `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, split issues, and legacy terminology migration needs |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
 
@@ -47,7 +47,7 @@ never loses context between conversations.
 
 - **Quest** — a feature or epic (e.g. "scan-alignment-floor-annotation")
 - **Realm** — the app target in scope (e.g. "WeScanX")
-- **Expedition** — a single work session
+- **Expedition** — a single focused work loop (`/embark` -> implementation -> `/make-camp`)
 - **Conquered** — completed step
 - **Cursed** — blocked or uncertain
 - **Oath** — a resolved decision
@@ -160,8 +160,8 @@ Reads the active quest's scrolls and reports their health without modifying anyt
 1. `.claude/active-quest.txt` — exists, 2 non-empty lines, quest folder path exists on disk
 2. Each scroll — exists, non-empty, all required headings present
 3. YAML frontmatter — each scroll must have `quest`, `realm`, `scroll`, `last-updated` keys
-4. Template drift — compares required headings from this SKILL.md's `## Scroll templates` section against actual scroll content; flags any headings added to the template after the scroll was created
-5. Split state — if a split subfolder (dangers/, journal/, strategy/, map/) exists, check: at least one subfile exists, each subfile is non-empty, index has a `## Content Index` section; if no subfolder but file is >500 lines, flag as SPLIT_NEEDED
+4. Split state — if a split subfolder (dangers/, journal/, strategy/, map/) exists, check: at least one subfile exists, each subfile is non-empty, index has a `## Content Index` section; if no subfolder but file is >500 lines, flag as SPLIT_NEEDED
+5. Expedition migration readiness — detects legacy `session` / `phase` terminology in scroll content and flags `MIGRATION_NEEDED` when older wording should be migrated
 
 ### Output format
 
@@ -182,10 +182,10 @@ ADVENTURERS_HANDBOOK.md  SPLIT_NEEDED  File is 612 lines — run /make-camp to t
 ### Repair
 
 If issues are found, `/summon-witch-doctor` asks: "Repair affected scrolls? (y/n)"
-- **y**: recreates missing scrolls from the current template; for scrolls with missing sections only, appends the missing sections at the end with a `<!-- repaired by /summon-witch-doctor -->` marker; adds missing frontmatter keys to scrolls that have an incomplete frontmatter block.
+- **y**: recreates missing scrolls from the current template; for scrolls with missing sections only, appends the missing sections at the end with a `<!-- repaired by /summon-witch-doctor -->` marker; adds missing frontmatter keys to scrolls that have an incomplete frontmatter block; applies narrow terminology replacements for legacy `session` / `phase` entries.
 - **n**: exits after reporting.
 
-Never rewrites existing content. Never touches OK scrolls. Never merges or reorganizes split subfiles.
+Never rewrites unrelated content. Never touches OK scrolls. Never merges or reorganizes split subfiles.
 
 ## .ai-context/ — portable AI context
 
@@ -270,13 +270,13 @@ EXP is derived from quest data — no manual difficulty rating needed.
 | Clean sweep (zero open riddles at completion) | +75 bonus |
 | Speed run (completed in ≤ 3 expeditions) | +50 bonus |
 
-Per-session EXP (awarded by /make-camp):
+Per-expedition EXP (awarded by /make-camp):
 
 | Source | EXP |
 |---|---|
 | Completing an expedition | 5 |
-| New danger discovered this session | +10 |
-| New oath sworn this session | +10 |
+| New danger discovered this expedition | +10 |
+| New oath sworn this expedition | +10 |
 
 ### Level table
 
@@ -359,11 +359,11 @@ This workspace contains multiple realms (app targets).
 All work this quest is scoped to **{realm}** only.
 Do not venture into other realms unless explicitly commanded.
 ## Module Map
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Navigation Flow
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Data Flow
-(to be charted during Phase 1 scouting)
+(to be charted during first expedition scouting)
 ## Key Files
 | File | Role |
 |---|---|
@@ -390,7 +390,7 @@ last-updated: {date}
 ## Open Riddles (Decisions Needed)
 (none yet)
 ## The Battle Plan (Implementation Sequence)
-(to be written after Phase 3)
+(to be written before the next expedition)
 
 ### ADVENTURE_JOURNAL.md template
 ---
