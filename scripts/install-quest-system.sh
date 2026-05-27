@@ -14,10 +14,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install-quest-system.sh}")" 2>/de
 LOCAL_COMMANDS="$SCRIPT_DIR/../skills/quest-system/commands"
 LOCAL_HOOKS="$SCRIPT_DIR/../hooks"
 LOCAL_TUTORIAL_SKILL="$SCRIPT_DIR/../skills/quest-system-tutorial/SKILL.md"
+LOCAL_UPDATE_SKILL="$SCRIPT_DIR/../skills/update-quest-system/SKILL.md"
 LOCAL_SETTINGS_EXAMPLE="$SCRIPT_DIR/../settings.local.json.example"
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
 TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
+UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
 SETTINGS_LOCAL_DEST=".claude/settings.local.json"
 VERIFY_RULE='Bash(.claude/hooks/quest-system-verify.sh *)'
 
@@ -43,7 +45,7 @@ HOOKS=(
   quest-system-verify.sh
 )
 
-mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")"
+mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")" "$(dirname "$UPDATE_SKILL_DEST")"
 
 UPDATED=0
 COMMANDS=()
@@ -88,6 +90,14 @@ if [ -d "$LOCAL_COMMANDS" ]; then
     UPDATED=$((UPDATED + 1))
   else
     echo "  SKIP (not found): skills/quest-system-tutorial/SKILL.md" >&2
+  fi
+
+  if [ -f "$LOCAL_UPDATE_SKILL" ]; then
+    cp "$LOCAL_UPDATE_SKILL" "$UPDATE_SKILL_DEST"
+    echo "  skills/update-quest-system/SKILL.md"
+    UPDATED=$((UPDATED + 1))
+  else
+    echo "  SKIP (not found): skills/update-quest-system/SKILL.md" >&2
   fi
 
   if [ -f "$LOCAL_SETTINGS_EXAMPLE" ] && [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
@@ -146,6 +156,14 @@ else
     UPDATED=$((UPDATED + 1))
   else
     echo "  FAIL: skills/quest-system-tutorial/SKILL.md (HTTP error)" >&2
+  fi
+
+  update_url="$REPO/skills/update-quest-system/SKILL.md"
+  if curl -fsSL "$update_url" -o "$UPDATE_SKILL_DEST"; then
+    echo "  skills/update-quest-system/SKILL.md"
+    UPDATED=$((UPDATED + 1))
+  else
+    echo "  FAIL: skills/update-quest-system/SKILL.md (HTTP error)" >&2
   fi
 
   if [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
