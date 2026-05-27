@@ -1,16 +1,17 @@
 ---
 name: install-quest-system
 description: >
-  Bootstrap quest-system in the current project. Copies all seven command files
+  Bootstrap quest-system in the current project. Copies all nine command files
   to .claude/commands/ so /new-quest, /embark, /make-camp, /quest-log,
-  /change-quest, /complete-quest, and /summon-witch-doctor become available.
-  Run once per project. Safe to re-run — confirms before overwriting.
+  /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp, and
+  /ask-sages become available. Run once per project. Safe to re-run —
+  confirms before overwriting.
 ---
 
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-so all seven slash commands become available.
+so all nine slash commands become available.
 
 ## Step 1: Check for existing installation
 
@@ -52,6 +53,8 @@ Read each of the following files from `{source}` and write to `.claude/commands/
 - `change-quest.md`
 - `complete-quest.md`
 - `summon-witch-doctor.md`
+- `quest-xp.md`
+- `ask-sages.md`
 
 For each file: read content from source path, write to `.claude/commands/{filename}`.
 Report each file as it is written.
@@ -93,6 +96,8 @@ Commands now available:
   /change-quest        — switch quest or realm
   /complete-quest      — distill + archive when feature ships
   /summon-witch-doctor — health check for scroll files
+  /quest-xp            — view XP, level, and badge progress
+  /ask-sages           — summon three specialist sages for a second opinion
 
 Next steps:
   /quest-system-tutorial   — see a dry-run of the full workflow
