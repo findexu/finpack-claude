@@ -1,10 +1,10 @@
 ---
 name: update-quest-system
 description: >
-  Update quest-system to the latest version. Overwrites all installed command
-  files, the tutorial skill, and the verifier hook with the current source.
-  Run after pulling finpack-claude updates to pick up new or changed commands.
-  Requires quest-system to already be installed (/install-quest-system).
+  Update quest-system to the latest version. Shows installed vs available
+  version, then overwrites all command files, skills, and the verifier hook
+  from source. Run after pulling finpack-claude updates. Requires quest-system
+  to already be installed (/install-quest-system).
 ---
 
 # Update Quest System
@@ -22,7 +22,13 @@ Run /install-quest-system first.
 ```
 Stop.
 
-## Step 2: Find source
+## Step 2: Read installed version
+
+Read `.claude/commands/.quest-system-version`.
+- If found: record as `{installed-version}`.
+- If not found: `{installed-version}` = "unknown (pre-versioning install)".
+
+## Step 3: Find source
 
 Try these locations in order — use the first that contains `new-quest.md`:
 
@@ -30,15 +36,19 @@ Try these locations in order — use the first that contains `new-quest.md`:
 2. `skills/quest-system/commands/` — present if running inside the finpack-claude repo itself
 
 Record the found path as `{source}`.
+Read `{source}/../VERSION` for `{source-version}`. If absent: `{source-version}` = "unknown".
 
-If neither contains `new-quest.md`, go to Step 2b.
+If neither location contains `new-quest.md`, go to Step 4 (no local source).
 
-## Step 2b: No local source — offer script fallback
+## Step 4: No local source — offer curl fallback
 
 Output:
 ```
-Local source not found. The marketplace plugin update only refreshes the
-plugin registry — it does not copy source files to disk.
+Installed: {installed-version}
+Available: unknown (no local source found)
+
+The marketplace plugin update only refreshes the plugin registry — it does
+not copy source files to disk.
 
 To update, run the install script (safe to re-run, overwrites in place):
 
@@ -48,42 +58,44 @@ To update, run the install script (safe to re-run, overwrites in place):
   # Or via curl (fetches latest from GitHub):
   curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash
 
-Run the script now? (y to run curl / n to cancel)
+Run curl script now? (y/n)
 ```
 
 If n: stop.
 
-If y: run the following bash command and then stop:
+If y: run this bash command and then stop (report output to commander):
 ```bash
 curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash
 ```
 
-Report the script output to the commander. Do not proceed to Step 3.
-
-## Step 3: Show what will be updated and confirm
+## Step 5: Show version diff and confirm
 
 Output:
 ```
-Updating quest-system from: {source}
+Installed: {installed-version}
+Available: {source-version}
+Source:    {source}
 
-Command files (13):
-  new-quest, counsel-quest, embark, make-camp, quest-log,
-  change-quest, complete-quest, summon-witch-doctor, quest-xp,
-  ask-sages, init-xp, counsel-prompt, counsel-plan
-
-Also updating:
-  .claude/skills/quest-system-tutorial/SKILL.md
-  .claude/skills/update-quest-system/SKILL.md
-  .claude/hooks/quest-system-verify.sh  (if source found)
+Will update:
+  13 command files  → .claude/commands/
+  quest-system-tutorial skill
+  update-quest-system skill
+  quest-system-verify.sh hook  (if found)
+  .quest-system-version
 
 Update all? (y/n)
 ```
 
+If `{installed-version}` equals `{source-version}`, add before the prompt:
+```
+(already up to date — update anyway?)
+```
+
 Stop if n.
 
-## Step 4: Update command files
+## Step 6: Update command files
 
-For each file below, read from `{source}` and write to `.claude/commands/`:
+Read from `{source}`, write to `.claude/commands/`:
 
 - `new-quest.md`
 - `counsel-quest.md`
@@ -101,40 +113,42 @@ For each file below, read from `{source}` and write to `.claude/commands/`:
 
 Skip any file not found at `{source}` — note it, don't error.
 
-## Step 5: Update tutorial skill
+## Step 7: Update VERSION file
 
-Try these source paths in order:
+Copy `{source}/../VERSION` to `.claude/commands/.quest-system-version`.
+If source VERSION absent, skip silently.
+
+## Step 8: Update tutorial skill
+
+Try in order:
 1. `.claude/skills/quest-system-tutorial/SKILL.md`
 2. `skills/quest-system-tutorial/SKILL.md`
 
 If found, write to `.claude/skills/quest-system-tutorial/SKILL.md`.
-If not found, skip silently and note it.
 
-## Step 6: Update this skill
+## Step 9: Update this skill
 
-Try these source paths in order:
-1. `.claude/skills/update-quest-system/SKILL.md`
+Try in order:
+1. `.claude/skills/update-quest-system/SKILL.md` (source copy, not destination)
 2. `skills/update-quest-system/SKILL.md`
 
 If found, write to `.claude/skills/update-quest-system/SKILL.md`.
-If not found, skip silently.
 
-## Step 7: Update verifier hook
+## Step 10: Update verifier hook
 
-Try source path `hooks/quest-system-verify.sh`.
+Try `hooks/quest-system-verify.sh`.
 If found, write to `.claude/hooks/quest-system-verify.sh`.
-If not found, skip silently.
 
-## Step 8: Confirm
+## Step 11: Confirm
 
 ```
-✅ quest-system updated.
+✅ quest-system updated: {installed-version} → {source-version}
 
 Updated {N} command files → .claude/commands/
-{if tutorial updated:       "Updated quest-system-tutorial skill"}
-{if self updated:           "Updated update-quest-system skill"}
-{if hook updated:           "Updated quest-system-verify.sh hook"}
-{if any skipped:            "Skipped (not found at source): {list}"}
+{if tutorial updated:  "  quest-system-tutorial skill"}
+{if self updated:      "  update-quest-system skill"}
+{if hook updated:      "  quest-system-verify.sh hook"}
+{if any skipped:       "Skipped (not found): {list}"}
 
 Note: restart Claude Code if updated commands do not take effect immediately.
 ```

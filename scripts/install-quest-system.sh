@@ -15,11 +15,13 @@ LOCAL_COMMANDS="$SCRIPT_DIR/../skills/quest-system/commands"
 LOCAL_HOOKS="$SCRIPT_DIR/../hooks"
 LOCAL_TUTORIAL_SKILL="$SCRIPT_DIR/../skills/quest-system-tutorial/SKILL.md"
 LOCAL_UPDATE_SKILL="$SCRIPT_DIR/../skills/update-quest-system/SKILL.md"
+LOCAL_VERSION="$SCRIPT_DIR/../skills/quest-system/VERSION"
 LOCAL_SETTINGS_EXAMPLE="$SCRIPT_DIR/../settings.local.json.example"
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
 TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
 UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
+VERSION_DEST=".claude/commands/.quest-system-version"
 SETTINGS_LOCAL_DEST=".claude/settings.local.json"
 VERIFY_RULE='Bash(.claude/hooks/quest-system-verify.sh *)'
 
@@ -100,6 +102,14 @@ if [ -d "$LOCAL_COMMANDS" ]; then
     echo "  SKIP (not found): skills/update-quest-system/SKILL.md" >&2
   fi
 
+  if [ -f "$LOCAL_VERSION" ]; then
+    cp "$LOCAL_VERSION" "$VERSION_DEST"
+    echo "  .quest-system-version ($(cat "$LOCAL_VERSION" | tr -d '[:space:]'))"
+    UPDATED=$((UPDATED + 1))
+  else
+    echo "  SKIP (not found): skills/quest-system/VERSION" >&2
+  fi
+
   if [ -f "$LOCAL_SETTINGS_EXAMPLE" ] && [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
     cp "$LOCAL_SETTINGS_EXAMPLE" "$SETTINGS_LOCAL_DEST"
   fi
@@ -166,6 +176,13 @@ else
     echo "  FAIL: skills/update-quest-system/SKILL.md (HTTP error)" >&2
   fi
 
+  if curl -fsSL "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
+    echo "  .quest-system-version ($(cat "$VERSION_DEST" | tr -d '[:space:]'))"
+    UPDATED=$((UPDATED + 1))
+  else
+    echo "  FAIL: skills/quest-system/VERSION (HTTP error)" >&2
+  fi
+
   if [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
     if curl -fsSL "$REPO/settings.local.json.example" -o "$SETTINGS_LOCAL_DEST"; then
       UPDATED=$((UPDATED + 1))
@@ -191,6 +208,7 @@ PY
   fi
 fi
 
+INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""
-echo "quest-system: $UPDATED files installed (commands → $COMMANDS_DEST, hooks → $HOOKS_DEST, tutorial skill → $(dirname "$TUTORIAL_SKILL_DEST"))"
+echo "quest-system $INSTALLED_VERSION: $UPDATED files installed"
 echo "Restart Claude Code if commands don't appear immediately."

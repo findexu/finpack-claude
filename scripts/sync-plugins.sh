@@ -36,6 +36,9 @@ for d in skills/*/; do
     cp "${d}commands/"*.md "plugins/$name/skills/$name/commands/"
     echo "  commands  $name"
   fi
+  if [ -f "${d}VERSION" ]; then
+    cp "${d}VERSION" "plugins/$name/skills/$name/VERSION"
+  fi
 done
 
 # 3. Bundle the full finpack-claude template into the setup-finpack plugin
