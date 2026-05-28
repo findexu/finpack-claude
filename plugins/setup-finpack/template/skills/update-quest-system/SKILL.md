@@ -40,27 +40,34 @@ Read `{source}/../VERSION` for `{source-version}`. If absent: `{source-version}`
 
 If neither location contains `new-quest.md`, go to Step 4 (no local source).
 
-## Step 4: No local source — offer curl fallback
+## Step 4: No local source — check GitHub version first
+
+Run this command silently to fetch the available version from GitHub:
+```bash
+curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION 2>/dev/null | tr -d '[:space:]'
+```
+
+Record result as `{github-version}`. If curl fails or returns empty: `{github-version}` = "unknown".
 
 Output:
 ```
 Installed: {installed-version}
-Available: unknown (no local source found)
+Available: {github-version}  (GitHub)
+```
 
+If `{installed-version}` equals `{github-version}`:
+```
+Already up to date. Re-run install script anyway? (y/n)
+```
+If n: stop.
+
+If versions differ (or either is unknown):
+```
 The marketplace plugin update only refreshes the plugin registry — it does
 not copy source files to disk.
 
-To update, run the install script (safe to re-run, overwrites in place):
-
-  # If you have a local finpack-claude clone:
-  bash /path/to/finpack-claude/scripts/install-quest-system.sh
-
-  # Or via curl (fetches latest from GitHub):
-  curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash
-
-Run curl script now? (y/n)
+Run curl install script to update? (y/n)
 ```
-
 If n: stop.
 
 If y: run this bash command and then stop (report output to commander):

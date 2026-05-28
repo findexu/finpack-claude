@@ -115,18 +115,23 @@ if [ -d "$LOCAL_COMMANDS" ]; then
   fi
 
   if [ -f "$SETTINGS_LOCAL_DEST" ]; then
-    python3 - "$SETTINGS_LOCAL_DEST" "$VERIFY_RULE" <<'PY'
+    python3 - "$SETTINGS_LOCAL_DEST" <<'PY'
 import json
 import pathlib
 import sys
 
+RULES = [
+    'Bash(.claude/hooks/quest-system-verify.sh *)',
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash)',
+]
+
 path = pathlib.Path(sys.argv[1])
-rule = sys.argv[2]
 data = json.loads(path.read_text())
-permissions = data.setdefault("permissions", {})
-allow = permissions.setdefault("allow", [])
-if rule not in allow:
-    allow.insert(0, rule)
+allow = data.setdefault("permissions", {}).setdefault("allow", [])
+for rule in RULES:
+    if rule not in allow:
+        allow.insert(0, rule)
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"
@@ -190,19 +195,24 @@ else
   fi
 
   if [ -f "$SETTINGS_LOCAL_DEST" ]; then
-    python3 - "$SETTINGS_LOCAL_DEST" "$VERIFY_RULE" <<'PY'
+    python3 - "$SETTINGS_LOCAL_DEST" <<'PY'
 import json
 import pathlib
 import sys
 
+RULES = [
+    'Bash(.claude/hooks/quest-system-verify.sh *)',
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash)',
+]
+
 path = pathlib.Path(sys.argv[1])
-rule = sys.argv[2]
 data = json.loads(path.read_text())
-permissions = data.setdefault("permissions", {})
-allow = permissions.setdefault("allow", [])
-if rule not in allow:
-    allow.insert(0, rule)
-    path.write_text(json.dumps(data, indent=2) + "\n")
+allow = data.setdefault("permissions", {}).setdefault("allow", [])
+for rule in RULES:
+    if rule not in allow:
+        allow.insert(0, rule)
+path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"
   fi
