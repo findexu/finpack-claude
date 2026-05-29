@@ -88,7 +88,8 @@ Announce: "🔍 Scouting the codebase before we plan..."
 
 Read the Quest Overview from STRATEGY_SCROLL. Use it as the feature description.
 
-Launch 2–3 `fp-code-explorer` agents in parallel. Each agent investigates a different angle:
+Launch 2–3 `fp-code-explorer` agents in parallel. Each agent investigates a different angle.
+(These agents prefer Serena MCP for code navigation when it is connected, falling back to Grep/Glob otherwise — no extra prompting needed; it lives in the agent definition.)
 
 **Agent 1 — Similar Features:**
 Prompt the agent with:

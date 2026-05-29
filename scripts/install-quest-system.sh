@@ -218,6 +218,35 @@ PY
   fi
 fi
 
+# Optional: auto-connect Serena MCP if its runtime is already installed.
+# Only registers when a real serena binary is on PATH — never triggers a uvx
+# build, never fails the install. Skip with QUEST_SKIP_SERENA=1.
+connect_serena() {
+  [ "${QUEST_SKIP_SERENA:-0}" = "1" ] && return 0
+  command -v claude &>/dev/null || return 0
+
+  # Already registered? Leave the user's config untouched.
+  if claude mcp get serena &>/dev/null; then
+    echo "  serena MCP: already configured (left as-is)"
+    return 0
+  fi
+
+  # Only register the modern `serena` CLI entry point. We deliberately do NOT
+  # fall back to `uvx --from git+...` (would build serena on first launch) nor to
+  # the legacy `serena-mcp-server` binary (unverified flags). --project-from-cwd
+  # makes serena activate whichever project the session runs in, so one
+  # registration works across every consumer repo.
+  command -v serena &>/dev/null || return 0  # not installed — stay silent
+
+  if claude mcp add serena --scope local -- serena start-mcp-server --context=claude-code --project-from-cwd &>/dev/null; then
+    echo "  serena MCP: detected and connected (scope: local)"
+  else
+    echo "  serena MCP: detected but 'claude mcp add' failed — connect manually" >&2
+  fi
+}
+
+connect_serena
+
 INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""
 echo "quest-system $INSTALLED_VERSION: $UPDATED files installed"

@@ -86,6 +86,8 @@ Known dangers relevant to this matter:
 Key files and areas (from WORLD_MAP):
 {world map summary}
 
+Tooling: if Serena MCP tools (mcp__serena__*) are connected, prefer them for symbol navigation — find_symbol, find_referencing_symbols, get_symbols_overview, search_for_pattern — over text search. Fall back to Grep/Glob when Serena is absent or for plain-text matches.
+
 Search the codebase for:
 - Existing implementations or patterns relevant to the matter
 - Files, functions, or modules in scope
