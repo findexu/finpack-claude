@@ -1,5 +1,5 @@
 ---
-description: Diagnose the health of the active quest's scrolls. Checks for missing files, missing sections, invalid frontmatter, split state, and legacy pre-expedition terminology that needs migration. Offers repair if issues are found.
+description: Diagnose the health of the active quest's scrolls. Checks for missing files, missing sections, invalid frontmatter, split state, legacy pre-expedition terminology, and legacy storage layout (pre-v1.6.0). Offers repair if issues are found.
 ---
 
 # Summon Witch Doctor
@@ -21,6 +21,36 @@ Verify:
 - Quest folder path on line 1 exists on disk
 
 If either check fails, report as CORRUPT and stop — cannot proceed without valid active quest.
+
+## Step 2b: Check storage layout (legacy migration)
+
+Before inspecting scrolls, check for legacy storage layout from pre-v1.6.0.
+These are project-level checks, not per-scroll checks. Accumulate as LAYOUT issues.
+
+### LEGACY_DIGESTS
+Check if any of these files exist at `.ai-context/` root:
+- `.ai-context/quest.md`
+- `.ai-context/dangers.md`
+- `.ai-context/decisions.md`
+
+If found: flag `LAYOUT WARN — LEGACY_DIGESTS: quest.md/dangers.md/decisions.md found at .ai-context/ root (replaced by context.md inside quest folder)`
+
+### LEGACY_QUEST_PATH
+Check the quest folder path from `active-quest.txt` line 1.
+If it matches `.ai-context/{name}` (i.e. directly under `.ai-context/`, not under `.ai-context/quests/`):
+flag `LAYOUT WARN — LEGACY_QUEST_PATH: quest folder should be at .ai-context/quests/{name}`
+
+Also scan `.ai-context/` for any subdirectories that contain a `STRATEGY_SCROLL.md`
+but are NOT under `.ai-context/quests/` — flag each one.
+
+### LEGACY_REGISTRIES
+Check for project-level registry files under `docs/dev/` or `Docs/dev/`:
+- `docs/dev/DANGER_REGISTRY.md` or `Docs/dev/DANGER_REGISTRY.md`
+- `docs/dev/DECISIONS_LOG.md` or `Docs/dev/DECISIONS_LOG.md`
+
+If found: flag `LAYOUT WARN — LEGACY_REGISTRIES: DANGER_REGISTRY.md/DECISIONS_LOG.md found under docs/dev/ (should be at .ai-context/)`
+
+Also check for `docs/dev/archived/` or `Docs/dev/archived/` — flag same way.
 
 ## Step 3: Inspect each scroll
 
@@ -78,6 +108,11 @@ If found, report `WARN` with issue `MIGRATION_NEEDED: legacy phase/session terms
 ```
 Quest: {quest-name}  |  Realm: {realm}
 
+Layout
+──────────────────────────────────────────────────────────────────────────────
+{LAYOUT issues from Step 2b, or "OK — storage layout is current (v1.6.0+)"}
+
+Scrolls
 Scroll                   Status        Issues
 ─────────────────────────────────────────────────────────────────────────────
 WORLD_MAP.md             {status}      {issues or blank}
@@ -97,17 +132,49 @@ Status values:
 - `SPLIT` — correctly split into subfiles
 - `SPLIT_NEEDED` — over 500 lines, not yet split
 
-If all scrolls are OK or SPLIT: "All scrolls healthy. No repair needed." Stop.
+If all scrolls are OK or SPLIT and no layout issues: "All scrolls healthy. No repair needed." Stop.
 
 ## Step 5: Offer repair
 
-If any scroll has status WARN or MISSING:
+If any LAYOUT issues or scroll WARN/MISSING were found:
 
-Ask: "Repair affected scrolls? (y/n)"
+Ask: "Repair issues? (y/n)"
 
 If n: stop.
 
-If y, for each affected scroll:
+If y:
+
+### Layout repairs (run first, before scroll repairs)
+
+**LEGACY_QUEST_PATH** — migrate quest folder to new location:
+1. Create `.ai-context/quests/` if it does not exist
+2. Move `{quest-folder}` → `.ai-context/quests/{quest-name}/`
+3. Rewrite `.claude/active-quest.txt` line 1 to `.ai-context/quests/{quest-name}`
+4. Update `{quest-folder}` variable for all subsequent scroll repairs
+5. Announce: "📦 Quest folder moved: {old-path} → .ai-context/quests/{quest-name}/"
+
+Repeat for any other orphan quest folders found under `.ai-context/` root.
+
+**LEGACY_REGISTRIES** — migrate registry files:
+1. Move `docs/dev/DANGER_REGISTRY.md` → `.ai-context/DANGER_REGISTRY.md`
+   (skip if `.ai-context/DANGER_REGISTRY.md` already exists — do not overwrite)
+2. Move `docs/dev/DECISIONS_LOG.md` → `.ai-context/DECISIONS_LOG.md`
+   (skip if already exists)
+3. If `docs/dev/archived/` exists: move → `.ai-context/archived/`
+   (skip if `.ai-context/archived/` already exists)
+4. If `docs/dev/` is now empty: remove it
+5. Announce: "📦 Registries migrated: docs/dev/ → .ai-context/"
+
+**LEGACY_DIGESTS** — remove stale digest files:
+1. Delete `.ai-context/quest.md` if it exists
+2. Delete `.ai-context/dangers.md` if it exists
+3. Delete `.ai-context/decisions.md` if it exists
+4. Create `{quest-folder}/context.md` placeholder:
+   `# Quest Context\n(run /embark to populate)`
+5. Announce: "🗑️  Legacy digest files removed. context.md placeholder created — run /embark to populate."
+
+### Scroll repairs
+
 - **MISSING**: recreate using the appropriate template below.
   Fill in quest name, realm, and today's date.
 
