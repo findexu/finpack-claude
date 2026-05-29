@@ -5,10 +5,10 @@ description: >
   Tracks quests (features/epics), expeditions (work loops), realms (app targets),
   and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
-  with multiple app targets. Triggers: /new-quest, /embark, /make-camp,
-  /quest-log, /change-quest, /install-quest-system,
+  with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
+  /make-camp, /quest-log, /change-quest, /counsel-quest, /install-quest-system,
   /summon-witch-doctor.
-version: 1.5.1
+version: 1.6.0
 ---
 
 # Quest System — Skill Definition
@@ -34,11 +34,13 @@ never loses context between conversations.
 
 | Command | When to use |
 |---|---|
-| `/new-quest` | Begin a brand new feature from scratch |
+| `/new-quest` | Scaffold a brand new quest (folder + scrolls) |
+| `/start-quest` | Activate a quest and get guided to next step |
+| `/counsel-quest` | Plan (or replan/pivot) the active quest — 3 modes: PRE, MID, PIVOT |
 | `/embark` | Start an expedition |
 | `/make-camp` | End an expedition and update all scrolls |
 | `/quest-log` | Quick status check without opening a full expedition |
-| `/change-quest` | Switch quest or realm |
+| `/change-quest` | Save state and switch to a different quest or realm |
 | `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, split issues, and legacy terminology migration needs |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
@@ -57,7 +59,7 @@ never loses context between conversations.
 ## active-quest.txt format
 
 Located at `.claude/active-quest.txt`
-Line 1: path to quest scrolls folder (e.g. `docs/dev/scan-alignment-floor-annotation`)
+Line 1: path to quest scrolls folder (e.g. `.ai-context/quests/scan-alignment-floor-annotation`)
 Line 2: realm in scope (e.g. `WeScanX`)
 
 All commands read this file first. Change it with `/change-quest`.
@@ -101,7 +103,7 @@ When a split occurs, announce:
 
 ## Project-level files
 
-Two lightweight files live at `docs/dev/` and persist across all quests.
+Two lightweight files live at `.ai-context/` and persist across all quests.
 Created by `/complete-quest`. Read by `/embark` before quest scrolls.
 
 | File | Purpose |
@@ -189,23 +191,37 @@ Never rewrites unrelated content. Never touches OK scrolls. Never merges or reor
 
 ## .ai-context/ — portable AI context
 
-Three lightweight files kept in sync with the active quest.
-Committed to git so the whole team benefits.
-Any AI (Copilot, Gemini, etc.) can read them — paste at chat start or add to custom instructions.
+All quest state and project memory lives here. Committed to git so the whole team benefits.
+
+```
+.ai-context/
+  DANGER_REGISTRY.md              ← project-wide dangers (all completed quests)
+  DECISIONS_LOG.md                ← project-wide decisions (all completed quests)
+  README.md                       ← how to use with each AI tool
+  quests/{quest-name}/            ← one folder per quest (5 scrolls + context.md)
+    context.md                    ← merged fast-read: paste into any AI tool
+    WORLD_MAP.md
+    STRATEGY_SCROLL.md
+    ADVENTURE_JOURNAL.md
+    TOME_OF_DANGERS.md
+    ADVENTURERS_HANDBOOK.md
+  archived/{quest-name}/          ← completed quests (moved by /complete-quest)
+```
 
 | File | Contents | Updated by |
 |---|---|---|
-| `.ai-context/quest.md` | Battle status, open riddles, road ahead | `/embark`, `/make-camp` |
-| `.ai-context/dangers.md` | Quest dangers + project registry fast-read | `/embark`, `/make-camp` |
-| `.ai-context/decisions.md` | Quest oaths + project decisions log | `/embark`, `/make-camp` |
-| `.ai-context/README.md` | How to use with each AI tool | Created once by `/new-quest` |
+| `quests/{quest-name}/context.md` | Battle status + open riddles + road ahead + top dangers + locked decisions | `/embark`, `/make-camp` |
+| `DANGER_REGISTRY.md` | All dangers distilled from completed quests | `/complete-quest` |
+| `DECISIONS_LOG.md` | All decisions distilled from completed quests | `/complete-quest` |
+| `README.md` | How to use with each AI tool | Created once by `/new-quest` |
 
-Created by `/new-quest`. Cleared by `/complete-quest` (quest.md set to "No active quest").
+**context.md** is the one file to paste into any AI tool. It includes everything needed to resume work: battle status, open riddles, road ahead, top quest dangers, and locked decisions (quest + project-level).
 
-### quest.md format
+### context.md format
 ```
-# Active Quest: {quest-name}
+# Quest Context: {quest-name}
 Realm: {realm}  |  Last updated: {date}
+*Paste this file into any AI tool to load the active quest state.*
 
 ## Battle Status
 {battle status table from STRATEGY_SCROLL}
@@ -215,29 +231,19 @@ Realm: {realm}  |  Last updated: {date}
 
 ## Road Ahead
 {last expedition's "The Road Ahead" entry from ADVENTURE_JOURNAL}
-```
 
-### dangers.md format
-```
-# Known Dangers
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Dangers
+## Known Dangers
+### Quest Dangers
 {fast-read summary from TOME_OF_DANGERS index — top 5}
 
-## Project Dangers
+### Project Dangers
 {top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
-```
 
-### decisions.md format
-```
-# Locked Decisions
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Decisions
+## Locked Decisions
+### Quest Decisions
 {oaths from STRATEGY_SCROLL Oaths Sworn section}
 
-## Project Decisions
+### Project Decisions
 {rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
 

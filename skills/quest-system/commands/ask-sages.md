@@ -32,8 +32,8 @@ Store the answer as `{matter}`.
 Load in this order:
 
 **Project-level knowledge** (if files exist):
-- `docs/dev/DANGER_REGISTRY.md`
-- `docs/dev/DECISIONS_LOG.md`
+- `.ai-context/DANGER_REGISTRY.md`
+- `.ai-context/DECISIONS_LOG.md`
 
 If neither exists, skip silently.
 
@@ -47,7 +47,7 @@ If neither exists, skip silently.
 For scrolls with a split subfolder present (`dangers/`, `strategy/`, `journal/`, `map/`):
 read the index file only — do not load subfiles.
 
-**Fast path** — if `.ai-context/quest.md` exists, read it. It contains a pre-synthesized snapshot of battle status, open riddles, and road ahead. Use it to supplement scroll data, not replace it.
+**Fast path** — if `{quest-folder}/context.md` exists, read it. It contains a pre-synthesized snapshot of battle status, open riddles, road ahead, dangers, and decisions. Use it to supplement scroll data, not replace it.
 
 ## Step 4: Announce consultation
 

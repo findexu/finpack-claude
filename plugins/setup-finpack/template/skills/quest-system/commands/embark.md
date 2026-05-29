@@ -35,9 +35,9 @@ Record it as `{expedition-focus}`.
 
 ## Step 2: Load project-level knowledge (if exists)
 
-Check for project-level files in `docs/dev/`:
-- `docs/dev/DANGER_REGISTRY.md` — distilled dangers from all past quests
-- `docs/dev/DECISIONS_LOG.md` — locked architectural decisions from all past quests
+Check for project-level files in `.ai-context/`:
+- `.ai-context/DANGER_REGISTRY.md` — distilled dangers from all past quests
+- `.ai-context/DECISIONS_LOG.md` — locked architectural decisions from all past quests
 
 If either file exists, read it in full. These are small by design.
 Note any dangers or decisions relevant to `{expedition-focus}` — they take priority
@@ -119,14 +119,14 @@ Options:
 
 **Do not begin any implementation work until the commander approves the expedition plan.**
 
-## Step 7: Refresh .ai-context/
+## Step 7: Refresh context.md
 
-If `.ai-context/` directory exists, write all three files using data already loaded:
+Write `{quest-folder}/context.md` using data already loaded:
 
-**`.ai-context/quest.md`:**
 ```
-# Active Quest: {quest-name}
+# Quest Context: {quest-name}
 Realm: {realm}  |  Last updated: {date}
+*Paste this file into any AI tool to load the active quest state.*
 
 ## Battle Status
 {battle status table from STRATEGY_SCROLL}
@@ -136,30 +136,18 @@ Realm: {realm}  |  Last updated: {date}
 
 ## Road Ahead
 {last expedition's "The Road Ahead" entry from ADVENTURE_JOURNAL, or "No expeditions yet"}
-```
 
-**`.ai-context/dangers.md`:**
-```
-# Known Dangers
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Dangers
+## Known Dangers
+### Quest Dangers
 {fast-read summary from TOME_OF_DANGERS index — top 5, or "None yet"}
 
-## Project Dangers
-{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
-```
+### Project Dangers
+{top 5 rows from .ai-context/DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
 
-**`.ai-context/decisions.md`:**
-```
-# Locked Decisions
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Decisions
+## Locked Decisions
+### Quest Decisions
 {entries from STRATEGY_SCROLL Oaths Sworn section, or "None yet"}
 
-## Project Decisions
-{rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
+### Project Decisions
+{rows from .ai-context/DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
-
-If `.ai-context/` does not exist, skip silently.

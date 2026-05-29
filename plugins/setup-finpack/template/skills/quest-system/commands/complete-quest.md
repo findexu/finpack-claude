@@ -29,7 +29,7 @@ Read `{quest-folder}/TOME_OF_DANGERS.md` (and all `dangers/` subfiles if split).
 Extract every entry from `## Known Dangers` and `## Confirmed Safe Paths`.
 Skip entries marked as superseded or resolved.
 
-Append to `docs/dev/DANGER_REGISTRY.md`:
+Append to `.ai-context/DANGER_REGISTRY.md`:
 - If it does not exist yet, create it with this template:
   ```
   ---
@@ -70,7 +70,7 @@ Read `{quest-folder}/STRATEGY_SCROLL.md` (and all `strategy/` subfiles if split)
 Extract every entry from `## Oaths Sworn (Resolved Decisions)`.
 Skip entries that are implementation details rather than architectural decisions.
 
-Append to `docs/dev/DECISIONS_LOG.md`:
+Append to `.ai-context/DECISIONS_LOG.md`:
 - If it does not exist yet, create it with this template:
   ```
   ---
@@ -109,9 +109,9 @@ Append to `{quest-folder}/ADVENTURE_JOURNAL.md`
 
 ## Step 6: Archive quest folder
 
-Move `{quest-folder}/` → `docs/dev/archived/{quest-name}/`
+Move `{quest-folder}/` → `.ai-context/archived/{quest-name}/`
 
-Create `docs/dev/archived/` if it does not exist.
+Create `.ai-context/archived/` if it does not exist.
 
 If an archive with the same name already exists, rename to `{quest-name}-{date}`.
 
@@ -119,33 +119,13 @@ If an archive with the same name already exists, rename to `{quest-name}-{date}`
 
 Delete `.claude/active-quest.txt`.
 
-## Step 8: Update .ai-context/
+## Step 8: Clear context.md
 
-If `.ai-context/quest.md` exists, overwrite with:
+If `{quest-folder}/context.md` exists, overwrite with:
 ```
-# Active Quest
+# Quest Context
 (no active quest — run /new-quest to start one)
 ```
-
-If `.ai-context/dangers.md` exists, overwrite with:
-```
-# Known Dangers
-(no active quest)
-
-## Project Dangers
-{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet)"}
-```
-
-If `.ai-context/decisions.md` exists, overwrite with:
-```
-# Locked Decisions
-(no active quest)
-
-## Project Decisions
-{rows from DECISIONS_LOG.md if exists, else "(none yet)"}
-```
-
-If `.ai-context/` does not exist, skip silently.
 
 ## Step 9: Calculate and award quest EXP
 
@@ -240,9 +220,9 @@ Total EXP after: {total-exp}  |  Level: {new level}
 
 ```
 🏆 Quest complete: {quest-name}
-Dangers distilled: {count} → docs/dev/DANGER_REGISTRY.md
-Decisions distilled: {count} → docs/dev/DECISIONS_LOG.md
-Archived: docs/dev/archived/{quest-name}/
+Dangers distilled: {count} → .ai-context/DANGER_REGISTRY.md
+Decisions distilled: {count} → .ai-context/DECISIONS_LOG.md
+Archived: .ai-context/archived/{quest-name}/
 ```
 
 If XP was awarded, add:

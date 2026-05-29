@@ -1,131 +1,334 @@
 ---
-description: Lock implementation decisions and finalize the battle plan before embarking. Run before the first expedition on a new quest, before starting a new expedition focus, or whenever open riddles need resolving.
-argument-hint: "[--expedition-focus <name>] [--phase <name>]"
+description: >
+  Plan, replan, or pivot the active quest. Three modes: PRE-expedition (full feature-dev
+  flow with codebase exploration + architecture design), MID-expedition (resolve blockers
+  and adjust plan), PIVOT (record fallen strategy and re-plan from scratch).
+  Use --pivot flag for a full direction change mid-expedition.
+argument-hint: "[--pivot] [--expedition-focus <name>]"
 ---
 
 # Counsel Quest
 
-Lock open decisions and finalize the battle plan. This command exists because
-"discuss and decide" is distinct from "execute". Unresolved riddles mid-expedition
-waste context and produce inconsistent results.
+Plan before you leap. Resolve what's unclear before it blocks an expedition.
 
-Run this when:
-- Starting a new quest that has no battle plan yet
-- Starting a new expedition focus on an existing quest
-- Multiple open riddles are blocking progress
-- The battle plan feels stale or incomplete
+This command exists because "discuss and decide" is distinct from "execute".
+Ambiguity discovered mid-expedition wastes context and produces inconsistent results.
+
+## Mode detection
+
+Before loading anything, determine the mode:
+
+1. If `$ARGUMENTS` contains `--pivot` → **PIVOT mode**
+2. Else check `ADVENTURE_JOURNAL.md` for active expedition state:
+   - If the last `## Expedition` entry lacks a `### The Road Ahead` section
+     (i.e., /embark ran but /make-camp hasn't yet) → **MID-EXPEDITION mode**
+   - Otherwise → **PRE-EXPEDITION mode**
+
+If `$ARGUMENTS` contains `--expedition-focus <name>`, record it as `{expedition-focus}`
+and use it to scope context loading and riddle filtering throughout.
+
+If `$ARGUMENTS` contains `--phase <name>`, treat as a legacy alias for `--expedition-focus`.
+
+---
 
 ## Step 1: Read active quest
 
 Read `.claude/active-quest.txt`.
 Line 1 = quest folder path. Line 2 = realm.
 
-If the file does not exist:
-"No active quest. Run /new-quest to create one." Stop.
+If not found: "No active quest. Run /new-quest to create one." Stop.
+If quest folder missing: "Quest folder not found. Run /new-quest or /change-quest." Stop.
 
-## Step 2: Load scrolls
+---
 
-Read from the quest folder:
-- `STRATEGY_SCROLL.md` — full content (battle plan, open riddles, oaths, status)
-- `TOME_OF_DANGERS.md` — index only (dangers shape decisions)
-- `ADVENTURE_JOURNAL.md` — last 2 expedition entries only (what was recently learned)
+## ══════════════════════════════════════════
+## PRE-EXPEDITION MODE
+## ══════════════════════════════════════════
 
-If split subfolders exist (`strategy/`, `dangers/`, `journal/`), read index files
-plus any subfiles directly relevant to the open riddles.
+*Full planning flow: codebase exploration → clarifying questions → architecture design → lock plan.*
 
-If $ARGUMENTS contains `--expedition-focus <name>`, focus only on riddles and
-plan sections relevant to that expedition focus.
+### PRE Step 2: Load quest context
 
-If $ARGUMENTS contains `--phase <name>`, treat it as a legacy alias for
-`--expedition-focus <name>` (migration compatibility for older command usage).
+Read:
+- `STRATEGY_SCROLL.md` — full content
+- `TOME_OF_DANGERS.md` — index only
+- `ADVENTURE_JOURNAL.md` — last 2 expedition entries only
+- `WORLD_MAP.md` — index only
 
-## Step 3: Present the situation
+If split subfolders exist, read index files plus subfiles relevant to `{expedition-focus}`.
 
-Output a concise state-of-the-quest summary:
+Check project-level files if they exist:
+- `.ai-context/DANGER_REGISTRY.md` — distilled dangers from past quests
+- `.ai-context/DECISIONS_LOG.md` — locked architectural decisions
 
-```
-## Counsel — {quest-name}
-
-### Open Riddles (Decisions Needed)
-{list from STRATEGY_SCROLL — or "None. The battle plan is clear."}
-
-### Battle Plan Status
-{current battle plan from STRATEGY_SCROLL, with status of each step}
-
-### Relevant Dangers
-{top dangers from TOME_OF_DANGERS that affect pending decisions}
-```
-
-If there are no open riddles and the battle plan is fully defined:
-
-> "No open riddles and the battle plan is clear. You're ready to /embark."
-
-Stop here — do not invent work.
-
-## Step 4: Work through open riddles
-
-For each open riddle, run a focused discussion:
-
-1. **State the riddle clearly** — what is the actual decision that needs to be made?
-   If the riddle is vague, sharpen it first: *"This riddle is about X — specifically,
-   we need to decide Y. Is that right?"*
-
-2. **Present concrete options** (2-4 choices) — not open-ended blanks.
-   Each option should be specific enough that a stranger could implement it from
-   the description alone.
-
-3. **Probe for constraints** — what makes some options dangerous?
-   Check TOME_OF_DANGERS for anything that rules out an approach.
-
-4. **Lock the decision** — once the commander chooses, confirm:
-   *"Locking: [decision]. This becomes an oath — it won't be re-debated."*
-
-5. Move to the next riddle.
-
-**Anti-patterns:**
-- Presenting options that are too vague to act on ("Option A: use a service layer")
-- Moving on without explicit commander confirmation
-- Re-opening a riddle that was already resolved in a previous expedition
-- Adding new riddles mid-discussion (note them for later, don't derail)
-
-## Step 5: Finalize the battle plan
-
-After all riddles are resolved (or confirmed as still open with a reason):
-
-1. Review the current battle plan in `STRATEGY_SCROLL.md`
-2. Ask: *"Does the battle plan reflect what we just decided, or does it need updating?"*
-3. If updating: draft the revised plan and confirm with the commander before writing
-
-The battle plan should be:
-- **Ordered** — numbered steps, each building on the last
-- **Specific** — each step names what gets built, not just "implement X"
-- **Bounded** — if a step is too large, split it
-
-## Step 6: Write decisions back to STRATEGY_SCROLL
-
-Update `STRATEGY_SCROLL.md`:
-
-1. Move each locked decision from **Open Riddles** to **Oaths Sworn**
-   Format: `- {decision}: {rationale in one sentence}`
-
-2. Update **The Battle Plan** with the finalized sequence
-
-3. Update `last-updated` in YAML frontmatter
-
-Do not update any other scroll.
-
-## Step 7: Confirm
+### PRE Step 3: Present situation
 
 Output:
 ```
+⚔️  Counsel — {quest-name}  |  Realm: {realm}
+Mode: Pre-expedition
+
+### Open Riddles
+{list from STRATEGY_SCROLL — or "None"}
+
+### Battle Plan
+{current battle plan — or "(not yet defined)"}
+
+### Relevant Dangers
+{top 3 from TOME_OF_DANGERS relevant to the quest}
+```
+
+If no open riddles AND battle plan is fully defined:
+Ask: "The plan looks complete. Re-run architecture review anyway? (y/n)"
+If n: output "Run /embark to begin." Stop.
+
+### PRE Step 4: Codebase Exploration
+
+Announce: "🔍 Scouting the codebase before we plan..."
+
+Read the Quest Overview from STRATEGY_SCROLL. Use it as the feature description.
+
+Launch 2–3 `code-explorer` agents in parallel. Each agent investigates a different angle:
+
+**Agent 1 — Similar Features:**
+Prompt the agent with:
+- Quest overview, realm, WORLD_MAP summary (if populated), TOME_OF_DANGERS top dangers
+- Focus: "Find features similar to {quest-overview} and trace their implementation comprehensively. Identify patterns we should follow."
+
+**Agent 2 — Architecture & Abstractions:**
+Prompt the agent with:
+- Quest overview, realm, WORLD_MAP summary, TOME_OF_DANGERS top dangers
+- Focus: "Map the architecture and abstractions relevant to {quest-overview}. Trace call chains, identify module boundaries and extension points."
+
+**Agent 3 — Integration Points** (launch if the quest involves UI, APIs, or cross-module work):
+Prompt the agent with:
+- Quest overview, realm, WORLD_MAP summary
+- Focus: "Identify integration points, testing patterns, and cross-cutting concerns relevant to {quest-overview}."
+
+After all agents return:
+1. Read all key files they identified (their "Essential Files" lists)
+2. Update `WORLD_MAP.md` — add findings to ## Module Map and ## Key Files table
+3. Add any new dangers flagged by agents to `TOME_OF_DANGERS.md` immediately
+4. Present summary: patterns found, key files, architecture insights
+
+### PRE Step 5: Clarifying Questions
+
+Review codebase findings + quest overview + open riddles from STRATEGY_SCROLL.
+
+Identify underspecified aspects:
+- Edge cases and error handling
+- Scope boundaries (what's in v1, what's explicitly out)
+- Integration points and backward compatibility
+- Performance or security considerations
+- Any ambiguity that could cause a mid-expedition pivot
+
+**Present all questions in a clear, organized list.**
+**Wait for answers before proceeding.**
+
+If the commander says "whatever you think is best":
+Provide your recommendation for each question and ask for explicit confirmation.
+
+Record confirmed answers as candidate oaths.
+
+### PRE Step 6: Architecture Design
+
+Announce: "🏗️ Designing the architecture..."
+
+Launch 2–3 `code-architect` agents in parallel, each with a different focus.
+Each agent receives: quest overview, realm, WORLD_MAP findings, TOME_OF_DANGERS,
+clarifying answers from Step 5, locked oaths, and any fallen strategies.
+
+**Agent 1 — Minimal Changes:**
+Focus: "Design a minimal-changes approach: maximum reuse of existing patterns, smallest possible footprint."
+
+**Agent 2 — Clean Architecture:**
+Focus: "Design a clean architecture approach: maintainability, elegant abstractions, clear separation of concerns."
+
+**Agent 3 — Pragmatic Balance:**
+Focus: "Design a pragmatic balance: achieves quality without over-engineering, fits the existing codebase patterns."
+
+After all agents return:
+1. Review all three blueprints
+2. Form a recommendation based on: quest complexity, codebase maturity, time constraints
+3. Present comparison:
+
+```
+### Approach Comparison
+
+| | Minimal Changes | Clean Architecture | Pragmatic Balance |
+|---|---|---|---|
+| Effort | Low | High | Medium |
+| Maintainability | Low | High | Medium |
+| Risk | Low | Medium | Low |
+| Fits codebase | ✓ | ~ | ✓ |
+
+**Recommendation:** {Approach N} — {one sentence reasoning}
+```
+
+**Ask which approach to proceed with. Wait for the commander's choice.**
+
+### PRE Step 7: Lock decisions and finalize plan
+
+1. Move resolved riddles from **Open Riddles** → **Oaths Sworn** in STRATEGY_SCROLL
+   Format: `- {decision}: {rationale in one sentence}`
+2. Write the chosen architecture as **The Battle Plan** (numbered, specific, bounded steps)
+3. Update `WORLD_MAP.md` with structural insights from architect agents
+4. Update `last-updated` frontmatter in all modified scrolls
+5. Refresh `.ai-context/` if it exists
+
+### PRE Step 8: Confirm
+
+```
 ⚔️  Counsel complete — {quest-name}
 
-Oaths sworn this expedition planning round:
-{list of decisions locked}
-
-Battle plan: {N steps defined / updated / unchanged}
-
+Codebase scouted: {N key files identified, WORLD_MAP updated}
+Oaths sworn: {N}
+Battle plan: {N steps}
 Open riddles remaining: {N — or "none"}
 
 Run /embark to begin the expedition.
 ```
+
+---
+
+## ══════════════════════════════════════════
+## MID-EXPEDITION MODE
+## ══════════════════════════════════════════
+
+*Lighter flow: load current state, resolve only what's blocking, adjust plan if needed.*
+
+### MID Step 2: Load current expedition context
+
+Read:
+- `STRATEGY_SCROLL.md` — full content
+- `TOME_OF_DANGERS.md` — index only
+- `ADVENTURE_JOURNAL.md` — current expedition entry (last `## Expedition` block)
+
+If split subfolders exist, load relevant subfiles only.
+
+### MID Step 3: Present blocking state
+
+Output:
+```
+⚔️  Mid-expedition counsel — {quest-name}  |  Realm: {realm}
+
+Current expedition:
+{current expedition entry from ADVENTURE_JOURNAL — Conquered so far, Cursed/Uncertain}
+
+Open riddles blocking progress:
+{list from STRATEGY_SCROLL Open Riddles — or "None blocking current work"}
+
+Battle plan remaining:
+{unconquered steps from The Battle Plan}
+```
+
+If no open riddles and no blockers:
+"No blocking riddles. Continue your expedition. Run /make-camp when done."
+Stop.
+
+### MID Step 4: Resolve blocking riddles
+
+For each blocking riddle:
+
+1. **State the riddle clearly** — sharpen if vague
+2. **Present concrete options** (2–4) — specific enough to implement from
+3. **Check TOME_OF_DANGERS** — flag if any option risks a known danger
+4. **Lock the decision** — confirm: "Locking: [decision]. This becomes an oath."
+5. Move to the next
+
+**Anti-patterns:**
+- Re-opening settled oaths
+- Adding new riddles mid-discussion (note for later, don't derail)
+- Proposing fallen strategies
+
+### MID Step 5: Adjust battle plan (if needed)
+
+Ask: "Does the battle plan need adjustment for the remaining work?"
+- If yes: draft the revised plan, confirm before writing
+- If no: proceed
+
+The plan should stay: **ordered, specific, bounded**.
+
+### MID Step 6: Write back to STRATEGY_SCROLL
+
+1. Move locked decisions from Open Riddles → Oaths Sworn
+2. Update The Battle Plan if adjusted
+3. Update `last-updated` frontmatter
+
+### MID Step 7: Confirm
+
+```
+⚔️  Mid-expedition counsel complete — {quest-name}
+
+{N} decision(s) locked. Battle plan {updated / unchanged}.
+
+Continue your expedition.
+```
+
+---
+
+## ══════════════════════════════════════════
+## PIVOT MODE (--pivot)
+## ══════════════════════════════════════════
+
+*Record fallen strategy, preserve partial progress, then run full PRE-EXPEDITION planning with new direction.*
+
+### PIVOT Step 2: Load full quest context
+
+Read all five index scrolls (STRATEGY_SCROLL full, others index only).
+Read project-level files if they exist (DANGER_REGISTRY, DECISIONS_LOG).
+
+### PIVOT Step 3: Understand the pivot
+
+Ask: "Describe the pivot — what changed and why are we changing direction?"
+Wait. Record as `{pivot-reason}`.
+
+Ask: "What work was completed before the pivot?"
+Record as `{pre-pivot-progress}`.
+
+### PIVOT Step 4: Record fallen strategy
+
+Update `STRATEGY_SCROLL.md`:
+1. Move current battle plan to **## Fallen Strategies (Rejected Approaches)**:
+   ```
+   - {plan-summary} (pivoted {date}): {pivot-reason}
+   ```
+2. Mark any "In Progress" modules as "Cursed" in battle status table
+3. Preserve any "Conquered" modules as-is
+
+### PIVOT Step 5: Write interrupted journal entry
+
+Append to `ADVENTURE_JOURNAL.md` (or current month file if split):
+```
+## Expedition {YYYY-MM-DD} (interrupted — pivot)
+### Conquered
+{pre-pivot-progress, or "none"}
+### Pivot Reason
+{pivot-reason}
+### Fallen Strategy
+{summary of abandoned plan}
+### The Road Ahead
+(replanned by counsel-quest pivot — see new battle plan)
+```
+
+### PIVOT Step 6: Run PRE-EXPEDITION planning with new direction
+
+Execute PRE-EXPEDITION Steps 4–8 with these additions:
+- Pass fallen strategies to code-explorer and code-architect agents so they
+  don't re-propose the abandoned approach
+- In Step 4 agent prompts, include: "Fallen strategy to avoid: {abandoned-plan-summary}"
+- In Step 6, if any architect approach resembles the fallen strategy, flag it explicitly
+
+### PIVOT Step 7: Confirm
+
+```
+⚔️  Pivot recorded — {quest-name}
+
+Fallen strategy archived: {plan-summary}
+Interrupted expedition logged: {date}
+New direction: {new battle plan summary}
+Oaths sworn: {N}
+
+Run /embark to begin the first expedition on the new plan.
+```
+

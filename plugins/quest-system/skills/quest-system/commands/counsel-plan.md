@@ -10,9 +10,9 @@ Review a plan file and produce structured feedback ready to paste into the plann
 ## Step 1: Read quest context (optional)
 
 Check if `.claude/active-quest.txt` exists. If it does, read it and load:
-- `.ai-context/quest.md` if it exists (battle status, open riddles, road ahead)
-- `docs/dev/DANGER_REGISTRY.md` if it exists (cross-quest dangers to watch for)
-- `docs/dev/DECISIONS_LOG.md` if it exists (locked decisions the plan must honor)
+- `{quest-folder}/context.md` if it exists (battle status, open riddles, road ahead, dangers, decisions)
+- `.ai-context/DANGER_REGISTRY.md` if it exists (cross-quest dangers to watch for)
+- `.ai-context/DECISIONS_LOG.md` if it exists (locked decisions the plan must honor)
 
 If no active quest, proceed without quest context.
 

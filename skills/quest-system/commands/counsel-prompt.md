@@ -10,7 +10,7 @@ Rewrite a rough or vague prompt into a precise, effective Claude prompt.
 ## Step 1: Read quest context (optional)
 
 Check if `.claude/active-quest.txt` exists. If it does, read it and load:
-- `.ai-context/quest.md` if it exists (fast path — already synthesized)
+- `{quest-folder}/context.md` if it exists (fast path — pre-synthesized snapshot)
 - Otherwise: read STRATEGY_SCROLL.md for battle status and open riddles,
   ADVENTURERS_HANDBOOK.md for tech stack
 

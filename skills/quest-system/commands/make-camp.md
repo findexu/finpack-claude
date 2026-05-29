@@ -104,14 +104,14 @@ For each file that exceeds 500 lines:
    - TOME_OF_DANGERS: keep 3 most critical dangers as fast-read summary
 6. Confirm: "Split complete. {filename} → {list of subfiles created}."
 
-## Step 8: Refresh .ai-context/
+## Step 8: Refresh context.md
 
-If `.ai-context/` directory exists, write all three files using data from the scrolls just updated:
+Write `{quest-folder}/context.md` using data from the scrolls just updated:
 
-**`.ai-context/quest.md`:**
 ```
-# Active Quest: {quest-name}
+# Quest Context: {quest-name}
 Realm: {realm}  |  Last updated: {date}
+*Paste this file into any AI tool to load the active quest state.*
 
 ## Battle Status
 {battle status table from STRATEGY_SCROLL — updated version}
@@ -121,33 +121,21 @@ Realm: {realm}  |  Last updated: {date}
 
 ## Road Ahead
 {this expedition's "The Road Ahead" entry just written to ADVENTURE_JOURNAL}
-```
 
-**`.ai-context/dangers.md`:**
-```
-# Known Dangers
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Dangers
+## Known Dangers
+### Quest Dangers
 {fast-read summary from TOME_OF_DANGERS index — top 5, updated if new dangers were added}
 
-## Project Dangers
-{top 5 rows from DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
-```
+### Project Dangers
+{top 5 rows from .ai-context/DANGER_REGISTRY.md if exists, else "(none yet — complete a quest first)"}
 
-**`.ai-context/decisions.md`:**
-```
-# Locked Decisions
-Quest: {quest-name}  |  Last updated: {date}
-
-## Quest Decisions
+## Locked Decisions
+### Quest Decisions
 {entries from STRATEGY_SCROLL Oaths Sworn section — updated version}
 
-## Project Decisions
-{rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
+### Project Decisions
+{rows from .ai-context/DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
-
-If `.ai-context/` does not exist, skip silently.
 
 ## Step 9: Award expedition EXP
 
