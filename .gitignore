@@ -17,3 +17,9 @@ hooks/*_files/
 
 # Self settings
 .claude/
+.claude/quest-xp/
+
+# quest-dashboard build artifacts
+quest-dashboard/node_modules/
+quest-dashboard/out/
+quest-dashboard/out-tests/
