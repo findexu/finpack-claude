@@ -1,8 +1,0 @@
-{
-  "name": "frontend-designer",
-  "description": "Builds production-grade UI. Tokens-first, anti-AI-slop aesthetics, design tokens enforced.",
-  "author": { "name": "findexu" },
-  "license": "MIT",
-  "homepage": "https://github.com/findexu/finpack-claude",
-  "repository": "https://github.com/findexu/finpack-claude"
-}

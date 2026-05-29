@@ -88,7 +88,7 @@ Announce: "🔍 Scouting the codebase before we plan..."
 
 Read the Quest Overview from STRATEGY_SCROLL. Use it as the feature description.
 
-Launch 2–3 `code-explorer` agents in parallel. Each agent investigates a different angle:
+Launch 2–3 `fp-code-explorer` agents in parallel. Each agent investigates a different angle:
 
 **Agent 1 — Similar Features:**
 Prompt the agent with:
@@ -134,7 +134,7 @@ Record confirmed answers as candidate oaths.
 
 Announce: "🏗️ Designing the architecture..."
 
-Launch 2–3 `code-architect` agents in parallel, each with a different focus.
+Launch 2–3 `fp-code-architect` agents in parallel, each with a different focus.
 Each agent receives: quest overview, realm, WORLD_MAP findings, TOME_OF_DANGERS,
 clarifying answers from Step 5, locked oaths, and any fallen strategies.
 
@@ -314,7 +314,7 @@ Append to `ADVENTURE_JOURNAL.md` (or current month file if split):
 ### PIVOT Step 6: Run PRE-EXPEDITION planning with new direction
 
 Execute PRE-EXPEDITION Steps 4–8 with these additions:
-- Pass fallen strategies to code-explorer and code-architect agents so they
+- Pass fallen strategies to fp-code-explorer and fp-code-architect agents so they
   don't re-propose the abandoned approach
 - In Step 4 agent prompts, include: "Fallen strategy to avoid: {abandoned-plan-summary}"
 - In Step 6, if any architect approach resembles the fallen strategy, flag it explicitly

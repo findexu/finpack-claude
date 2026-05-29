@@ -1,8 +1,0 @@
-{
-  "name": "performance-reviewer",
-  "description": "Finds real bottlenecks. DB N+1, memory leaks, blocking calls, re-renders.",
-  "author": { "name": "findexu" },
-  "license": "MIT",
-  "homepage": "https://github.com/findexu/finpack-claude",
-  "repository": "https://github.com/findexu/finpack-claude"
-}

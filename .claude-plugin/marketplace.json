@@ -6,33 +6,39 @@
   "description": "Lean, token-efficient agents and skills for daily Claude Code development. Install the whole kit by cloning the repo, or pick individual plugins from this marketplace.",
   "plugins": [
     {
-      "name": "code-reviewer",
-      "source": "./plugins/code-reviewer",
+      "name": "fp-code-reviewer",
+      "source": "./plugins/fp-code-reviewer",
       "description": "Reviews code for real bugs: off-by-ones, null derefs, race conditions, swallowed errors. Skips style nitpicks.",
       "license": "MIT"
     },
     {
-      "name": "security-reviewer",
-      "source": "./plugins/security-reviewer",
+      "name": "fp-security-reviewer",
+      "source": "./plugins/fp-security-reviewer",
       "description": "OWASP-style review: injection, auth, data exposure, weak crypto. Severity-ranked with file:line + fix.",
       "license": "MIT"
     },
     {
-      "name": "performance-reviewer",
-      "source": "./plugins/performance-reviewer",
+      "name": "fp-performance-reviewer",
+      "source": "./plugins/fp-performance-reviewer",
       "description": "Finds real bottlenecks. DB N+1, memory leaks, blocking calls, re-renders.",
       "license": "MIT"
     },
     {
-      "name": "doc-reviewer",
-      "source": "./plugins/doc-reviewer",
+      "name": "fp-doc-reviewer",
+      "source": "./plugins/fp-doc-reviewer",
       "description": "Cross-references docs against actual source. Flags drift, missing params, dead references.",
       "license": "MIT"
     },
     {
-      "name": "frontend-designer",
-      "source": "./plugins/frontend-designer",
+      "name": "fp-frontend-designer",
+      "source": "./plugins/fp-frontend-designer",
       "description": "Builds production-grade UI. Tokens-first, anti-AI-slop aesthetics, design tokens enforced.",
+      "license": "MIT"
+    },
+    {
+      "name": "fp-swiftui-designer",
+      "source": "./plugins/fp-swiftui-designer",
+      "description": "Builds polished SwiftUI UI/UX for iPhone and iPad. HIG-driven, size-class adaptive, Dynamic Type and VoiceOver ready.",
       "license": "MIT"
     },
     {

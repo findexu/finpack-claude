@@ -207,11 +207,11 @@ If the user wants a minimal setup, list the actual contents of `.claude/skills/`
 
 ### 3.11 agents/
 
-- **frontend-designer.md**: delete if no frontend files exist
-- **doc-reviewer.md**: delete if the project has no documentation directory (no `docs/`, `doc/`, or significant `.md` files beyond README)
-- **security-reviewer.md**: keep (security applies everywhere)
-- **code-reviewer.md**: keep (universal)
-- **performance-reviewer.md**: keep (universal)
+- **fp-frontend-designer.md**: delete if no frontend files exist
+- **fp-doc-reviewer.md**: delete if the project has no documentation directory (no `docs/`, `doc/`, or significant `.md` files beyond README)
+- **fp-security-reviewer.md**: keep (security applies everywhere)
+- **fp-code-reviewer.md**: keep (universal)
+- **fp-performance-reviewer.md**: keep (universal)
 
 ## Phase 4: Review & Simplify
 

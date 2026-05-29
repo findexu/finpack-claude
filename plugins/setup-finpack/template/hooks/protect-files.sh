@@ -10,7 +10,10 @@ emit() {
   local decision="$1"
   local reason="${2//\"/\\\"}"
   printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"%s","permissionDecisionReason":"%s"}}\n' "$decision" "$reason"
-  exit 2
+  # deny is a hard block (exit 2); ask must exit 0 so the JSON decision is honored
+  # and the user gets a confirmation prompt instead of a blocked-tool error.
+  [ "$decision" = "deny" ] && exit 2
+  exit 0
 }
 
 if ! command -v jq >/dev/null 2>&1; then
