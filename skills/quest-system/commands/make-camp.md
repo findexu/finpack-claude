@@ -110,7 +110,7 @@ Write `{quest-folder}/context.md` using data from the scrolls just updated:
 
 ```
 # Quest Context: {quest-name}
-Realm: {realm}  |  Last updated: {date}
+Realm: {realm}  |  Last updated: {date}  |  Expedition: camped
 *Paste this file into any AI tool to load the active quest state.*
 
 ## Battle Status
@@ -170,6 +170,25 @@ Recalculate level using this table — find highest level whose threshold ≤ ne
 
 If new level > old level: record level-up (announce in Step 10).
 
+**Check badge unlocks** (expedition stats and level can cross thresholds mid-quest):
+Read the current `badges` array. Check each badge below against the updated
+profile stats and collect any not already present:
+
+| Badge | Name           | Unlock condition            |
+|-------|----------------|-----------------------------|
+| 🕵️    | Danger Mapper  | total-dangers-mapped >= 10  |
+| ☠️    | Danger Hoarder | total-dangers-mapped >= 50  |
+| 🤝    | Oath Keeper    | total-oaths-sworn >= 10     |
+| 📚    | Lore Master    | total-oaths-sworn >= 50     |
+| 🧘    | Marathoner     | total-expeditions >= 50     |
+| 🔥    | Unstoppable    | total-expeditions >= 200    |
+| 📂    | Split Master   | total-splits >= 5           |
+| 🌟    | Rising Star    | level >= 5                  |
+| 💎    | Diamond        | level >= 10                 |
+
+Append newly unlocked badge names to the `badges` array.
+(Quest-completion badges — First Blood, Speed Runner, Clean Sweep, etc. — stay with `/complete-quest`.)
+
 Write updated values back to the YAML frontmatter of `.claude/quest-xp/profile.md`.
 
 ## Step 10: Confirm
@@ -191,3 +210,9 @@ If level-up occurred:
 ║  {new title}                          ║
 ╚══════════════════════════════════════╝
 ```
+
+If any new badges unlocked, display after the level-up block:
+```
+🎖️  Badge unlocked: {badge emoji}  {badge name}
+```
+(one line per badge, in order unlocked)

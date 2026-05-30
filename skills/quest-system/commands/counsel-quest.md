@@ -19,10 +19,10 @@ Ambiguity discovered mid-expedition wastes context and produces inconsistent res
 Before loading anything, determine the mode:
 
 1. If `$ARGUMENTS` contains `--pivot` → **PIVOT mode**
-2. Else check `ADVENTURE_JOURNAL.md` for active expedition state:
-   - If the last `## Expedition` entry lacks a `### The Road Ahead` section
-     (i.e., /embark ran but /make-camp hasn't yet) → **MID-EXPEDITION mode**
-   - Otherwise → **PRE-EXPEDITION mode**
+2. Else check `{quest-folder}/context.md` header for expedition state:
+   - If the header line shows `Expedition: active` (set by /embark, not yet
+     cleared by /make-camp) → **MID-EXPEDITION mode**
+   - Otherwise (no flag present, or `Expedition: camped`) → **PRE-EXPEDITION mode**
 
 If `$ARGUMENTS` contains `--expedition-focus <name>`, record it as `{expedition-focus}`
 and use it to scope context loading and riddle filtering throughout.

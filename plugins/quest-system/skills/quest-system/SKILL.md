@@ -6,9 +6,9 @@ description: >
   and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
-  /make-camp, /quest-log, /change-quest, /counsel-quest, /install-quest-system,
-  /summon-witch-doctor.
-version: 1.7.0
+  /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
+  /counsel-quest, /install-quest-system, /summon-witch-doctor.
+version: 1.7.1
 ---
 
 # Quest System — Skill Definition

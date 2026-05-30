@@ -1,5 +1,6 @@
 ---
 description: Start an expedition on the active quest. Scopes today's focus, loads only relevant subfiles, briefs the commander, proposes an expedition plan, and waits for approval before any work begins.
+---
 
 # Embark
 
@@ -125,7 +126,7 @@ Write `{quest-folder}/context.md` using data already loaded:
 
 ```
 # Quest Context: {quest-name}
-Realm: {realm}  |  Last updated: {date}
+Realm: {realm}  |  Last updated: {date}  |  Expedition: active
 *Paste this file into any AI tool to load the active quest state.*
 
 ## Battle Status

@@ -24,6 +24,12 @@ General code review with specific bug patterns to catch: off-by-one errors, null
 ### fp-doc-reviewer
 Reviews documentation for accuracy (do docs match code?), completeness (are required params documented?), staleness (do referenced APIs still exist?), and clarity. Cross-references with actual source code using grep and file reads.
 
+### fp-code-explorer
+Read-only codebase analyst. Traces execution paths, maps architecture layers, and documents dependencies for a feature before it is built. Spawned in parallel by `/counsel-quest` during the exploration phase. Prefers Serena MCP tools (`mcp__serena__*`) for symbol navigation when connected, falling back to Grep/Glob. Reviewer/designer agents intentionally do **not** get Serena — this one and `fp-code-architect` do, because their job is whole-module navigation rather than diff-bounded review.
+
+### fp-code-architect
+Read-only architecture designer. Turns codebase findings into an implementation blueprint: specific files to create/modify, build sequence, and data flow. Spawned in parallel by `/counsel-quest` during the design phase. Like `fp-code-explorer`, it prefers Serena MCP tools for surveying existing structure and blast radius, falling back to Grep/Glob.
+
 ## Adding your own
 
 Create a new `.md` file in this directory:

@@ -46,9 +46,14 @@ for d in skills/*/; do
   cp "${d}SKILL.md" "plugins/$name/skills/$name/SKILL.md"
   echo "  skill  $name"
   if [ -d "${d}commands" ]; then
-    mkdir -p "plugins/$name/skills/$name/commands"
-    cp "${d}commands/"*.md "plugins/$name/skills/$name/commands/"
-    echo "  commands  $name"
+    # nullglob makes an empty commands/ expand to nothing; guard so `cp` is not
+    # called with only a destination arg (exit 64 would abort the whole sync).
+    cmd_files=("${d}commands/"*.md)
+    if [ ${#cmd_files[@]} -gt 0 ]; then
+      mkdir -p "plugins/$name/skills/$name/commands"
+      cp "${cmd_files[@]}" "plugins/$name/skills/$name/commands/"
+      echo "  commands  $name"
+    fi
   fi
   if [ -f "${d}VERSION" ]; then
     cp "${d}VERSION" "plugins/$name/skills/$name/VERSION"

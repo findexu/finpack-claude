@@ -131,7 +131,7 @@ If `{quest-folder}/context.md` exists, overwrite with:
 
 If `.claude/quest-xp/profile.md` does not exist, skip to Step 10.
 
-**Count quest data** (read from scrolls before archive):
+**Count quest data** (the quest folder was moved in Step 6 — read these from the archived scrolls at `.ai-context/archived/{quest-name}/`):
 - `modules`: number of rows in STRATEGY_SCROLL battle status table
 - `expeditions`: number of `## Expedition` entries in ADVENTURE_JOURNAL
 - `dangers`: number of rows in TOME_OF_DANGERS Known Dangers table (plus all subfiles if split)
@@ -196,7 +196,6 @@ Check each badge below against updated profile stats. Collect any newly unlocked
 | 🌟    | Rising Star        | level >= 5                              |
 | 💎    | Diamond            | level >= 10                             |
 
-Append newly unlocked badge names to the `badges` array.
 Append newly unlocked badge names to the `badges` array.
 
 Write updated values back to YAML frontmatter of `.claude/quest-xp/profile.md`.
