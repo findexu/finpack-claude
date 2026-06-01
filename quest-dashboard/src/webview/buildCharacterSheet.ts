@@ -14,6 +14,14 @@ export interface SheetAssets {
   // 4-frame horizontal idle sheet (square frames), if vendored. Drives a
   // steps(4) animation; falls back to the static avatar / SVG hero when null.
   heroSheetUri: string | null;
+  // Keyed character cutout (hero.png, transparent). Preferred over avatar.png.
+  heroImgUri: string | null;
+  // Painted dungeon background (hero-bg.jpg). When present, the hero stage
+  // renders the real composited scene; otherwise the CSS stage is the fallback.
+  heroBgUri: string | null;
+  // 9-frame idle animation strip (hero-idle.png, 2304x256, 256px square cells).
+  // Preferred over the static hero.png; drives a steps(9) animation.
+  heroIdleUri: string | null;
 }
 
 export function buildCharacterSheet(state: QuestState, assets: SheetAssets): string {
@@ -144,6 +152,22 @@ function renderNameplate(
 }
 
 function renderHeroStage(assets: SheetAssets): string {
+  // Real composited scene: painted background + keyed character on its pedestal.
+  // The stage is locked to the background's native aspect ratio so object-fit
+  // cover never shifts the painted pedestal — the character anchor stays exact
+  // in both the narrow and wide layouts.
+  if (assets.heroBgUri !== null) {
+    return `<div class="hero-stage hero-stage-img">
+      <img class="hero-bg" src="${escapeHtml(assets.heroBgUri)}" alt="" aria-hidden="true" />
+      <div class="hero-sparkles" aria-hidden="true">
+        <span class="spark spark-1"></span>
+        <span class="spark spark-2"></span>
+        <span class="spark spark-3"></span>
+        <span class="spark spark-4"></span>
+      </div>
+      ${renderHeroChar(assets)}
+    </div>`;
+  }
   return `<div class="hero-stage" aria-hidden="false">
     <div class="hero-arch" aria-hidden="true"></div>
     <div class="hero-sparkles" aria-hidden="true">
@@ -160,6 +184,23 @@ function renderHeroStage(assets: SheetAssets): string {
   </div>`;
 }
 
+// Character anchored bottom-center onto the painted pedestal. Priority:
+// animated 9-frame idle strip > static cutout > inline SVG hero.
+function renderHeroChar(assets: SheetAssets): string {
+  if (assets.heroIdleUri !== null) {
+    // viewBox clips one 256px cell; the 2304-wide (9x256) strip is stepped left
+    // one frame per step. Presentation attrs only (CSP-safe).
+    return `<svg class="hero-char hero-idle" viewBox="0 0 256 256" role="img" aria-label="adventurer">
+      <image class="hero-idle-img" href="${escapeHtml(assets.heroIdleUri)}" x="0" y="0" width="2304" height="256" />
+    </svg>`;
+  }
+  const src = assets.heroImgUri ?? assets.avatarUri;
+  if (src === null) {
+    return `<div class="hero-char hero-char-svg">${HERO_SVG}</div>`;
+  }
+  return `<img class="hero-char" src="${escapeHtml(src)}" alt="adventurer" />`;
+}
+
 // Priority: animated 4-frame sheet > static avatar PNG > inline SVG hero.
 function renderHeroFigure(assets: SheetAssets): string {
   if (assets.heroSheetUri !== null) {
@@ -169,7 +210,7 @@ function renderHeroFigure(assets: SheetAssets): string {
       <image class="hero-frames-img" href="${escapeHtml(assets.heroSheetUri)}" x="0" y="0" width="256" height="64" />
     </svg>`;
   }
-  return renderAvatar(assets.avatarUri);
+  return renderAvatar(assets.heroImgUri ?? assets.avatarUri);
 }
 
 function renderAvatar(avatarUri: string | null): string {
@@ -478,6 +519,50 @@ function styles(): string {
         0 6px 10px rgba(0,0,0,0.5);
     }
 
+    /* ---- Real composited hero stage (painted bg + keyed character) ---- */
+    /* Locked to the background's native aspect so cover-crop never shifts the
+       painted pedestal; the character anchor then holds in both layouts. */
+    .hero-stage-img {
+      aspect-ratio: 928 / 1104;
+      min-height: 0;
+      padding: 0;
+      background: var(--inset);
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: var(--z-decor);
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+    }
+    .hero-char {
+      position: absolute; z-index: var(--z-figure);
+      bottom: 16%; left: 50%;
+      height: 52%; width: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.55));
+      transform: translateX(-50%);
+      animation: qd-float-c 3.6s ease-in-out infinite;
+    }
+    .hero-char-svg {
+      display: flex; align-items: flex-end; justify-content: center;
+      width: 46%; height: auto;
+    }
+    @keyframes qd-float-c {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-6px); }
+    }
+    /* Animated idle: square cell, frames provide the motion (no float). */
+    .hero-idle {
+      width: auto; aspect-ratio: 1 / 1;
+      animation: none;
+      overflow: hidden;
+    }
+    .hero-idle-img {
+      image-rendering: pixelated;
+      animation: heroIdle 1.3s steps(9) infinite;
+    }
+    @keyframes heroIdle { from { transform: translateX(0); } to { transform: translateX(-2304px); } }
+
     /* ---- Status panel: phase banner + active quest ---- */
     .status-panel { padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3); }
     .phase-banner {
@@ -749,6 +834,9 @@ function styles(): string {
       .panel-hero { flex: 1 1 46%; min-width: 0; }
       .topstack { flex: 1 1 54%; }
       .hero-stage { min-height: 100%; }
+      /* Asset stage keeps its fixed aspect ratio rather than stretching to the
+         column height, so the painted pedestal stays put. */
+      .hero-stage-img { min-height: 0; }
       .stats { grid-template-columns: repeat(6, 1fr); }
       .shelf-items { grid-template-columns: repeat(5, 1fr); }
       .badge-medal { max-width: 56px; }
@@ -783,7 +871,7 @@ function styles(): string {
     /* ---- Accessibility: honor reduced-motion ---- */
     @media (prefers-reduced-motion: reduce) {
       .phase-pulse, .exp-fill, .empty-rune,
-      .hero-figure, .rune-ring, .spark,
+      .hero-figure, .hero-char, .hero-idle-img, .rune-ring, .spark,
       .badge.ready .badge-medal,
       .hero-frames-img,
       .hero-body, .hero-orb, .hero-eyes { animation: none; }

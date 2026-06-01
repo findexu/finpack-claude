@@ -29,3 +29,7 @@ quest-dashboard/out-tests/
 quest-dashboard/*.vsix
 
 .ai-context/
+
+# Python bytecode
+__pycache__/
+*.pyc
