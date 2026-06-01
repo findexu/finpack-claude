@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.7.1
+version: 1.7.2
 ---
 
 # Quest System — Skill Definition
@@ -59,8 +59,14 @@ never loses context between conversations.
 ## active-quest.txt format
 
 Located at `.claude/active-quest.txt`
-Line 1: path to quest scrolls folder (e.g. `.ai-context/quests/scan-alignment-floor-annotation`)
+Line 1: repo-relative path to the quest scrolls folder, no trailing slash
+  (e.g. `.ai-context/quests/scan-alignment-floor-annotation`)
 Line 2: realm in scope (e.g. `WeScanX`)
+
+`{quest-name}` is the basename of line 1 (the last path segment). Commands that
+write this file (`/new-quest`, `/start-quest`, `/change-quest`) must normalize
+any user-supplied path to this form — relative, no trailing slash — so basename
+extraction is unambiguous.
 
 All commands read this file first. Change it with `/change-quest`.
 

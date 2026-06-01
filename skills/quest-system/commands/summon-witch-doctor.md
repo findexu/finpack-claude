@@ -99,7 +99,7 @@ Check scroll content for legacy pre-expedition wording that should be migrated:
 - **ADVENTURE_JOURNAL.md**: headings that begin with `## Session ` or
   `## Work Session ` (legacy entries should be `## Expedition `)
 - **WORLD_MAP.md**: placeholders containing `Phase 1 scouting`
-- **STRATEGY_SCROLL.md**: placeholders containing `Phase 3`
+- **STRATEGY_SCROLL.md**: placeholders containing `after Phase 3`
 
 If found, report `WARN` with issue `MIGRATION_NEEDED: legacy phase/session terms detected`.
 
