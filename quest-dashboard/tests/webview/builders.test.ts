@@ -19,7 +19,7 @@ const PROFILE: AdventurerProfile = {
   badges: ["First Blood"],
 };
 
-const ASSETS = { cspSource: "vscode-resource:", nonce: "abc123", avatarUri: null, badgeSheetUri: null, heroSheetUri: null };
+const ASSETS = { cspSource: "vscode-resource:", nonce: "abc123", avatarUri: null, badgeSheetUri: null, heroSheetUri: null, heroImgUri: null, heroBgUri: null, heroIdleUri: null };
 
 function readyState(overrides: Partial<QuestState> = {}): QuestState {
   return {
@@ -110,6 +110,43 @@ test("locked badge shows a padlock instead of the glyph", () => {
 test("character sheet uses the 4-frame hero sheet when vendored", () => {
   const html = buildCharacterSheet(readyState(), { ...ASSETS, heroSheetUri: "vscode-resource://hero" });
   assert.match(html, /hero-frames-img[\s\S]*vscode-resource:\/\/hero/);
+});
+
+test("character sheet renders the painted hero stage with bg and character imgs when vendored", () => {
+  const html = buildCharacterSheet(readyState(), {
+    ...ASSETS,
+    heroBgUri: "vscode-resource://bg",
+    heroImgUri: "vscode-resource://char",
+  });
+  assert.match(html, /class="hero-stage hero-stage-img"/);
+  assert.match(html, /class="hero-bg" src="vscode-resource:\/\/bg"/);
+  assert.match(html, /class="hero-char" src="vscode-resource:\/\/char"/);
+});
+
+test("character sheet animates the idle strip when vendored", () => {
+  const html = buildCharacterSheet(readyState(), {
+    ...ASSETS,
+    heroBgUri: "vscode-resource://bg",
+    heroIdleUri: "vscode-resource://idle",
+  });
+  assert.match(html, /class="hero-idle-img" href="vscode-resource:\/\/idle"/);
+  assert.match(html, /@keyframes heroIdle/);
+});
+
+test("idle strip is preferred over the static character image", () => {
+  const html = buildCharacterSheet(readyState(), {
+    ...ASSETS,
+    heroBgUri: "vscode-resource://bg",
+    heroImgUri: "vscode-resource://char",
+    heroIdleUri: "vscode-resource://idle",
+  });
+  assert.equal(html.includes('class="hero-char" src="vscode-resource://char"'), false);
+});
+
+test("character sheet falls back to the CSS stage when no background is vendored", () => {
+  const html = buildCharacterSheet(readyState(), ASSETS);
+  assert.equal(html.includes('class="hero-stage hero-stage-img"'), false);
+  assert.match(html, /class="hero-stage" aria-hidden/);
 });
 
 test("unsupported-schema state renders its message", () => {

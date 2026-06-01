@@ -1,7 +1,7 @@
 // Shared type truth for the quest-dashboard extension.
-// Data formats mirror quest-system VERSION 2026.05.0003 (see skills/quest-system).
+// Data formats mirror quest-system VERSION 2026.06.0001 (see skills/quest-system).
 
-export const SUPPORTED_VERSION = "2026.05.0003";
+export const SUPPORTED_VERSION = "2026.06.0001";
 
 export type Result<T> =
   | { ok: true; value: T }

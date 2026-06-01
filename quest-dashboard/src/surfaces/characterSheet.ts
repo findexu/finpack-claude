@@ -42,10 +42,13 @@ export class CharacterSheetView implements vscode.WebviewViewProvider, SurfaceUp
     if (view === undefined) {
       return;
     }
-    const [avatarUri, badgeSheetUri, heroSheetUri] = await Promise.all([
+    const [avatarUri, badgeSheetUri, heroSheetUri, heroImgUri, heroBgUri, heroIdleUri] = await Promise.all([
       this.assetUri(view.webview, "avatar.png"),
       this.assetUri(view.webview, "badge-sheet.png"),
       this.assetUri(view.webview, "hero-frames.png"),
+      this.assetUri(view.webview, "hero.png"),
+      this.assetUri(view.webview, "hero-bg.jpg"),
+      this.assetUri(view.webview, "hero-idle.png"),
     ]);
     view.webview.html = buildCharacterSheet(this.state, {
       cspSource: view.webview.cspSource,
@@ -53,6 +56,9 @@ export class CharacterSheetView implements vscode.WebviewViewProvider, SurfaceUp
       avatarUri,
       badgeSheetUri,
       heroSheetUri,
+      heroImgUri,
+      heroBgUri,
+      heroIdleUri,
     });
   }
 
