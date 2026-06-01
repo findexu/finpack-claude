@@ -27,3 +27,5 @@ quest-dashboard/node_modules/
 quest-dashboard/out/
 quest-dashboard/out-tests/
 quest-dashboard/*.vsix
+
+.ai-context/
