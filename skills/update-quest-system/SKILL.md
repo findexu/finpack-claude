@@ -42,12 +42,21 @@ If neither location contains `new-quest.md`, go to Step 4 (no local source).
 
 ## Step 4: No local source — check GitHub version first
 
-Run this command silently to fetch the available version from GitHub:
+Run this command silently to fetch the available version from GitHub. The
+`Cache-Control`/`Pragma` headers force raw.githubusercontent to revalidate —
+without them its CDN serves a stale VERSION for up to ~5 min after a release,
+which makes this check wrongly report "already up to date". Keep the headers
+AFTER the URL so the installed `...VERSION *` permission rule still matches.
 ```bash
-curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION 2>/dev/null | tr -d '[:space:]'
+curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 2>/dev/null | tr -d '[:space:]'
 ```
 
 Record result as `{github-version}`. If curl fails or returns empty: `{github-version}` = "unknown".
+
+If the result still looks stale (matches your installed version right after a
+known release), the CDN has not revalidated yet — skip the version gate and run
+the install script directly (it reinstalls unconditionally):
+`curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash`
 
 Output:
 ```
