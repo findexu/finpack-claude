@@ -23,6 +23,30 @@ Ask the commander:
 5. Any new dangers discovered? (added to TOME_OF_DANGERS)
 6. Any structural changes to the codebase? (added to WORLD_MAP)
 
+## Step 2.5: Council Review (optional)
+
+Ask: "Summon the review council on this expedition's changes? (y/n)"
+If n, skip to Step 3.
+
+If y, determine the expedition's changed files (prefer `git diff --name-only`
+against the expedition's start; fall back to the files you touched this session).
+If there are no code changes, note that and skip.
+
+Launch these agents in parallel, each scoped to the changed files:
+- `fp-code-reviewer` — correctness bugs, logic errors, error handling.
+- `fp-security-reviewer` — vulnerabilities (only if the changes touch auth, input,
+  network, secrets, or filesystem; otherwise skip it).
+- `fp-performance-reviewer` — hot-path / allocation / query regressions (only if
+  the changes touch data processing, loops, rendering, or endpoints).
+
+Collect their findings. For each CONFIRMED issue (ignore style nitpicks and
+low-confidence noise):
+- Inscribe it as a new danger in Step 5 (TOME_OF_DANGERS Known Dangers), with the
+  remedy the reviewer proposed.
+- Surface a short summary to the commander; ask whether to fix now or log-and-defer.
+
+Findings inscribed here count as "new dangers" for Steps 5 and 9.
+
 ## Step 3: Update ADVENTURE_JOURNAL.md
 
 If `journal/` subfolder exists, write to `journal/{YYYY-MM}.md` (current month).

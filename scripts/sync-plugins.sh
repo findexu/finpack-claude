@@ -60,20 +60,16 @@ for d in skills/*/; do
   fi
 done
 
-# 2.5. Bundle agent dependencies into plugins that spawn them. Plugins are
-#      self-contained on install, so a skill that launches an agent must carry
-#      that agent's file inside its own plugin folder. quest-system's
-#      counsel-quest spawns fp-code-architect + fp-code-explorer.
-QUEST_SYSTEM_AGENT_DEPS=(fp-code-architect fp-code-explorer)
+# 2.5. Bundle the full fp- agent suite into the quest-system plugin. Plugins are
+#      self-contained on install, so quest-system must carry every agent it can
+#      summon: counsel-quest spawns architect+explorer; make-camp/complete-quest
+#      summon the reviewers; UI quests summon the designers.
 if [ -d "plugins/quest-system" ]; then
   mkdir -p "plugins/quest-system/agents"
-  for dep in "${QUEST_SYSTEM_AGENT_DEPS[@]}"; do
-    if [ -f "agents/$dep.md" ]; then
-      cp "agents/$dep.md" "plugins/quest-system/agents/$dep.md"
-      echo "  dep    quest-system <- $dep"
-    else
-      echo "  WARN   quest-system dep missing: agents/$dep.md" >&2
-    fi
+  for f in agents/fp-*.md; do
+    dep="$(basename "$f")"
+    cp "$f" "plugins/quest-system/agents/$dep"
+    echo "  dep    quest-system <- $dep"
   done
 fi
 
