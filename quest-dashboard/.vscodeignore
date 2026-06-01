@@ -6,6 +6,5 @@ scripts/**
 tsconfig*.json
 **/*.ts
 **/*.map
-node_modules/**
 .gitignore
 *.vsix
