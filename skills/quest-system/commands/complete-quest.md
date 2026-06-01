@@ -22,6 +22,24 @@ Show it to the commander.
 Ask: "Are all modules conquered and this quest truly complete? (y/n)"
 Stop if n — run /make-camp to record remaining work first.
 
+## Step 2.5: Quality gate (optional)
+
+Ask: "Run the quality gate before sealing this quest? (y/n)"
+If n, skip to Step 3.
+
+If y, determine the quest's changed files (prefer `git diff --name-only` against
+the quest's base branch/commit; else the files the quest touched). Launch in
+parallel, scoped to those files:
+- `fp-code-reviewer` — correctness bugs and logic errors.
+- `fp-security-reviewer` — vulnerabilities (skip if no auth/input/network/secret/fs changes).
+- `fp-doc-reviewer` — docs/scrolls vs the actual source: drift, missing params, dead references.
+
+Summarize CONFIRMED findings (ignore style nitpicks). Then ask:
+- "Address these before completing, or log them and proceed?"
+- If addressing: stop here — completion resumes after fixes (re-run /complete-quest).
+- If proceeding: inscribe any unresolved real issues into TOME_OF_DANGERS so they
+  carry into DANGER_REGISTRY during Step 3 distillation.
+
 ## Step 3: Distill TOME_OF_DANGERS → DANGER_REGISTRY.md
 
 Read `{quest-folder}/TOME_OF_DANGERS.md` (and all `dangers/` subfiles if split).

@@ -49,11 +49,18 @@ HOOKS=(
   quest-system-verify.sh
 )
 
-# Agents spawned by quest-system commands (counsel-quest). Without these the
-# consumer's /counsel-quest cannot launch its explorer/architect agents.
+# The full fp- agent suite quest-system can summon: counsel-quest spawns
+# architect+explorer; make-camp/complete-quest summon the reviewers; UI quests
+# summon the designers. Shipping all keeps every command's agents available.
 AGENTS=(
   fp-code-architect.md
   fp-code-explorer.md
+  fp-code-reviewer.md
+  fp-security-reviewer.md
+  fp-performance-reviewer.md
+  fp-doc-reviewer.md
+  fp-frontend-designer.md
+  fp-swiftui-designer.md
 )
 
 mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$AGENTS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")" "$(dirname "$UPDATE_SKILL_DEST")"
