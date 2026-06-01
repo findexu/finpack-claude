@@ -19,6 +19,11 @@ Anti-defaults that counter common Claude tendencies (no premature abstraction, n
 
 Six terse principles: verify behavior, run the specific test file, fix or delete flaky tests, prefer real implementations, one assertion per test, no empty assertions. Comprehensive test writing is handled by the `test-writer` skill.
 
+### serena.md
+**Scope**: Always (conditional). ~15 lines.
+
+Loads every session but self-gates: applies only when the Serena MCP server is connected (`mcp__serena__*` tools present), otherwise it is a no-op. Steers code navigation toward Serena's semantic tools (`get_symbols_overview`, `find_symbol`, `find_referencing_symbols`, `search_for_pattern`) over Read/Grep, keeps Grep/Glob for plain-text, and leaves editing with native Edit/Write. Ships via the `setup-finpack` template. The `quest-system` plugin carries the same preference baked into its `fp-code-explorer` / `fp-code-architect` agents and the Cartographer sage.
+
 ### security.md
 **Scope**: Path-scoped (`src/api/**`, `src/auth/**`, `src/middleware/**`, `**/routes/**`, `**/controllers/**`)
 

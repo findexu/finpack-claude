@@ -25,7 +25,7 @@ Full shipping workflow with confirmation at every step: scan changes, stage and 
 ### /pr-review [PR number | staged | file path]
 **Trigger**: Manual only
 
-Reviews code changes by delegating to specialist agents (`@code-reviewer`, `@security-reviewer`, `@performance-reviewer`, `@doc-reviewer`). When given a PR number (or auto-detected from branch), also checks PR title, description quality, CI status, unresolved comments, and size. Ends with a clear merge or needs-changes verdict. Also works on staged changes or specific files for pre-PR review.
+Reviews code changes by delegating to specialist agents (`@fp-code-reviewer`, `@fp-security-reviewer`, `@fp-performance-reviewer`, `@fp-doc-reviewer`). When given a PR number (or auto-detected from branch), also checks PR title, description quality, CI status, unresolved comments, and size. Ends with a clear merge or needs-changes verdict. Also works on staged changes or specific files for pre-PR review.
 
 ### /tdd [feature description]
 **Trigger**: Manual only

@@ -19,10 +19,10 @@ Ambiguity discovered mid-expedition wastes context and produces inconsistent res
 Before loading anything, determine the mode:
 
 1. If `$ARGUMENTS` contains `--pivot` → **PIVOT mode**
-2. Else check `ADVENTURE_JOURNAL.md` for active expedition state:
-   - If the last `## Expedition` entry lacks a `### The Road Ahead` section
-     (i.e., /embark ran but /make-camp hasn't yet) → **MID-EXPEDITION mode**
-   - Otherwise → **PRE-EXPEDITION mode**
+2. Else check `{quest-folder}/context.md` header for expedition state:
+   - If the header line shows `Expedition: active` (set by /embark, not yet
+     cleared by /make-camp) → **MID-EXPEDITION mode**
+   - Otherwise (no flag present, or `Expedition: camped`) → **PRE-EXPEDITION mode**
 
 If `$ARGUMENTS` contains `--expedition-focus <name>`, record it as `{expedition-focus}`
 and use it to scope context loading and riddle filtering throughout.
@@ -88,7 +88,8 @@ Announce: "🔍 Scouting the codebase before we plan..."
 
 Read the Quest Overview from STRATEGY_SCROLL. Use it as the feature description.
 
-Launch 2–3 `code-explorer` agents in parallel. Each agent investigates a different angle:
+Launch 2–3 `fp-code-explorer` agents in parallel. Each agent investigates a different angle.
+(These agents prefer Serena MCP for code navigation when it is connected, falling back to Grep/Glob otherwise — no extra prompting needed; it lives in the agent definition.)
 
 **Agent 1 — Similar Features:**
 Prompt the agent with:
@@ -134,7 +135,7 @@ Record confirmed answers as candidate oaths.
 
 Announce: "🏗️ Designing the architecture..."
 
-Launch 2–3 `code-architect` agents in parallel, each with a different focus.
+Launch 2–3 `fp-code-architect` agents in parallel, each with a different focus.
 Each agent receives: quest overview, realm, WORLD_MAP findings, TOME_OF_DANGERS,
 clarifying answers from Step 5, locked oaths, and any fallen strategies.
 
@@ -314,7 +315,7 @@ Append to `ADVENTURE_JOURNAL.md` (or current month file if split):
 ### PIVOT Step 6: Run PRE-EXPEDITION planning with new direction
 
 Execute PRE-EXPEDITION Steps 4–8 with these additions:
-- Pass fallen strategies to code-explorer and code-architect agents so they
+- Pass fallen strategies to fp-code-explorer and fp-code-architect agents so they
   don't re-propose the abandoned approach
 - In Step 4 agent prompts, include: "Fallen strategy to avoid: {abandoned-plan-summary}"
 - In Step 6, if any architect approach resembles the fallen strategy, flag it explicitly

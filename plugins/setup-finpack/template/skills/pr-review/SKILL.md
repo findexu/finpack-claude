@@ -51,10 +51,10 @@ Decide which reviewers apply by reading the diff content, not just file paths:
 
 | Reviewer | When to include |
 |---|---|
-| `code-reviewer` | Always. Universal correctness pass. |
-| `security-reviewer` | Auth, input handling, queries, tokens, session management, file path construction, SQL or HTML or template strings. |
-| `performance-reviewer` | Endpoints, DB queries, loops over collections, caching, connection management. Skip for pure-docs, config-only, or static-asset diffs. |
-| `doc-reviewer` | `.md` changes, significant docstring or JSDoc changes, API docs. |
+| `fp-code-reviewer` | Always. Universal correctness pass. |
+| `fp-security-reviewer` | Auth, input handling, queries, tokens, session management, file path construction, SQL or HTML or template strings. |
+| `fp-performance-reviewer` | Endpoints, DB queries, loops over collections, caching, connection management. Skip for pure-docs, config-only, or static-asset diffs. |
+| `fp-doc-reviewer` | `.md` changes, significant docstring or JSDoc changes, API docs. |
 
 **Dispatch all applicable reviewers in PARALLEL.** Send one message that contains one `Task` tool call per applicable reviewer (use `subagent_type` matching the reviewer name). Do NOT invoke them sequentially. Parallel dispatch cuts wall-clock time from N times the slowest review to roughly the slowest single review, with no extra token cost.
 

@@ -104,6 +104,15 @@ for dir in "$FIXTURES"/*/; do
 done
 
 echo
+echo "== install-verify =="
+if bash "$ROOT/tests/install-verify-smoke.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("install-verify::smoke")
+fi
+
+echo
 echo "RESULT: $PASS passed, $FAIL failed"
 if [[ $FAIL -gt 0 ]]; then
   printf 'Failed: %s\n' "${FAILED_NAMES[@]}"

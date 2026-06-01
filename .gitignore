@@ -11,6 +11,19 @@ Thumbs.db
 *~
 .devswarm-temp/
 
+# Serena MCP project cache
+.serena/
+
 # Accidental web-page saves
 hooks/*.html
 hooks/*_files/
+
+# Self settings
+.claude/
+.claude/quest-xp/
+
+# quest-dashboard build artifacts
+quest-dashboard/node_modules/
+quest-dashboard/out/
+quest-dashboard/out-tests/
+quest-dashboard/*.vsix

@@ -15,11 +15,25 @@ cd "$ROOT"
 shopt -s nullglob
 
 # 1. Sync agents: agents/<name>.md -> plugins/<name>/agents/<name>.md
+#    Also (re)generate the plugin manifest from the agent's frontmatter so the
+#    .claude-plugin/plugin.json never drifts from the agent it describes.
 for f in agents/*.md; do
   name="$(basename "$f" .md)"
   [ "$name" = "README" ] && continue
-  mkdir -p "plugins/$name/agents"
+  mkdir -p "plugins/$name/agents" "plugins/$name/.claude-plugin"
   cp "$f" "plugins/$name/agents/$name.md"
+  # Pull the first `description:` value from the agent frontmatter; JSON-escape it.
+  desc="$(sed -n 's/^description:[[:space:]]*//p' "$f" | head -1 | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  cat > "plugins/$name/.claude-plugin/plugin.json" <<JSON
+{
+  "name": "$name",
+  "description": "$desc",
+  "author": { "name": "findexu" },
+  "license": "MIT",
+  "homepage": "https://github.com/findexu/finpack-claude",
+  "repository": "https://github.com/findexu/finpack-claude"
+}
+JSON
   echo "  agent  $name"
 done
 
@@ -32,9 +46,14 @@ for d in skills/*/; do
   cp "${d}SKILL.md" "plugins/$name/skills/$name/SKILL.md"
   echo "  skill  $name"
   if [ -d "${d}commands" ]; then
-    mkdir -p "plugins/$name/skills/$name/commands"
-    cp "${d}commands/"*.md "plugins/$name/skills/$name/commands/"
-    echo "  commands  $name"
+    # nullglob makes an empty commands/ expand to nothing; guard so `cp` is not
+    # called with only a destination arg (exit 64 would abort the whole sync).
+    cmd_files=("${d}commands/"*.md)
+    if [ ${#cmd_files[@]} -gt 0 ]; then
+      mkdir -p "plugins/$name/skills/$name/commands"
+      cp "${cmd_files[@]}" "plugins/$name/skills/$name/commands/"
+      echo "  commands  $name"
+    fi
   fi
   if [ -f "${d}VERSION" ]; then
     cp "${d}VERSION" "plugins/$name/skills/$name/VERSION"
@@ -56,6 +75,7 @@ cp -r skills                       "$TEMPLATE/"
 cp -r agents                       "$TEMPLATE/"
 cp -r hooks                        "$TEMPLATE/"
 rm -f "$TEMPLATE/hooks/quest-system-verify.sh"
+rm -rf "$TEMPLATE/hooks/tests"
 
 echo "  bundle setup-finpack/template (full finpack-claude content)"
 echo "Done."

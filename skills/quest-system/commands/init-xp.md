@@ -62,7 +62,7 @@ If `.gitignore` does not exist, create it with that single line.
 ⚔️  Adventurer profile created.
 
 Name:  {git-user-name}
-Level: 1 — Wanderer
+Level: 1 — Apprentice Coder
 EXP:   0
 
 Run /quest-xp to view your profile.

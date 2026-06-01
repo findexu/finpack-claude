@@ -23,7 +23,6 @@ TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
 UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
 VERSION_DEST=".claude/commands/.quest-system-version"
 SETTINGS_LOCAL_DEST=".claude/settings.local.json"
-VERIFY_RULE='Bash(.claude/hooks/quest-system-verify.sh *)'
 
 # Fallback list used for remote installs where directory listing is unavailable.
 REMOTE_COMMANDS=(
@@ -39,6 +38,7 @@ REMOTE_COMMANDS=(
   make-camp.md
   quest-log.md
   quest-xp.md
+  start-quest.md
   summon-witch-doctor.md
 )
 
@@ -104,7 +104,7 @@ if [ -d "$LOCAL_COMMANDS" ]; then
 
   if [ -f "$LOCAL_VERSION" ]; then
     cp "$LOCAL_VERSION" "$VERSION_DEST"
-    echo "  .quest-system-version ($(cat "$LOCAL_VERSION" | tr -d '[:space:]'))"
+    echo "  .quest-system-version ($(tr -d '[:space:]' < "$LOCAL_VERSION"))"
     UPDATED=$((UPDATED + 1))
   else
     echo "  SKIP (not found): skills/quest-system/VERSION" >&2
@@ -182,7 +182,7 @@ else
   fi
 
   if curl -fsSL "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
-    echo "  .quest-system-version ($(cat "$VERSION_DEST" | tr -d '[:space:]'))"
+    echo "  .quest-system-version ($(tr -d '[:space:]' < "$VERSION_DEST"))"
     UPDATED=$((UPDATED + 1))
   else
     echo "  FAIL: skills/quest-system/VERSION (HTTP error)" >&2
@@ -217,6 +217,35 @@ PY
     echo "  settings.local.json"
   fi
 fi
+
+# Optional: auto-connect Serena MCP if its runtime is already installed.
+# Only registers when a real serena binary is on PATH — never triggers a uvx
+# build, never fails the install. Skip with QUEST_SKIP_SERENA=1.
+connect_serena() {
+  [ "${QUEST_SKIP_SERENA:-0}" = "1" ] && return 0
+  command -v claude &>/dev/null || return 0
+
+  # Already registered? Leave the user's config untouched.
+  if claude mcp get serena &>/dev/null; then
+    echo "  serena MCP: already configured (left as-is)"
+    return 0
+  fi
+
+  # Only register the modern `serena` CLI entry point. We deliberately do NOT
+  # fall back to `uvx --from git+...` (would build serena on first launch) nor to
+  # the legacy `serena-mcp-server` binary (unverified flags). The registration
+  # is per-project (local scope), so each consumer repo runs install once;
+  # --project-from-cwd keeps the server itself project-agnostic.
+  command -v serena &>/dev/null || return 0  # not installed — stay silent
+
+  if claude mcp add serena --scope local -- serena start-mcp-server --context=claude-code --project-from-cwd &>/dev/null; then
+    echo "  serena MCP: detected and connected (scope: local)"
+  else
+    echo "  serena MCP: detected but 'claude mcp add' failed — connect manually" >&2
+  fi
+}
+
+connect_serena
 
 INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""

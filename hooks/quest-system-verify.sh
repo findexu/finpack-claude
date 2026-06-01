@@ -20,6 +20,7 @@ required_commands=(
   new-quest.md
   quest-log.md
   quest-xp.md
+  start-quest.md
   summon-witch-doctor.md
 )
 
