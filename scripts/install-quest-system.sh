@@ -216,7 +216,9 @@ else
     echo "  FAIL: skills/update-quest-system/SKILL.md (HTTP error)" >&2
   fi
 
-  if curl -fsSL "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
+  # Cache-Control/Pragma force raw.githubusercontent to revalidate; its CDN
+  # otherwise serves a stale VERSION for ~5 min after a release.
+  if curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
     echo "  .quest-system-version ($(tr -d '[:space:]' < "$VERSION_DEST"))"
     UPDATED=$((UPDATED + 1))
   else
