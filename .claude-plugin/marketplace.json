@@ -42,6 +42,18 @@
       "license": "MIT"
     },
     {
+      "name": "fp-code-architect",
+      "source": "./plugins/fp-code-architect",
+      "description": "Designs a feature architecture implementation blueprint by analyzing existing codebase patterns. Used by /counsel-quest during architecture design.",
+      "license": "MIT"
+    },
+    {
+      "name": "fp-code-explorer",
+      "source": "./plugins/fp-code-explorer",
+      "description": "Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, and documenting dependencies. Used by /counsel-quest during codebase exploration.",
+      "license": "MIT"
+    },
+    {
       "name": "setup-finpack",
       "source": "./plugins/setup-finpack",
       "description": "Bootstrap and customize finpack-claude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",

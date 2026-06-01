@@ -17,8 +17,10 @@ LOCAL_TUTORIAL_SKILL="$SCRIPT_DIR/../skills/quest-system-tutorial/SKILL.md"
 LOCAL_UPDATE_SKILL="$SCRIPT_DIR/../skills/update-quest-system/SKILL.md"
 LOCAL_VERSION="$SCRIPT_DIR/../skills/quest-system/VERSION"
 LOCAL_SETTINGS_EXAMPLE="$SCRIPT_DIR/../settings.local.json.example"
+LOCAL_AGENTS="$SCRIPT_DIR/../agents"
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
+AGENTS_DEST=".claude/agents"
 TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
 UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
 VERSION_DEST=".claude/commands/.quest-system-version"
@@ -47,7 +49,14 @@ HOOKS=(
   quest-system-verify.sh
 )
 
-mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")" "$(dirname "$UPDATE_SKILL_DEST")"
+# Agents spawned by quest-system commands (counsel-quest). Without these the
+# consumer's /counsel-quest cannot launch its explorer/architect agents.
+AGENTS=(
+  fp-code-architect.md
+  fp-code-explorer.md
+)
+
+mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$AGENTS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")" "$(dirname "$UPDATE_SKILL_DEST")"
 
 UPDATED=0
 COMMANDS=()
@@ -83,6 +92,16 @@ if [ -d "$LOCAL_COMMANDS" ]; then
       UPDATED=$((UPDATED + 1))
     else
       echo "  SKIP (not found): hooks/$hook" >&2
+    fi
+  done
+  for agent in "${AGENTS[@]}"; do
+    src="$LOCAL_AGENTS/$agent"
+    if [ -f "$src" ]; then
+      cp "$src" "$AGENTS_DEST/$agent"
+      echo "  agents/$agent"
+      UPDATED=$((UPDATED + 1))
+    else
+      echo "  SKIP (not found): agents/$agent" >&2
     fi
   done
 
@@ -162,6 +181,15 @@ else
       UPDATED=$((UPDATED + 1))
     else
       echo "  FAIL: hooks/$hook (HTTP error)" >&2
+    fi
+  done
+  for agent in "${AGENTS[@]}"; do
+    url="$REPO/agents/$agent"
+    if curl -fsSL "$url" -o "$AGENTS_DEST/$agent"; then
+      echo "  agents/$agent"
+      UPDATED=$((UPDATED + 1))
+    else
+      echo "  FAIL: agents/$agent (HTTP error)" >&2
     fi
   done
 
