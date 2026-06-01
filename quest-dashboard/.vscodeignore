@@ -1,8 +1,11 @@
 src/**
 tests/**
 out-tests/**
+scripts/**
+.vscode/**
 tsconfig*.json
 **/*.ts
 **/*.map
 node_modules/**
 .gitignore
+*.vsix

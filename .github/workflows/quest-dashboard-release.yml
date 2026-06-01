@@ -1,0 +1,31 @@
+name: quest-dashboard release
+
+# Push a tag like `quest-dashboard-v0.1.0` to build the .vsix and attach it to
+# a GitHub Release. Keep the tag version in sync with quest-dashboard/package.json.
+on:
+  push:
+    tags:
+      - "quest-dashboard-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: quest-dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - run: npm test
+      - run: npx @vscode/vsce package
+      - name: Attach .vsix to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: quest-dashboard/*.vsix
+          fail_on_unmatched_files: true

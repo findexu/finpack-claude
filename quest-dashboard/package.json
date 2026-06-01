@@ -4,6 +4,15 @@
   "description": "Live RPG dashboard for quest-system adventurers",
   "version": "0.1.0",
   "publisher": "finpack",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/findexu/finpack-claude.git",
+    "directory": "quest-dashboard"
+  },
+  "bugs": {
+    "url": "https://github.com/findexu/finpack-claude/issues"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -56,10 +65,12 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json --watch",
     "pretest": "tsc -p tsconfig.test.json",
-    "test": "node --test \"out-tests/tests/**/*.test.js\""
+    "test": "node --test \"out-tests/tests/**/*.test.js\"",
+    "package": "vsce package"
   },
   "dependencies": {
     "gray-matter": "^4.0.3"
@@ -67,6 +78,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.0",
     "typescript": "^5.4.0"
   }
 }
