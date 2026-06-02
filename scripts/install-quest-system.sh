@@ -148,13 +148,20 @@ import sys
 
 RULES = [
     'Bash(.claude/hooks/quest-system-verify.sh *)',
-    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
+    "Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 2>/dev/null | tr -d '[:space:]')",
     'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash)',
+]
+
+# Stale rules from older installs to prune (e.g. the loose trailing-wildcard
+# VERSION rule, replaced by the exact-command rule above).
+DEPRECATED = [
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
 ]
 
 path = pathlib.Path(sys.argv[1])
 data = json.loads(path.read_text())
 allow = data.setdefault("permissions", {}).setdefault("allow", [])
+allow[:] = [r for r in allow if r not in DEPRECATED]
 for rule in RULES:
     if rule not in allow:
         allow.insert(0, rule)
@@ -239,13 +246,20 @@ import sys
 
 RULES = [
     'Bash(.claude/hooks/quest-system-verify.sh *)',
-    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
+    "Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 2>/dev/null | tr -d '[:space:]')",
     'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/scripts/install-quest-system.sh | bash)',
+]
+
+# Stale rules from older installs to prune (e.g. the loose trailing-wildcard
+# VERSION rule, replaced by the exact-command rule above).
+DEPRECATED = [
+    'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
 ]
 
 path = pathlib.Path(sys.argv[1])
 data = json.loads(path.read_text())
 allow = data.setdefault("permissions", {}).setdefault("allow", [])
+allow[:] = [r for r in allow if r not in DEPRECATED]
 for rule in RULES:
     if rule not in allow:
         allow.insert(0, rule)
