@@ -45,8 +45,10 @@ If neither location contains `new-quest.md`, go to Step 4 (no local source).
 Run this command silently to fetch the available version from GitHub. The
 `Cache-Control`/`Pragma` headers force raw.githubusercontent to revalidate —
 without them its CDN serves a stale VERSION for up to ~5 min after a release,
-which makes this check wrongly report "already up to date". Keep the headers
-AFTER the URL so the installed `...VERSION *` permission rule still matches.
+which makes this check wrongly report "already up to date". Run it VERBATIM:
+the installer registers this exact command as the permission allow-rule (no
+trailing wildcard, so it cannot be abused to chain other commands), so any
+deviation will trigger a permission prompt instead of auto-approving.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' 2>/dev/null | tr -d '[:space:]'
 ```
