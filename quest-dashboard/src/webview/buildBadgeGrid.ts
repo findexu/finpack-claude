@@ -3,19 +3,13 @@ import { ALL_BADGES } from "../types";
 import type { AdventurerProfile, BadgeDef, NumericStat } from "../types";
 import { escapeHtml } from "./escape";
 
-const PER_SHELF = 5;
-
-// Renders all 15 badges as a trophy "bookshelf": rows of badges resting on
-// wooden shelves. Earned ones lit, locked ones dimmed with a progress counter
-// where the catalog defines one. `badgeSheetUri`, when provided, swaps the
-// emoji placeholder for a 16px sprite cell (background-position by index).
+// Renders all 15 badges as a uniform 3-col grid of square beveled tiles.
+// Earned ones lit gold, threshold-met "ready" ones lit teal, locked ones dimmed
+// with a padlock + progress counter. `badgeSheetUri`, when provided, swaps the
+// emoji placeholder for a 16px sprite cell.
 export function buildBadgeGrid(profile: AdventurerProfile, badgeSheetUri: string | null): string {
   const cells = ALL_BADGES.map((badge, index) => renderCell(badge, index, profile, badgeSheetUri));
-  const shelves: string[] = [];
-  for (let i = 0; i < cells.length; i += PER_SHELF) {
-    shelves.push(`<div class="shelf"><div class="shelf-items">${cells.slice(i, i + PER_SHELF).join("")}</div></div>`);
-  }
-  return `<div class="badge-grid">${shelves.join("")}</div>`;
+  return `<div class="badge-grid">${cells.join("")}</div>`;
 }
 
 function renderCell(badge: BadgeDef, index: number, profile: AdventurerProfile, badgeSheetUri: string | null): string {
@@ -23,14 +17,14 @@ function renderCell(badge: BadgeDef, index: number, profile: AdventurerProfile, 
   // "ready": counter threshold met but not yet awarded (badges land at /complete-quest).
   const ready =
     !earned && badge.progress !== undefined && statValue(profile, badge.progress.stat) >= badge.progress.threshold;
-  // Locked medallions show a padlock instead of the badge glyph.
+  // Locked tiles show a padlock instead of the badge glyph.
   const glyph = !earned && !ready ? LOCK_SVG : renderGlyph(badge, index, badgeSheetUri);
   const counter = !earned && badge.progress ? renderCounter(badge, profile) : "";
   const stateClass = earned ? "earned" : ready ? "ready" : "locked";
   const hint = ready ? `${badge.name} — ready to unlock on quest completion` : `${badge.name} — ${badge.hint}`;
   const title = escapeHtml(hint);
 
-  return `<div class="badge ${stateClass}" title="${title}"><div class="badge-medal"><div class="badge-icon">${glyph}</div></div><div class="badge-plate"><span class="badge-name">${escapeHtml(badge.name)}</span>${counter}</div></div>`;
+  return `<div class="badge ${stateClass}" title="${title}"><div class="badge-frame"><div class="badge-icon">${glyph}</div></div><div class="badge-plate"><span class="badge-name">${escapeHtml(badge.name)}</span>${counter}</div></div>`;
 }
 
 // Inline padlock for locked medallions. No inline styles (CSP-safe); fill/stroke

@@ -33,3 +33,8 @@ quest-dashboard/*.vsix
 # Python bytecode
 __pycache__/
 *.pyc
+
+# LLM TOOLS
+AGENTS.md
+.codex
+.agents

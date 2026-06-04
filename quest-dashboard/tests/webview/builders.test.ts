@@ -90,7 +90,7 @@ test("character sheet renders the phase banner for the current phase", () => {
 });
 
 test("character sheet disables animation under prefers-reduced-motion", () => {
-  assert.match(buildCharacterSheet(readyState(), ASSETS), /prefers-reduced-motion: reduce/);
+  assert.match(buildCharacterSheet(readyState(), ASSETS), /prefers-reduced-motion:\s*reduce/);
 });
 
 test("character sheet includes a width-responsive layout rule", () => {
