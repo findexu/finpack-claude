@@ -2,7 +2,7 @@
   "name": "quest-dashboard",
   "displayName": "Quest Dashboard",
   "description": "Live RPG dashboard for quest-system adventurers",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "finpack",
   "license": "MIT",
   "repository": {
@@ -66,10 +66,17 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p tsconfig.json",
+    "build:css": "node scripts/build-css.cjs",
+    "watch:css": "tailwindcss -i src/webview/tailwind.css -o .build/styles.css --watch",
+    "compile": "npm run build:css && tsc -p tsconfig.json",
     "watch": "tsc -p tsconfig.json --watch",
-    "pretest": "tsc -p tsconfig.test.json",
+    "pretest": "npm run build:css && tsc -p tsconfig.test.json",
     "test": "node --test \"out-tests/tests/**/*.test.js\"",
+    "preview": "npm run compile && node scripts/render-preview.cjs",
+    "preview:phases": "npm run compile && node scripts/render-phase-variants.cjs",
+    "dev:regen": "nodemon --watch src --ext ts,css --ignore src/webview/styles.generated.ts --exec \"npm run build:css && tsc -p tsconfig.json && node scripts/render-preview.cjs\"",
+    "dev:serve": "browser-sync start --server assets/sprites --startPath _sheet-preview.html --files assets/sprites/_sheet-preview.html --no-notify",
+    "dev": "concurrently -k -n regen,serve -c blue,green \"npm:dev:regen\" \"npm:dev:serve\"",
     "package": "vsce package"
   },
   "dependencies": {
@@ -79,6 +86,10 @@
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.2.0",
+    "browser-sync": "^3.0.4",
+    "concurrently": "^10.0.3",
+    "nodemon": "^3.1.14",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.4.0"
   }
 }

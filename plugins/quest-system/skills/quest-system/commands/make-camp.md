@@ -1,17 +1,26 @@
 ---
 description: End an expedition. Records expedition results, updates all touched scrolls, updates YAML frontmatter, and splits any scroll that has grown beyond 500 lines.
+argument-hint: "[--quest <name>] [--realm <realm>]"
 ---
 
 # Make Camp
 
 End the current expedition. Record what was done, update scrolls, check for splits.
 
-## Step 1: Read active quest
+## Step 1: Resolve the active quest
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
+   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+3. If neither resolves: "No active quest. Run /new-quest first, or pass --quest." Stop.
 
-If not found: "No active quest. Run /new-quest first." Stop.
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
+
+Before ANY write in this command, echo the resolved `quest + realm` and confirm (or
+require an explicit `--quest`) — backstop against camping a quest another chat just
+repointed the pointer to (SKILL.md -> "Mutating commands confirm first").
 
 ## Step 2: Gather expedition results
 
@@ -165,55 +174,29 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: camped
 
 If `.claude/quest-xp/profile.md` does not exist, skip this step silently.
 
-Calculate EXP earned this expedition:
-- Base: 5 XP (completing the expedition)
-- +10 XP if any new dangers were reported in Step 2
-- +10 XP if any new oaths were reported in Step 2
+XP is an append-only event log — do NOT read-modify-write the counters. See
+SKILL.md -> "XP derivation (the fold)".
 
-Read profile frontmatter from `.claude/quest-xp/profile.md`.
-Add earned EXP to `total-exp`.
-Increment `total-expeditions` by 1.
-Add any new dangers count to `total-dangers-mapped`.
-Add any new oaths count to `total-oaths-sworn`.
-If a split occurred in Step 7, increment `total-splits` by 1.
-
-Recalculate level using this table — find highest level whose threshold ≤ new `total-exp`:
-
-| Level | Title                 | Total EXP needed |
-|-------|-----------------------|------------------|
-| 1     | Apprentice Coder      | 0                |
-| 2     | Journeyman Developer  | 150              |
-| 3     | Skilled Developer     | 450              |
-| 4     | Senior Developer      | 900              |
-| 5     | Expert Architect      | 1500             |
-| 6     | Master Builder        | 2250             |
-| 7     | Grand Master          | 3150             |
-| 8     | Legendary Coder       | 4200             |
-| 9     | Mythic Developer      | 5400             |
-| 10    | Transcendent Engineer | 6750             |
-
-If new level > old level: record level-up (announce in Step 10).
-
-**Check badge unlocks** (expedition stats and level can cross thresholds mid-quest):
-Read the current `badges` array. Check each badge below against the updated
-profile stats and collect any not already present:
-
-| Badge | Name           | Unlock condition            |
-|-------|----------------|-----------------------------|
-| 🕵️    | Danger Mapper  | total-dangers-mapped >= 10  |
-| ☠️    | Danger Hoarder | total-dangers-mapped >= 50  |
-| 🤝    | Oath Keeper    | total-oaths-sworn >= 10     |
-| 📚    | Lore Master    | total-oaths-sworn >= 50     |
-| 🧘    | Marathoner     | total-expeditions >= 50     |
-| 🔥    | Unstoppable    | total-expeditions >= 200    |
-| 📂    | Split Master   | total-splits >= 5           |
-| 🌟    | Rising Star    | level >= 5                  |
-| 💎    | Diamond        | level >= 10                 |
-
-Append newly unlocked badge names to the `badges` array.
-(Quest-completion badges — First Blood, Speed Runner, Clean Sweep, etc. — stay with `/complete-quest`.)
-
-Write updated values back to the YAML frontmatter of `.claude/quest-xp/profile.md`.
+1. **Seed if needed (idempotent):** if `.claude/quest-xp/events.log` is ABSENT,
+   append ONE `seed` line carrying the full current profile (all 6 counters +
+   the `badges` list, verbatim). The log-absent check is the guard — never seed twice.
+2. **Append the expedition event** with a SHELL APPEND (never Edit/Write):
+   ```bash
+   printf '%s\n' "{YYYY-MM-DD}|expedition|{quest-name}|dangers={N};oaths={N};split={0|1}" >> .claude/quest-xp/events.log
+   ```
+   `dangers`/`oaths` = COUNTS of new dangers/oaths reported in Step 2; `split` = 1
+   if a split occurred in Step 7, else 0. (The expedition reward — base 5,
+   +10 if dangers>0, +10 if oaths>0 — is computed by the fold, not here.)
+3. **Recompute the cache:** fold the WHOLE `events.log` (SKILL.md derivation) and
+   rewrite `profile.md` — all 7 numeric keys + `adventurer` + `badges`
+   (UNION of seed + derived; never dropped) + `derived-from-events`. Record old vs
+   new `level` for Step 10.
+4. **Record the lifecycle transition** (separate append-only log, not events.log —
+   it carries no XP and must never enter the XP fold):
+   ```bash
+   printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=at-camp" >> .claude/quest-xp/lifecycle.log
+   ```
+   This flips the dashboard from "Embarked" back to "At Camp" the moment camp is made.
 
 ## Step 10: Confirm
 

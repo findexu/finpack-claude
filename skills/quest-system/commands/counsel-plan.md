@@ -1,6 +1,6 @@
 ---
 description: Review a plan.md file against active quest context. Flags gaps, risks, and unclear steps. Output is a single copyable feedback block to paste back into the planning session.
-argument-hint: "[path/to/plan.md] [optional: your opinion or concern]"
+argument-hint: "[path/to/plan.md] [--quest <name>] [optional: your opinion or concern]"
 ---
 
 # Counsel Plan
@@ -9,20 +9,24 @@ Review a plan file and produce structured feedback ready to paste into the plann
 
 ## Step 1: Read quest context (optional)
 
-Check if `.claude/active-quest.txt` exists. If it does, read it and load:
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"), context only:
+1. If a `--quest <name-or-path>` argument was given, use that quest.
+2. Otherwise use `.claude/active-quest.txt` if it exists.
+3. Otherwise proceed WITHOUT quest context (this command is valid with no active quest — do not stop).
+
+If a quest resolved, load:
 - `{quest-folder}/context.md` if it exists (battle status, open riddles, road ahead, dangers, decisions)
 - `.ai-context/DANGER_REGISTRY.md` if it exists (cross-quest dangers to watch for)
 - `.ai-context/DECISIONS_LOG.md` if it exists (locked decisions the plan must honor)
 
-If no active quest, proceed without quest context.
-
 ## Step 2: Parse arguments
 
-Split `$ARGUMENTS`:
+First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
+(already consumed in Step 1). From what remains:
 - First token = `{plan-path}` (the file to review)
 - Remaining text = `{your-opinion}` (optional — your concern, doubt, or perspective on the plan)
 
-If `$ARGUMENTS` is empty, ask for the plan path.
+If nothing remains, ask for the plan path.
 
 ## Step 3: Read the plan file
 

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { buildCharacterSheet } from "../webview/buildCharacterSheet";
+import { buildCharacterSheetV2 } from "../webview/buildCharacterSheetV2";
 import { LoadingState, QuestPhase } from "../types";
 import type { QuestState } from "../types";
 import type { SurfaceUpdate } from "../stateManager";
@@ -42,23 +42,66 @@ export class CharacterSheetView implements vscode.WebviewViewProvider, SurfaceUp
     if (view === undefined) {
       return;
     }
-    const [avatarUri, badgeSheetUri, heroSheetUri, heroImgUri, heroBgUri, heroIdleUri] = await Promise.all([
-      this.assetUri(view.webview, "avatar.png"),
-      this.assetUri(view.webview, "badge-sheet.png"),
-      this.assetUri(view.webview, "hero-frames.png"),
-      this.assetUri(view.webview, "hero.png"),
-      this.assetUri(view.webview, "hero-bg.jpg"),
-      this.assetUri(view.webview, "hero-idle.png"),
-    ]);
-    view.webview.html = buildCharacterSheet(this.state, {
-      cspSource: view.webview.cspSource,
-      nonce: nonce(),
-      avatarUri,
-      badgeSheetUri,
-      heroSheetUri,
+    const [
       heroImgUri,
       heroBgUri,
       heroIdleUri,
+      badgeSheetV2Uri,
+      badgeShelfV2Uri,
+      badgeFrameLockedV2Uri,
+      badgeFrameEarnedV2Uri,
+      badgeFrameProgressV2Uri,
+      badgeIconsIronV2Uri,
+      badgeIconsEmeraldV2Uri,
+      badgeIconsGoldV2Uri,
+      phaseSheetV2Uri,
+      phasePlanningV2Uri,
+      phaseEmbarkedV2Uri,
+      phaseCampV2Uri,
+      phaseNoQuestV2Uri,
+      phaseReadyV2Uri,
+      emptySheetV2Uri,
+    ] = await Promise.all([
+      this.assetUri(view.webview, "hero.png"),
+      this.assetUri(view.webview, "hero-bg.jpg"),
+      this.assetUri(view.webview, "hero-idle.png"),
+      this.assetUri(view.webview, "badge-sheet-v2.png"),
+      this.assetUri(view.webview, "badge-shelf-v2.png"),
+      this.assetUri(view.webview, "badge-frame-locked-v2.png"),
+      this.assetUri(view.webview, "badge-frame-earned-v2.png"),
+      this.assetUri(view.webview, "badge-frame-progress-v2.png"),
+      this.assetUri(view.webview, "badge-icons-iron-v2.png"),
+      this.assetUri(view.webview, "badge-icons-emerald-v2.png"),
+      this.assetUri(view.webview, "badge-icons-gold-v2.png"),
+      this.assetUri(view.webview, "phase-icons-v2.png"),
+      this.assetUri(view.webview, "phase-planning-v2.png"),
+      this.assetUri(view.webview, "phase-embarked-v2.png"),
+      this.assetUri(view.webview, "phase-camp-v2.png"),
+      this.assetUri(view.webview, "phase-no-quest-v2.png"),
+      this.assetUri(view.webview, "phase-ready-v2.png"),
+      this.assetUri(view.webview, "empty-states-v2.png"),
+    ]);
+    view.webview.html = buildCharacterSheetV2(this.state, {
+      cspSource: view.webview.cspSource,
+      nonce: nonce(),
+      heroImgUri,
+      heroBgUri,
+      heroIdleUri,
+      badgeSheetV2Uri,
+      badgeShelfV2Uri,
+      badgeFrameLockedV2Uri,
+      badgeFrameEarnedV2Uri,
+      badgeFrameProgressV2Uri,
+      badgeIconsIronV2Uri,
+      badgeIconsEmeraldV2Uri,
+      badgeIconsGoldV2Uri,
+      phaseSheetV2Uri,
+      phasePlanningV2Uri,
+      phaseEmbarkedV2Uri,
+      phaseCampV2Uri,
+      phaseNoQuestV2Uri,
+      phaseReadyV2Uri,
+      emptySheetV2Uri,
     });
   }
 
@@ -82,6 +125,7 @@ export class CharacterSheetView implements vscode.WebviewViewProvider, SurfaceUp
       expHistory: [],
       activeQuest: null,
       scrolls: [],
+      openSideQuests: [],
       schemaVersion: null,
       error: null,
     };

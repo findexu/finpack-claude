@@ -70,13 +70,18 @@ Check that it contains `STRATEGY_SCROLL.md`.
 
 If not found: "Quest not found at {path}. Run /new-quest to create it." Stop.
 
-## Step 5: Update active quest
+## Step 5: Update the default pointer
 
 Rewrite `.claude/active-quest.txt`:
 ```
 {quest-folder-path}
 {realm}
 ```
+
+This pointer is the single-chat DEFAULT. In multi-chat use it is shared, so this
+write intentionally changes what a bare command in another chat would resolve to;
+other chats stay safe by carrying their own quest and passing `--quest`
+(SKILL.md -> "Active-quest selection").
 
 ## Step 6: Brief and guide
 

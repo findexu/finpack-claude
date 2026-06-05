@@ -1,15 +1,21 @@
 ---
 description: Start an expedition on the active quest. Scopes today's focus, loads only relevant subfiles, briefs the commander, proposes an expedition plan, and waits for approval before any work begins.
+argument-hint: "[--quest <name>] [--realm <realm>]"
 ---
 
 # Embark
 
 Start a new expedition on the active quest.
 
-## Step 1: Read active quest
+## Step 1: Resolve the active quest
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
+   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
 
 If the file does not exist:
 "No active quest. Run /new-quest to create one." Stop.
@@ -152,3 +158,17 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: active
 ### Project Decisions
 {rows from .ai-context/DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
+
+## Step 8: Record the lifecycle transition
+
+After the commander approves the plan, append ONE `state` line to the lifecycle
+log with a SHELL APPEND (never Edit/Write). This is the only real-time signal
+the dashboard gets that an expedition has begun — `/embark` writes no journal
+entry, so without it the dashboard stays on the previous phase.
+
+```bash
+printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-xp/lifecycle.log
+```
+
+`{quest-name}` is the basename of the quest folder (matching the XP event format).
+Do this once, silently — it is not part of the expedition work.

@@ -113,6 +113,24 @@ else
 fi
 
 echo
+echo "== quest-system-smoke =="
+if bash "$ROOT/tests/quest-system-smoke.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("quest-system-smoke")
+fi
+
+echo
+echo "== quest-xp-fold =="
+if bash "$ROOT/tests/quest-xp-fold-test.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("quest-xp-fold")
+fi
+
+echo
 echo "RESULT: $PASS passed, $FAIL failed"
 if [[ $FAIL -gt 0 ]]; then
   printf 'Failed: %s\n' "${FAILED_NAMES[@]}"
