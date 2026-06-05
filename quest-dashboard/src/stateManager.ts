@@ -1,18 +1,21 @@
 import * as vscode from "vscode";
 
 import { parseActiveQuest } from "./parsers/activeQuestParser";
+import { latestPhaseForQuest } from "./parsers/lifecycleLogParser";
 import { parseHistory } from "./parsers/historyParser";
 import { parseProfile } from "./parsers/profileParser";
 import { parseScroll } from "./parsers/scrollParser";
 import { detectPhase } from "./phaseDetector";
 import { checkSchemaVersion } from "./schema";
 import { LoadingState, QuestPhase } from "./types";
-import type { ActiveQuest, ExpHistoryEntry, QuestState, ScrollFile } from "./types";
+import type { ActiveQuest, ExpHistoryEntry, QuestState, ScrollFile, SideQuest } from "./types";
 
 const PROFILE_PATH = [".claude", "quest-xp", "profile.md"];
 const HISTORY_PATH = [".claude", "quest-xp", "quest-history.md"];
+const LIFECYCLE_PATH = [".claude", "quest-xp", "lifecycle.log"];
 const ACTIVE_QUEST_PATH = [".claude", "active-quest.txt"];
 const VERSION_PATH = [".claude", "commands", ".quest-system-version"];
+const SIDE_QUESTS_PATH = [".ai-context", "side-quests"];
 
 const SCROLL_FILENAMES = [
   "STRATEGY_SCROLL.md",
@@ -25,6 +28,7 @@ const SCROLL_FILENAMES = [
 const WATCH_PATTERNS = [
   ".claude/quest-xp/**",
   ".ai-context/quests/**",
+  ".ai-context/side-quests/**",
   ".claude/active-quest.txt",
 ];
 
@@ -98,8 +102,9 @@ export class StateManager implements vscode.Disposable {
     const scrolls = activeQuest ? await this.readScrolls(activeQuest) : [];
     const expHistory = await this.readHistory();
     const phase = await this.detectPhase(activeQuest);
+    const openSideQuests = await this.readSideQuests();
 
-    const base = { phase, expHistory, activeQuest, scrolls, schemaVersion };
+    const base = { phase, expHistory, activeQuest, scrolls, openSideQuests, schemaVersion };
 
     if (profileText === null) {
       return { loadingState: LoadingState.NoAdventurer, profile: null, error: null, ...base };
@@ -127,9 +132,19 @@ export class StateManager implements vscode.Disposable {
     return { loadingState: LoadingState.Ready, profile: parsed.value, error: null, ...base };
   }
 
+  // Lifecycle commands record each transition as a `state` line in lifecycle.log,
+  // so that is the authoritative real-time signal (notably the only one /embark
+  // emits). Scroll inference is the fallback for quests with no state line yet
+  // (e.g. installs predating the state-event feature).
   private async detectPhase(activeQuest: ActiveQuest | null): Promise<QuestPhase> {
     if (activeQuest === null) {
       return detectPhase(null, null, false);
+    }
+    const questName = leafName(activeQuest.questFolderPath);
+    const lifecycleText = await this.readText(this.uri(LIFECYCLE_PATH));
+    const fromEvents = latestPhaseForQuest(lifecycleText, questName);
+    if (fromEvents !== null) {
+      return fromEvents;
     }
     const questDir = vscode.Uri.joinPath(this.root, ...activeQuest.questFolderPath.split("/"));
     const [strategyText, journalText] = await Promise.all([
@@ -137,6 +152,26 @@ export class StateManager implements vscode.Disposable {
       this.readText(vscode.Uri.joinPath(questDir, "ADVENTURE_JOURNAL.md")),
     ]);
     return detectPhase(strategyText, journalText, true);
+  }
+
+  // Open side-quests are the directories directly under `.ai-context/side-quests/`
+  // excluding the `done/` archive. Each holds one NOTE.md. Closing a side-quest
+  // moves its folder into `done/`, which fires the watcher and drops it here.
+  private async readSideQuests(): Promise<SideQuest[]> {
+    const dir = this.uri(SIDE_QUESTS_PATH);
+    let entries: [string, vscode.FileType][];
+    try {
+      entries = await vscode.workspace.fs.readDirectory(dir);
+    } catch {
+      return [];
+    }
+    return entries
+      .filter(([name, type]) => type === vscode.FileType.Directory && name !== "done")
+      .map(([name]) => ({
+        slug: name,
+        fsPath: vscode.Uri.joinPath(dir, name, "NOTE.md").fsPath,
+      }))
+      .sort((a, b) => a.slug.localeCompare(b.slug));
   }
 
   private async readActiveQuest(): Promise<ActiveQuest | null> {
@@ -195,8 +230,14 @@ export class StateManager implements vscode.Disposable {
       expHistory: [],
       activeQuest: null,
       scrolls: [],
+      openSideQuests: [],
       schemaVersion: null,
       error: null,
     };
   }
+}
+
+function leafName(questFolderPath: string): string {
+  const parts = questFolderPath.split("/").filter((part) => part !== "");
+  return parts.length > 0 ? parts[parts.length - 1] : questFolderPath;
 }

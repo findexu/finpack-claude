@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { checkSchemaVersion } from "../src/schema";
 
 test("accepts the exact supported version", () => {
-  assert.equal(checkSchemaVersion("2026.06.0001").ok, true);
+  assert.equal(checkSchemaVersion("2026.06.0007").ok, true);
 });
 
 test("accepts a different patch within the supported year-month", () => {

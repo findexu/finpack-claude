@@ -4,9 +4,23 @@
 // rounded-frame ...) match the hand-authored component classes.
 module.exports = {
   content: ["./src/**/*.ts"],
-  // Corner-ornament classes are emitted via `frame-orn-${p}`, so the scanner
+  // Corner-ornament classes are emitted via `*-orn-${p}`, so the scanner
   // never sees the literal names and would purge these @layer rules.
-  safelist: ["frame-orn-tl", "frame-orn-tr", "frame-orn-br", "frame-orn-bl"],
+  safelist: [
+    "frame-orn-tl",
+    "frame-orn-tr",
+    "frame-orn-br",
+    "frame-orn-bl",
+    "v2-frame-orn-tl",
+    "v2-frame-orn-tr",
+    "v2-frame-orn-br",
+    "v2-frame-orn-bl",
+    "v2-badge-shelf-1",
+    "v2-badge-shelf-2",
+    "v2-badge-shelf-3",
+    "v2-badge-shelf-4",
+    "v2-badge-shelf-5",
+  ],
   // Webview owns its whole document; no global resets needed beyond ours.
   corePlugins: { preflight: false },
   theme: {

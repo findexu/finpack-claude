@@ -1,7 +1,7 @@
 // Shared type truth for the quest-dashboard extension.
-// Data formats mirror quest-system VERSION 2026.06.0001 (see skills/quest-system).
+// Data formats mirror quest-system VERSION 2026.06.0007 (see skills/quest-system).
 
-export const SUPPORTED_VERSION = "2026.06.0001";
+export const SUPPORTED_VERSION = "2026.06.0007";
 
 export type Result<T> =
   | { ok: true; value: T }
@@ -70,6 +70,14 @@ export interface ScrollFile {
   meta: ScrollMeta | null;
 }
 
+// An open side-quest discovered under `.ai-context/side-quests/`. Side-quests
+// run alongside the active quest (they never switch the pointer), so they are
+// surfaced as a separate indicator rather than folded into the quest phase.
+export interface SideQuest {
+  slug: string;
+  fsPath: string; // the side-quest's NOTE.md, for click-to-open
+}
+
 // Single source of truth consumed by every surface. Assembled by the state
 // manager (next expedition); defined here so surfaces type against one shape.
 export interface QuestState {
@@ -79,6 +87,7 @@ export interface QuestState {
   expHistory: ExpHistoryEntry[];
   activeQuest: ActiveQuest | null;
   scrolls: ScrollFile[];
+  openSideQuests: SideQuest[];
   schemaVersion: string | null;
   error: string | null;
 }
@@ -107,23 +116,39 @@ export interface BadgeDef {
   progress?: { stat: NumericStat; threshold: number };
 }
 
-export const LEVEL_TABLE: readonly LevelTier[] = [
-  { level: 1, title: "Apprentice Coder", threshold: 0 },
-  { level: 2, title: "Journeyman Developer", threshold: 150 },
-  { level: 3, title: "Skilled Developer", threshold: 450 },
-  { level: 4, title: "Senior Developer", threshold: 900 },
-  { level: 5, title: "Expert Architect", threshold: 1500 },
-  { level: 6, title: "Master Builder", threshold: 2250 },
-  { level: 7, title: "Grand Master", threshold: 3150 },
-  { level: 8, title: "Legendary Coder", threshold: 4200 },
-  { level: 9, title: "Mythic Developer", threshold: 5400 },
-  { level: 10, title: "Transcendent Engineer", threshold: 6750 },
-];
+// Level math mirrors quest-system /quest-xp: levels run 1..50, each costs
+// `level × 300` EXP over the previous one, so threshold(N) = 150 × N × (N − 1).
+// Titles are tiered every 5 levels with a I–V rank inside the tier
+// (e.g. level 1 = "Apprentice Coder I", level 50 = "Transcendent Engineer V").
+export const MAX_LEVEL = 50;
+
+const TIER_TITLES = [
+  "Apprentice Coder",
+  "Journeyman Developer",
+  "Skilled Developer",
+  "Senior Developer",
+  "Expert Architect",
+  "Master Builder",
+  "Grand Master",
+  "Legendary Coder",
+  "Mythic Developer",
+  "Transcendent Engineer",
+] as const;
+const TIER_RANKS = ["I", "II", "III", "IV", "V"] as const;
+
+export const LEVEL_TABLE: readonly LevelTier[] = Array.from({ length: MAX_LEVEL }, (_, index) => {
+  const level = index + 1;
+  return {
+    level,
+    title: `${TIER_TITLES[Math.floor(index / TIER_RANKS.length)]} ${TIER_RANKS[index % TIER_RANKS.length]}`,
+    threshold: 150 * level * (level - 1),
+  };
+});
 
 export const ALL_BADGES: readonly BadgeDef[] = [
   { icon: "🗡️", name: "First Blood", hint: "Complete your first quest", progress: { stat: "questsCompleted", threshold: 1 } },
   { icon: "📜", name: "Scroll Keeper", hint: "Complete 5 quests", progress: { stat: "questsCompleted", threshold: 5 } },
-  { icon: "⚔️", name: "Veteran Adventurer", hint: "Complete 10 quests", progress: { stat: "questsCompleted", threshold: 10 } },
+  { icon: "⚔️", name: "Veteran", hint: "Complete 10 quests", progress: { stat: "questsCompleted", threshold: 10 } },
   { icon: "🏆", name: "Legend", hint: "Complete 25 quests", progress: { stat: "questsCompleted", threshold: 25 } },
   { icon: "🕵️", name: "Danger Mapper", hint: "Map 10 total dangers", progress: { stat: "totalDangersMapped", threshold: 10 } },
   { icon: "☠️", name: "Danger Hoarder", hint: "Map 50 total dangers", progress: { stat: "totalDangersMapped", threshold: 50 } },
