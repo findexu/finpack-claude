@@ -31,6 +31,38 @@ test("parses the badges list", () => {
   assert.deepEqual(unwrap(parseProfile(BASIC)).badges, ["First Blood"]);
 });
 
+test("canonicalizes legacy emoji-prefixed badge names to the plain name", () => {
+  const legacy = `---
+adventurer: Finde
+level: 10
+total-exp: 7895
+quests-completed: 5
+total-expeditions: 32
+total-dangers-mapped: 102
+total-oaths-sworn: 112
+total-splits: 1
+badges: ["🗡️ First Blood", "✨ Clean Sweep", "💎 Diamond"]
+---
+`;
+  assert.deepEqual(unwrap(parseProfile(legacy)).badges, ["First Blood", "Clean Sweep", "Diamond"]);
+});
+
+test("leaves an unrecognized badge entry untouched", () => {
+  const odd = `---
+adventurer: Finde
+level: 1
+total-exp: 0
+quests-completed: 0
+total-expeditions: 0
+total-dangers-mapped: 0
+total-oaths-sworn: 0
+total-splits: 0
+badges: ["Mystery Badge"]
+---
+`;
+  assert.deepEqual(unwrap(parseProfile(odd)).badges, ["Mystery Badge"]);
+});
+
 test("coerces quoted numeric frontmatter to a number", () => {
   const quoted = `---
 adventurer: Finde
