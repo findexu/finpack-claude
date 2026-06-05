@@ -1,19 +1,26 @@
 ---
 description: Summon three specialist sages to counsel on a decision or dilemma. Loads quest context, then spawns The Cartographer (codebase), The Emissary (web research), and The Sage (critical reason) in parallel. Synthesizes their findings into council accord.
-argument-hint: "[question or dilemma]"
+argument-hint: "[question or dilemma] [--quest <name>] [--realm <realm>]"
 ---
 
 # Ask Sages
 
 Convene the council. Three sages examine your matter from different vantage points and deliver their counsel.
 
-## Step 1: Read active quest
+## Step 1: Resolve the active quest
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
+(`--quest` consumes the next whitespace-delimited token as the name); everything
+left over is the question/dilemma.
 
-If the file does not exist:
-"No active quest. Run /new-quest first. The sages cannot advise without a quest." Stop.
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If `--quest` was given, use it; read its realm from `STRATEGY_SCROLL.md`
+   frontmatter unless `--realm` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+3. If neither resolves: "No active quest. Run /new-quest first, or pass --quest. The sages cannot advise without a quest." Stop.
+
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. The sages are scoped to the RESOLVED quest.
 
 If the quest folder does not exist on disk:
 "Quest folder not found at {path}. Run /new-quest or /change-quest." Stop.
@@ -202,7 +209,8 @@ The Council's accord:
 
 ## Step 7: Record in journal (optional)
 
-Ask: "Shall the scribes record this counsel in the journal? (y/n)"
+Ask: "Shall the scribes record this counsel in the {quest-name} journal? (y/n)"
+(naming the resolved quest is the echo — confirm it is the intended one before appending).
 
 If n: stop.
 

@@ -95,7 +95,7 @@ Available: {source-version}
 Source:    {source}
 
 Will update:
-  13 command files  → .claude/commands/
+  16 command files  → .claude/commands/
   quest-system-tutorial skill
   update-quest-system skill
   quest-system-verify.sh hook  (if found)
@@ -128,6 +128,9 @@ Read from `{source}`, write to `.claude/commands/`:
 - `init-xp.md`
 - `counsel-prompt.md`
 - `counsel-plan.md`
+- `start-quest.md`
+- `side-quest.md`
+- `close-side-quest.md`
 
 Skip any file not found at `{source}` — note it, don't error.
 

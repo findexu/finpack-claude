@@ -1,15 +1,46 @@
 ---
-description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition.
+description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition. Pass --all for the multi-tasking board across every quest and side-quest.
+argument-hint: "[--all] [--quest <name>] [--realm <realm>]"
 ---
 
 # Quest Log
 
 Show current quest status without starting an expedition.
 
-## Step 1: Read active quest
+## Step 0: `--all` board mode
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+If `$ARGUMENTS` contains `--all`, render the multi-tasking board instead of the
+single-quest view, then stop:
+
+1. Scan `.ai-context/quests/*/` — for each, read `STRATEGY_SCROLL.md` frontmatter
+   + `## Battle Status` and (if present) `context.md` `Expedition:` flag.
+2. Scan `.ai-context/side-quests/*/NOTE.md` with `status: open` (EXCLUDE
+   `.ai-context/side-quests/done/`). Group each under its `parent`.
+3. Read `.claude/active-quest.txt` and mark which quest the default pointer targets
+   (`<- pointer`).
+
+```
+📋 Quest Board
+Quests:
+  {quest-name}  | realm {realm} | {expedition flag} {<- pointer if matched}
+    side-quests (open): {slug}, {slug}   (or "none")
+  ...
+Standalone side-quests (open): {slug}, ...   (or "none")
+
+Note: in multi-chat use the pointer is only one chat's default; other chats
+carry their own quest via --quest.
+```
+Stop after the board.
+
+## Step 1: Resolve the active quest
+
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
+   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
 
 If not found: "No active quest. Run /new-quest first." Stop.
 

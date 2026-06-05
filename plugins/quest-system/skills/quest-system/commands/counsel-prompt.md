@@ -1,6 +1,6 @@
 ---
 description: Rewrite a rough prompt into a sharp, well-contextualized Claude prompt. Loads quest context so the rewritten prompt includes relevant project details. Output is a single copyable block.
-argument-hint: "[rough prompt text]"
+argument-hint: "[rough prompt text] [--quest <name>]"
 ---
 
 # Counsel Prompt
@@ -9,16 +9,20 @@ Rewrite a rough or vague prompt into a precise, effective Claude prompt.
 
 ## Step 1: Read quest context (optional)
 
-Check if `.claude/active-quest.txt` exists. If it does, read it and load:
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"), context only:
+1. If a `--quest <name-or-path>` argument was given, use that quest.
+2. Otherwise use `.claude/active-quest.txt` if it exists.
+3. Otherwise proceed WITHOUT quest context (this command is valid with no active quest — do not stop).
+
+If a quest resolved, load:
 - `{quest-folder}/context.md` if it exists (fast path — pre-synthesized snapshot)
 - Otherwise: read STRATEGY_SCROLL.md for battle status and open riddles,
   ADVENTURERS_HANDBOOK.md for tech stack
 
-If no active quest, proceed without quest context.
-
 ## Step 2: Take the rough prompt
 
-Read `$ARGUMENTS` as the rough prompt to rewrite.
+First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
+(already consumed in Step 1). Read what remains as the rough prompt to rewrite.
 
 If empty, ask: "What do you want to ask Claude? Paste your rough prompt."
 

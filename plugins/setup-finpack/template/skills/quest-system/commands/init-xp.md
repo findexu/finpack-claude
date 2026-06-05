@@ -36,12 +36,17 @@ total-dangers-mapped: 0
 total-oaths-sworn: 0
 total-splits: 0
 badges: []
+derived-from-events: 0
 ---
 # {git-user-name}'s Adventurer Profile
 
 Complete quests, log expeditions, and map dangers to earn EXP.
 Run /quest-xp to view your profile.
 ```
+
+profile.md is a DERIVED CACHE — the source of truth is the event log (SKILL.md ->
+"XP derivation"). Create an empty `.claude/quest-xp/events.log` (fresh installs
+start with no events; the zeroed profile is consistent with an empty fold).
 
 Create `.claude/quest-xp/quest-history.md` if it does not exist:
 ```
@@ -62,7 +67,7 @@ If `.gitignore` does not exist, create it with that single line.
 ⚔️  Adventurer profile created.
 
 Name:  {git-user-name}
-Level: 1 — Apprentice Coder
+Level: 1 — Apprentice Coder I
 EXP:   0
 
 Run /quest-xp to view your profile.

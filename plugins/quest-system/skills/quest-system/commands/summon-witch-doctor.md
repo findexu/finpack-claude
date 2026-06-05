@@ -1,5 +1,6 @@
 ---
 description: Diagnose the health of the active quest's scrolls. Checks for missing files, missing sections, invalid frontmatter, split state, legacy pre-expedition terminology, and legacy storage layout (pre-v1.6.0). Offers repair if issues are found.
+argument-hint: "[--quest <name>] [--realm <realm>]"
 ---
 
 # Summon Witch Doctor
@@ -7,10 +8,32 @@ description: Diagnose the health of the active quest's scrolls. Checks for missi
 Inspect every scroll in the active quest and report their health.
 No files are modified unless you confirm repair.
 
-## Step 1: Read active quest
+## Step 0: Global multi-tasking checks (run even with NO active quest)
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+These are project-scoped, not tied to any one quest. Run them first so they work
+on a quest-less project too, then continue to Step 1 (skip the rest only if Step 1
+reports no active quest).
+
+- **Orphaned side-quests:** for each `.ai-context/side-quests/*/NOTE.md` with
+  `status: open`, verify `parent` is `none` or an existing
+  `.ai-context/quests/{parent}/`. If the parent is missing/archived, flag
+  `ORPHAN_SIDE_QUEST` (repair: close it via /close-side-quest, which falls back to
+  the project registries). Also flag a `status` that is not `open|done|promoted`.
+- **Stale locks:** if `.claude/locks/*.lock` exists, flag `STALE_LOCK` (repair:
+  offer manual `rmdir` — never auto-break; another chat may hold it legitimately).
+- **XP cache drift:** if `.claude/quest-xp/events.log` exists and its line count ≠
+  the `profile.md` `derived-from-events` (or that key is missing), flag
+  `XP_CACHE_STALE` (repair: recompute via the SKILL.md fold — /quest-xp self-heals).
+
+## Step 1: Resolve the active quest
+
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, diagnose THAT quest; read its realm
+   from its `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+
+All checks below apply to the RESOLVED quest folder (not necessarily the pointer).
+`{quest-name}` is the basename of the resolved folder path.
 
 If not found: "No active quest. Run /new-quest first." Stop.
 

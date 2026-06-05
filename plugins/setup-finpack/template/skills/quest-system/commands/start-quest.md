@@ -33,7 +33,7 @@ Check that the quest folder exists on disk and contains `STRATEGY_SCROLL.md`.
 
 If not found: "Quest not found at {path}. Run /new-quest to create it." Stop.
 
-## Step 3: Set active quest
+## Step 3: Set the default pointer
 
 Rewrite `.claude/active-quest.txt`:
 ```
@@ -42,6 +42,11 @@ Rewrite `.claude/active-quest.txt`:
 ```
 
 Read realm from the YAML frontmatter of `STRATEGY_SCROLL.md` if not already known.
+
+This pointer is the single-chat DEFAULT. In multi-chat use it is shared, so this
+write intentionally changes what a bare command in another chat would resolve to;
+other chats stay safe by carrying their own quest and passing `--quest`
+(SKILL.md -> "Active-quest selection").
 
 ## Step 4: Read scroll state
 

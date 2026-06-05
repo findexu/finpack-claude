@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.8.2
+version: 1.11.0
 ---
 
 # Quest System — Skill Definition
@@ -44,10 +44,13 @@ never loses context between conversations.
 | `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, split issues, and legacy terminology migration needs |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
+| `/side-quest` | Capture a small thing found mid-quest (UI bug, font tweak) in one step — does NOT switch your active quest |
+| `/close-side-quest` | Close a side-quest, distilling its dangers/decisions up to its parent (or `--promote` it to a full quest) |
 
 ## Key concepts
 
 - **Quest** — a feature or epic (e.g. "scan-alignment-floor-annotation")
+- **Side-quest** — a small thing found along the way (UI bug, font size, layout), usually independent but sometimes related to the main quest. Cheap to capture (one scroll, no counsel), worked in a separate chat, distilled UP to its parent on close.
 - **Realm** — the app target in scope (e.g. "WeScanX")
 - **Expedition** — a single focused work loop (`/embark` -> implementation -> `/make-camp`)
 - **Conquered** — completed step
@@ -56,7 +59,13 @@ never loses context between conversations.
 - **Fallen strategy** — a rejected approach (must be recorded to prevent re-proposing)
 - **Unsolved riddle** — an open verification item
 
-## active-quest.txt format
+## Active-quest selection (multi-chat)
+
+You can run several Claude chats in the **same folder** at once, each working a
+different quest. There is no per-chat id on disk, so a chat identifies its quest
+by **naming it**, not by trusting a shared file.
+
+### `.claude/active-quest.txt` (the default pointer)
 
 Located at `.claude/active-quest.txt`
 Line 1: repo-relative path to the quest scrolls folder, no trailing slash
@@ -64,19 +73,84 @@ Line 1: repo-relative path to the quest scrolls folder, no trailing slash
 Line 2: realm in scope (e.g. `WeScanX`)
 
 `{quest-name}` is the basename of line 1 (the last path segment). Commands that
-write this file (`/new-quest`, `/start-quest`, `/change-quest`) must normalize
-any user-supplied path to this form — relative, no trailing slash — so basename
+write this file (`/new-quest`, `/start-quest`, `/change-quest`) normalize any
+user-supplied path to this form — relative, no trailing slash — so basename
 extraction is unambiguous.
 
-All commands read this file first. Change it with `/change-quest`.
+This file is a **single default pointer**. It is reliable when only one chat is
+active. When multiple chats run in the same folder it is shared and any chat's
+`/start-quest` / `/change-quest` overwrites it, so it is **untrusted** in
+multi-chat use.
+
+### Resolution order (every command)
+
+1. If the command was given a `--quest <name-or-path>` argument → use that quest
+   (read its realm from `STRATEGY_SCROLL.md` frontmatter unless `--realm` is also
+   passed). The argument always wins.
+2. Otherwise → read `.claude/active-quest.txt` (the default pointer).
+3. Otherwise → "No active quest. Run /new-quest or pass --quest."
+
+The assistant carries the chat's quest in-conversation: once a chat has embarked
+on quest X, it resolves every subsequent command against X (supplying it as
+`--quest`), and does NOT silently trust the shared pointer.
+
+### Mutating commands confirm first
+
+`/make-camp`, `/complete-quest`, and `/close-side-quest` write scrolls and XP.
+Before any write they MUST echo the resolved `quest + realm` and confirm (or
+require an explicit `--quest`). This is the backstop against a bare command
+acting on a pointer another chat has just repointed.
+
+### Worked examples
+
+- **Single chat:** `/embark` → no arg → reads the pointer → quest X. Normal.
+- **Two chats, same folder:** chat A is on `main-feature`, chat B runs
+  `/start-quest font-fix` (pointer now = font-fix). Chat A's next `/make-camp`
+  resolves `--quest main-feature` from its own conversation (NOT the pointer),
+  echoes "camping main-feature / realm app — confirm?", and writes the right
+  scrolls. Chat B works font-fix the same way.
+- **Explicit override:** `/embark --quest onboarding --realm app` ignores the
+  pointer entirely.
+
+> Bonus: if you instead use separate git worktrees, `.claude/` is gitignored and
+> not shared between them, so each worktree is isolated for free — but that is
+> not required; same-folder multi-chat is the supported model.
+
+## Concurrency (same-folder safety)
+
+Races only exist when multiple chats share one folder. The rules:
+
+- **Single-writer-per-quest.** A quest folder's scrolls are written by one chat
+  at a time (each chat is on a different quest). Two chats on the *same* quest is
+  the user's choice and out of scope.
+- **Project-global files use an advisory lock.** `DANGER_REGISTRY.md` and
+  `DECISIONS_LOG.md` are mutated by any `/complete-quest`. Wrap each
+  read-modify-write in a `mkdir`-based lock, as a **single bash invocation** that
+  acquires, re-reads, appends, and releases — releasing on every exit path:
+  ```bash
+  L=.claude/locks/danger-registry.lock
+  for i in $(seq 1 50); do mkdir "$L" 2>/dev/null && break || sleep 0.1; done
+  trap 'rmdir "$L" 2>/dev/null' EXIT
+  # re-read the file HERE, append the new rows, write it back
+  ```
+  `mkdir` is the only atomic, portable primitive (macOS has no `flock`).
+  `[ -e ] && touch` is a TOCTOU race — never use it. The lock is **advisory /
+  best-effort** (LLM-executed); a stale lock is reported and offered for manual
+  `rmdir`, never silently broken.
+- **XP is append-only.** Append XP events to `.claude/quest-xp/events.log` with a
+  shell append (`printf '%s\n' >> events.log`) ONLY — never via Edit/Write (a
+  whole-file rewrite reintroduces the lost-update race). See the XP section.
+- `.claude/locks/` is gitignored.
 
 ## Sacred laws (enforced by all commands)
 
-- Never rely on conversation history — always write to the scrolls
+- Never rely on conversation history for SCROLL CONTENT — always write to the scrolls
+  (the chat's *active quest* is the one exception: it is carried in-conversation, per Active-quest selection)
 - TOME_OF_DANGERS.md must be updated the moment a new danger is found
 - ADVENTURE_JOURNAL.md is append-only — history is never rewritten
 - Work is always scoped to the active realm only
 - No code is written until the commander approves the battle plan
+- Project-global state files are append-only or lock-guarded — never a bare rewrite
 
 ## Split rules
 
@@ -211,8 +285,53 @@ All quest state and project memory lives here. Committed to git so the whole tea
     ADVENTURE_JOURNAL.md
     TOME_OF_DANGERS.md
     ADVENTURERS_HANDBOOK.md
+  side-quests/{slug}/             ← lightweight side-quests (one NOTE.md each)
+    NOTE.md
+  side-quests/done/{slug}/        ← closed side-quests (moved by /close-side-quest)
   archived/{quest-name}/          ← completed quests (moved by /complete-quest)
 ```
+
+### Side-quest layout — `NOTE.md`
+
+A side-quest is one file. Created by `/side-quest`, it does not disturb the
+current chat's active quest. `parent` links it to the quest that was active when
+it was spawned (or `none`). On `/close-side-quest` its findings/decisions distill
+up to the parent's TOME/STRATEGY (or the project registries if `parent: none`).
+```
+---
+type: side-quest
+slug: {slug}
+parent: .ai-context/quests/{parent-name} | none
+realm: {realm}
+status: open | done | promoted
+created: "{YYYY-MM-DD}"          # quoted — unquoted ISO dates parse to Date
+---
+# Side-Quest: {one-line description}
+## Findings
+## Dangers     (distills to parent TOME_OF_DANGERS / project DANGER_REGISTRY)
+## Decisions   (distills to parent STRATEGY_SCROLL / project DECISIONS_LOG)
+```
+
+### Canonical multi-chat walkthrough
+
+The intended end-to-end flow, two chats in one folder:
+
+1. **Chat A** `/embark --quest dashboard-redesign` → works the main quest; carries
+   `dashboard-redesign` in-conversation.
+2. Mid-work, A spots a font bug: `/side-quest "badge label font too small"` →
+   creates `.ai-context/side-quests/badge-label-font/NOTE.md` with
+   `parent: .ai-context/quests/dashboard-redesign`, appends a one-line breadcrumb
+   to the parent journal, and **leaves A on dashboard-redesign** (no switch).
+3. **Chat B** (new chat, same folder) picks it up: `/start-quest badge-label-font`
+   (or any command with `--quest badge-label-font`). The shared pointer now reads
+   badge-label-font, but Chat A ignores the pointer — it resolves
+   `--quest dashboard-redesign` from its own conversation.
+4. Both finish together. Chat A `/make-camp` echoes "camping dashboard-redesign /
+   realm app — confirm?", appends an `expedition` line to `events.log` via `>>`,
+   recomputes `profile.md`. Chat B `/close-side-quest` distills the font danger up
+   into dashboard-redesign's `TOME_OF_DANGERS.md`, moves the NOTE to
+   `side-quests/done/`. No shared file is rewritten from a stale read; both XP
+   events land.
 
 | File | Contents | Updated by |
 |---|---|---|
@@ -292,20 +411,27 @@ Per-expedition EXP (awarded by /make-camp):
 
 ### Level table
 
-Each level requires `level × 150` EXP from the previous level.
+Levels run 1–50. Each level costs `level × 300` EXP over the previous one, so the
+total EXP to REACH level N is:
 
-| Level | Title | Total EXP needed |
+    threshold(N) = 150 × N × (N − 1)          (exp-to-next at level L = 300 × L)
+
+Titles are tiered every 5 levels, with rank `I`–`V` for the 1st–5th level inside a
+tier. A full title is `{tier} {rank}` — e.g. level 1 = `Apprentice Coder I`,
+level 26 = `Master Builder I`, level 50 = `Transcendent Engineer V` (MAX LEVEL).
+
+| Levels | Tier title | Threshold at tier start |
 |---|---|---|
-| 1 | Apprentice Coder | 0 |
-| 2 | Journeyman Developer | 150 |
-| 3 | Skilled Developer | 450 |
-| 4 | Senior Developer | 900 |
-| 5 | Expert Architect | 1500 |
-| 6 | Master Builder | 2250 |
-| 7 | Grand Master | 3150 |
-| 8 | Legendary Coder | 4200 |
-| 9 | Mythic Developer | 5400 |
-| 10 | Transcendent Engineer | 6750 |
+| 1–5 | Apprentice Coder | 0 |
+| 6–10 | Journeyman Developer | 4,500 |
+| 11–15 | Skilled Developer | 16,500 |
+| 16–20 | Senior Developer | 36,000 |
+| 21–25 | Expert Architect | 63,000 |
+| 26–30 | Master Builder | 97,500 |
+| 31–35 | Grand Master | 139,500 |
+| 36–40 | Legendary Coder | 189,000 |
+| 41–45 | Mythic Developer | 246,000 |
+| 46–50 | Transcendent Engineer | 310,500 |
 
 ### Badges
 
@@ -313,7 +439,7 @@ Each level requires `level × 150` EXP from the previous level.
 |---|---|---|
 | 🗡️ | First Blood | Complete your first quest |
 | 📜 | Scroll Keeper | Complete 5 quests |
-| ⚔️ | Veteran Adventurer | Complete 10 quests |
+| ⚔️ | Veteran | Complete 10 quests |
 | 🏆 | Legend | Complete 25 quests |
 | 🕵️ | Danger Mapper | Map 10 total dangers |
 | ☠️ | Danger Hoarder | Map 50 total dangers |
@@ -327,9 +453,117 @@ Each level requires `level × 150` EXP from the previous level.
 | 🌟 | Rising Star | Reach level 5 |
 | 💎 | Diamond | Reach level 10 |
 
+### Event log (source of truth) + profile cache
+
+Because several chats in one folder can finish work at the same time, XP is NOT a
+counter that commands read-modify-write (that loses updates). Instead:
+
+- **`.claude/quest-xp/events.log` is the append-only source of truth.** Every
+  XP-earning action appends ONE self-contained line via a shell append
+  (`printf '%s\n' >> .claude/quest-xp/events.log`) — never Edit/Write. Concurrent
+  appends interleave whole lines; a torn/garbled line is skipped on fold.
+  ```
+  {iso-date}|{event}|{quest-name}|key=val;key=val;...
+  2026-06-04|expedition|scan-align|base=5;dangers=1;oaths=0
+  2026-06-04|quest-complete|scan-align|modules=4;expeditions=3;dangers=6;oaths=2;splits=1;clean=1;speed=1
+  2026-06-02|seed|-|total-exp=2790;expeditions=10;dangers=16;oaths=33;splits=0
+  ```
+- **`profile.md` is a derived cache**, recomputed by folding the log. It keeps the
+  same frontmatter keys (the read-only quest-dashboard reads this file, not the
+  log), plus `derived-from-events: {N}` = the line count it was built from. Any
+  command that appends an event MUST recompute and rewrite `profile.md` in the
+  same run. `/quest-xp` recomputes if `derived-from-events` ≠ actual line count
+  (self-healing).
+- **Seeding (migration):** if `events.log` is absent but `profile.md` has totals,
+  append ONE `seed` line carrying the current totals, then recompute. Guarded by
+  the log-absent check so it never double-seeds.
+
+### XP derivation (the fold)
+
+`events.log` is the source of truth; totals/level/badges are DERIVED by folding the
+WHOLE log every time (idempotent — never patch the cache incrementally).
+
+Event line format (pipe-delimited; shell `>>` append ONLY, never Edit/Write):
+`{YYYY-MM-DD}|{type}|{quest-name}|{k=v;k=v;...}`
+
+| type | emitted by | fields |
+|---|---|---|
+| `seed` | first XP write on a pre-events.log install | total-exp; quests-completed; total-expeditions; total-dangers-mapped; total-oaths-sworn; total-splits; badges=A,B,C (the FULL current profile, verbatim) |
+| `expedition` | /make-camp | dangers=N; oaths=N; split=0\|1 |
+| `quest-complete` | /complete-quest | modules; expeditions; dangers; oaths; splits; clean=0\|1; speed=0\|1 |
+
+Fold algorithm — start all counters at 0 and the badge set empty, then per line:
+- `seed` → add its counters to the accumulators; UNION its badges into the set.
+  (Baseline for migrated installs; absent on fresh installs.)
+- `expedition` → total-expeditions += 1; total-dangers-mapped += dangers;
+  total-oaths-sworn += oaths; total-splits += split;
+  total-exp += 5 + (dangers>0 ? 10 : 0) + (oaths>0 ? 10 : 0).
+- `quest-complete` → quests-completed += 1;
+  total-exp += 100 + modules*25 + expeditions*10 + dangers*15 + oaths*20 + splits*50
+  + (clean ? 75 : 0) + (speed ? 50 : 0).
+  Does NOT re-add expedition/danger/oath/split counters — those were already counted
+  by the expedition events; the quest-complete fields drive the REWARD only.
+- Skip any malformed/torn line (warn, do not abort).
+
+Then derive:
+- `level` = highest level whose threshold ≤ total-exp (Level table above).
+- derived badges = every badge whose condition holds against the folded
+  counters/level (Badges table); Speed Runner / Clean Sweep additionally unlock
+  from any `quest-complete` event with speed=1 / clean=1.
+- **`badges` = UNION(seed badges, derived badges). NEVER recompute badges from
+  scratch** — the seed carries historically-earned badges that may not be
+  re-derivable (e.g. quest-completion badges), and they must never be dropped.
+
+Write the result to `profile.md` (the cache): all 7 numeric keys + `adventurer` +
+`badges` + `derived-from-events: {lines folded}`. The read-only dashboard reads
+this cache, so every one of those keys MUST be present on every write.
+
+Seeding (migration), idempotent: if `events.log` is ABSENT and `profile.md` has
+totals, append ONE `seed` line carrying the full current profile, then proceed.
+The log-absent check is the guard — never seed twice.
+
+Self-healing: `/quest-xp` (and any XP write) recomputes when `derived-from-events`
+≠ the actual line count. The cache rewrite is itself unlocked, but because it is a
+full-log fold, a lost cache write just self-heals on the next recompute.
+
+Reference + regression oracle: `scripts/quest-xp-fold.sh` is the authoritative
+implementation of this fold (input: an events.log; output: the derived
+KEY=VALUE profile fields). Keep this prose and that script in lockstep; the fold
+is regression-tested by `hooks/tests/quest-xp-fold-test.sh`.
+
+### Lifecycle log (live phase for the dashboard)
+
+`.claude/quest-xp/lifecycle.log` is a SEPARATE append-only log — a sibling of
+`events.log`, never the same file. Each lifecycle command appends ONE `state`
+line via a shell append (`printf '%s\n' >> .claude/quest-xp/lifecycle.log`) the
+moment a quest changes phase:
+
+```
+{YYYY-MM-DD}|state|{quest-name}|phase={planning|ready|embarked|at-camp}
+```
+
+| phase | written by |
+|---|---|
+| `planning` | `/new-quest` (fresh scaffold, no plan yet) |
+| `ready` | `/counsel-quest` PRE/PIVOT once the plan is locked (`planning` if open riddles remain) |
+| `embarked` | `/embark` after the commander approves the plan |
+| `at-camp` | `/make-camp` |
+
+Why a separate file, not `events.log`: `/embark` is the only command that must
+signal a transition yet writes no scroll and earns no XP. Folding state lines
+into `events.log` would be unsafe — the XP seed guard keys off `events.log`
+existence and the fold keys off its line count, so an `/embark` append before the
+first XP event could suppress the migration seed and zero out a migrated profile.
+Keeping lifecycle state in its own log means a state append can never perturb XP.
+
+The read-only quest-dashboard reads the LAST `state` line for the active quest and
+trusts it over scroll inference (which only changes at `/make-camp` boundaries).
+`/complete-quest` and `/change-quest` write no `state` line — they update
+`.claude/active-quest.txt`, which the dashboard watches directly.
+
 ### Profile file format
 
-`.claude/quest-xp/profile.md`:
+`.claude/quest-xp/profile.md` (derived cache — recomputed from events.log):
 ```
 ---
 adventurer: {git user.name or "Adventurer"}
@@ -341,6 +575,7 @@ total-dangers-mapped: 0
 total-oaths-sworn: 0
 total-splits: 0
 badges: []
+derived-from-events: 0
 ---
 # {adventurer}'s Adventurer Profile
 ...rendered by /quest-xp...

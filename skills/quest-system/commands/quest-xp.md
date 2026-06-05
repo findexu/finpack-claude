@@ -15,28 +15,25 @@ If it does not exist:
 
 Extract from YAML frontmatter:
 - `adventurer`, `level`, `total-exp`, `quests-completed`, `total-expeditions`
-- `total-dangers-mapped`, `total-oaths-sworn`, `total-splits`, `badges`
+- `total-dangers-mapped`, `total-oaths-sworn`, `total-splits`, `badges`, `derived-from-events`
+
+## Step 1.5: Self-heal the cache from the event log
+
+If `.claude/quest-xp/events.log` exists and its line count ≠ the profile's
+`derived-from-events` (or that key is missing), the cache is stale: fold the WHOLE
+log (SKILL.md -> "XP derivation (the fold)"), rewrite `profile.md` (all 7 numeric
+keys + adventurer + badges UNION + `derived-from-events`), and use the recomputed
+values below. If `events.log` is absent, render the profile as-is.
 
 ## Step 2: Calculate level progress
 
-Use this level table (no file lookup needed):
-
-| Level | Title                  | Total EXP needed |
-|-------|------------------------|------------------|
-| 1     | Apprentice Coder       | 0                |
-| 2     | Journeyman Developer   | 150              |
-| 3     | Skilled Developer      | 450              |
-| 4     | Senior Developer       | 900              |
-| 5     | Expert Architect       | 1500             |
-| 6     | Master Builder         | 2250             |
-| 7     | Grand Master           | 3150             |
-| 8     | Legendary Coder        | 4200             |
-| 9     | Mythic Developer       | 5400             |
-| 10    | Transcendent Engineer  | 6750             |
+Levels run 1–50. The total EXP to reach level N (no file lookup needed):
 
 ```
-exp_this_level = total-exp - threshold[current level]
-exp_to_next    = threshold[current level + 1] - threshold[current level]
+threshold(N)   = 150 * N * (N - 1)                  # 0 at level 1
+current level  = highest L in 1..50 with threshold(L) <= total-exp
+exp_this_level = total-exp - threshold(current level)
+exp_to_next    = 300 * current level                # = threshold(L+1) - threshold(L)
 progress_pct   = exp_this_level / exp_to_next
 ```
 
@@ -46,7 +43,16 @@ Build a 20-character ASCII progress bar:
 
 ## Step 3: Determine title
 
-Use the level table above to get the title for the current level.
+Titles are tiered every 5 levels, ranked `I`–`V` within the tier:
+
+```
+tier_titles = [Apprentice Coder, Journeyman Developer, Skilled Developer,
+               Senior Developer, Expert Architect, Master Builder, Grand Master,
+               Legendary Coder, Mythic Developer, Transcendent Engineer]
+tier  = tier_titles[ floor((level - 1) / 5) ]
+rank  = [I, II, III, IV, V][ (level - 1) mod 5 ]
+title = "{tier} {rank}"          # e.g. level 1 = "Apprentice Coder I"
+```
 
 ## Step 4: Build badge list
 
@@ -56,7 +62,7 @@ All badges:
 |-------|--------------------|-------------------------------------------|
 | 🗡️    | First Blood        | Complete your first quest                 |
 | 📜    | Scroll Keeper      | Complete 5 quests                         |
-| ⚔️    | Veteran Adventurer | Complete 10 quests                        |
+| ⚔️    | Veteran            | Complete 10 quests                        |
 | 🏆    | Legend             | Complete 25 quests                        |
 | 🕵️    | Danger Mapper      | Map 10 total dangers                      |
 | ☠️    | Danger Hoarder     | Map 50 total dangers                      |
@@ -76,7 +82,7 @@ Split badges into two groups:
 
 For locked badges, calculate progress counters where applicable:
 - Scroll Keeper: {quests-completed}/5
-- Veteran Adventurer: {quests-completed}/10
+- Veteran: {quests-completed}/10
 - Legend: {quests-completed}/25
 - Danger Mapper: {total-dangers-mapped}/10
 - Danger Hoarder: {total-dangers-mapped}/50
@@ -119,7 +125,7 @@ Then list locked badges with progress:
   🔒  ☠️  Danger Hoarder       — Map 50 dangers  ({total-dangers-mapped}/50)
 ```
 
-If level is 10: replace the progress bar section with:
+If level is 50: replace the progress bar section with:
 ```
-  ✨  MAX LEVEL — Transcendent Engineer  ✨
+  ✨  MAX LEVEL — Transcendent Engineer V  ✨
 ```

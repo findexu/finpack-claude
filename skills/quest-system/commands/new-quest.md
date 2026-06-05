@@ -195,6 +195,12 @@ Write `.claude/active-quest.txt`:
 {realm}
 ```
 
+Then record the starting lifecycle phase with a SHELL APPEND (never Edit/Write).
+A freshly scaffolded quest has no plan yet, so it begins in planning:
+```bash
+printf '%s\n' "{date}|state|{quest-name}|phase=planning" >> .claude/quest-xp/lifecycle.log
+```
+
 ## Step 5: Bootstrap adventurer profile (first quest only)
 
 Check if `.claude/quest-xp/profile.md` exists.

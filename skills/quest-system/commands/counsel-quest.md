@@ -4,7 +4,7 @@ description: >
   flow with codebase exploration + architecture design), MID-expedition (resolve blockers
   and adjust plan), PIVOT (record fallen strategy and re-plan from scratch).
   Use --pivot flag for a full direction change mid-expedition.
-argument-hint: "[--pivot] [--expedition-focus <name>]"
+argument-hint: "[--quest <name>] [--realm <realm>] [--pivot] [--expedition-focus <name>]"
 ---
 
 # Counsel Quest
@@ -31,12 +31,18 @@ If `$ARGUMENTS` contains `--phase <name>`, treat as a legacy alias for `--expedi
 
 ---
 
-## Step 1: Read active quest
+## Step 1: Resolve the active quest
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
+   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
 
-If not found: "No active quest. Run /new-quest to create one." Stop.
+`--quest` is order-independent with `--pivot` and `--expedition-focus`; it only selects
+which quest to counsel. The shared pointer is UNTRUSTED in multi-chat — carry this chat's
+quest in-conversation and pass it as `--quest`. `{quest-name}` is the basename of the path.
+
+If neither resolves: "No active quest. Run /new-quest to create one, or pass --quest." Stop.
 If quest folder missing: "Quest folder not found. Run /new-quest or /change-quest." Stop.
 
 ---
@@ -176,6 +182,12 @@ After all agents return:
 3. Update `WORLD_MAP.md` with structural insights from architect agents
 4. Update `last-updated` frontmatter in all modified scrolls
 5. Refresh `.ai-context/` if it exists
+6. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
+   dashboard reflects planning progress in real time. Use `phase=ready` when no open
+   riddles remain (plan is locked and ready to embark), else `phase=planning`:
+   ```bash
+   printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=ready" >> .claude/quest-xp/lifecycle.log
+   ```
 
 ### PRE Step 8: Confirm
 

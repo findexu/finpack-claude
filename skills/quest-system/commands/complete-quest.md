@@ -1,5 +1,6 @@
 ---
 description: Mark the active quest as complete. Distills key knowledge into project-level files, archives the quest folder, and clears the active quest.
+argument-hint: "[--quest <name>] [--realm <realm>]"
 ---
 
 # Complete Quest
@@ -7,12 +8,20 @@ description: Mark the active quest as complete. Distills key knowledge into proj
 A quest is complete when all modules in the battle status are Conquered
 and the commander confirms there is no remaining work.
 
-## Step 1: Read active quest
+## Step 1: Resolve the active quest
 
-Read `.claude/active-quest.txt`.
-Line 1 = quest folder path. Line 2 = realm.
+Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
+1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
+   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+3. If neither resolves: "No active quest to complete. Pass --quest." Stop.
 
-If not found: "No active quest to complete." Stop.
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
+
+Before ANY write in this command, echo the resolved `quest + realm` and confirm (or
+require an explicit `--quest`) — backstop against completing a quest another chat just
+repointed the pointer to (SKILL.md -> "Mutating commands confirm first").
 
 ## Step 2: Confirm completion
 
@@ -41,6 +50,13 @@ Summarize CONFIRMED findings (ignore style nitpicks). Then ask:
   carry into DANGER_REGISTRY during Step 3 distillation.
 
 ## Step 3: Distill TOME_OF_DANGERS → DANGER_REGISTRY.md
+
+CONCURRENCY: the project registries are shared across chats. Perform the
+read-append-write of `DANGER_REGISTRY.md` (this step) and `DECISIONS_LOG.md`
+(Step 4) under the advisory lock (SKILL.md -> "Concurrency") — a single bash
+invocation that `mkdir`-locks, RE-READS the current file, appends the new rows,
+and releases on every exit path. The re-read inside the lock is what prevents a
+concurrent completion from dropping rows.
 
 Read `{quest-folder}/TOME_OF_DANGERS.md` (and all `dangers/` subfiles if split).
 
@@ -106,7 +122,8 @@ Append to `.ai-context/DECISIONS_LOG.md`:
 - Add each decision as a row: Decision | Reason | Quest | Date.
 - Update `last-updated` in YAML frontmatter.
 
-Do not duplicate decisions already in the log.
+Do not duplicate decisions already in the log. Hold the same advisory lock as
+Step 3 for this read-append-write (SKILL.md -> "Concurrency").
 
 ## Step 5: Write final journal entry
 
@@ -135,7 +152,9 @@ If an archive with the same name already exists, rename to `{quest-name}-{date}`
 
 ## Step 7: Clear active quest
 
-Delete `.claude/active-quest.txt`.
+Clear the default pointer ONLY if it points at the quest just completed: if
+`.claude/active-quest.txt` line 1 resolves to this quest folder, delete it;
+otherwise leave it untouched (another chat may be using it as its default).
 
 ## Step 8: Clear context.md
 
@@ -159,64 +178,27 @@ If `.claude/quest-xp/profile.md` does not exist, skip to Step 10.
 - `clean_sweep`: true if `open_riddles` == 0
 - `speed_run`: true if `expeditions` <= 3
 
-**EXP formula:**
-```
-exp = 100
-    + (modules    × 25)
-    + (expeditions × 10)
-    + (dangers    × 15)
-    + (oaths      × 20)
-    + (splits     × 50)
-    + (75 if clean_sweep)
-    + (50 if speed_run)
-```
+**Award via the event log** — XP is append-only; do NOT read-modify-write the
+counters. See SKILL.md -> "XP derivation (the fold)".
 
-Read profile frontmatter from `.claude/quest-xp/profile.md`.
-Add `exp` to `total-exp`.
-Increment `quests-completed` by 1.
+1. **Seed if needed (idempotent):** if `.claude/quest-xp/events.log` is ABSENT,
+   append ONE `seed` line with the full current profile (all 6 counters +
+   `badges`, verbatim). The log-absent check is the guard — never seed twice.
+2. **Append the quest-complete event** with a SHELL APPEND (never Edit/Write):
+   ```bash
+   printf '%s\n' "{YYYY-MM-DD}|quest-complete|{quest-name}|modules={M};expeditions={E};dangers={D};oaths={O};splits={S};clean={0|1};speed={0|1}" >> .claude/quest-xp/events.log
+   ```
+   `clean`=1 if `clean_sweep`, `speed`=1 if `speed_run`. The reward
+   (`100 + modules*25 + expeditions*10 + dangers*15 + oaths*20 + splits*50
+   + (clean?75) + (speed?50)`) and the badge unlocks (incl. Speed Runner / Clean
+   Sweep from this event's flags) are computed by the fold, not here.
+3. **Recompute the cache:** fold the WHOLE `events.log` (SKILL.md derivation) and
+   rewrite `profile.md` — all 7 numeric keys + `adventurer` + `badges`
+   (UNION of seed + derived; never dropped) + `derived-from-events`. Record old vs
+   new `level` for Step 10.
 
-Recalculate level — find highest level whose threshold ≤ new `total-exp`:
-
-| Level | Title                 | Total EXP needed |
-|-------|-----------------------|------------------|
-| 1     | Apprentice Coder      | 0                |
-| 2     | Journeyman Developer  | 150              |
-| 3     | Skilled Developer     | 450              |
-| 4     | Senior Developer      | 900              |
-| 5     | Expert Architect      | 1500             |
-| 6     | Master Builder        | 2250             |
-| 7     | Grand Master          | 3150             |
-| 8     | Legendary Coder       | 4200             |
-| 9     | Mythic Developer      | 5400             |
-| 10    | Transcendent Engineer | 6750             |
-
-Record old level and new level.
-
-**Check badge unlocks:**
-Read current `badges` array.
-Check each badge below against updated profile stats. Collect any newly unlocked:
-
-| Badge | Name               | Unlock condition                        |
-|-------|--------------------|-----------------------------------------|
-| 🗡️    | First Blood        | quests-completed >= 1                   |
-| 📜    | Scroll Keeper      | quests-completed >= 5                   |
-| ⚔️    | Veteran Adventurer | quests-completed >= 10                  |
-| 🏆    | Legend             | quests-completed >= 25                  |
-| 🕵️    | Danger Mapper      | total-dangers-mapped >= 10              |
-| ☠️    | Danger Hoarder     | total-dangers-mapped >= 50              |
-| 🤝    | Oath Keeper        | total-oaths-sworn >= 10                 |
-| 📚    | Lore Master        | total-oaths-sworn >= 50                 |
-| 🚀    | Speed Runner       | speed_run == true (this quest)          |
-| 🧘    | Marathoner         | total-expeditions >= 50                 |
-| 🔥    | Unstoppable        | total-expeditions >= 200                |
-| ✨    | Clean Sweep        | clean_sweep == true (this quest)        |
-| 📂    | Split Master       | total-splits >= 5                       |
-| 🌟    | Rising Star        | level >= 5                              |
-| 💎    | Diamond            | level >= 10                             |
-
-Append newly unlocked badge names to the `badges` array.
-
-Write updated values back to YAML frontmatter of `.claude/quest-xp/profile.md`.
+Let `exp` (for the history entry below) = the quest-complete reward computed in
+step 2's formula.
 
 **Append to `.claude/quest-xp/quest-history.md`:**
 ```
