@@ -2,7 +2,7 @@
   "name": "quest-dashboard",
   "displayName": "Quest Dashboard",
   "description": "Live RPG dashboard for quest-system adventurers",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "finpack",
   "license": "MIT",
   "repository": {

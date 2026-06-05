@@ -1,6 +1,21 @@
 import matter from "gray-matter";
 
+import { ALL_BADGES } from "../types";
 import type { AdventurerProfile, Result } from "../types";
+
+const BADGE_NAMES = new Set(ALL_BADGES.map((badge) => badge.name));
+
+// Legacy profiles stored badges with an emoji prefix ("🗡️ First Blood"); current
+// quest-system writes the plain name ("First Blood"). Canonicalise to the plain
+// name so the earned check (which compares against badge.name) matches either form.
+function canonicalBadgeName(entry: string): string {
+  const trimmed = entry.trim();
+  if (BADGE_NAMES.has(trimmed)) {
+    return trimmed;
+  }
+  const stripped = trimmed.replace(/^[^A-Za-z]+/, "").trim();
+  return BADGE_NAMES.has(stripped) ? stripped : trimmed;
+}
 
 interface NumericField {
   key: string; // kebab-case frontmatter key
@@ -53,7 +68,7 @@ export function parseProfile(content: string): Result<AdventurerProfile> {
     return { ok: false, error: "badges must be a list" };
   }
   profile.badges = Array.isArray(badges)
-    ? badges.filter((b): b is string => typeof b === "string")
+    ? badges.filter((b): b is string => typeof b === "string").map(canonicalBadgeName)
     : [];
 
   return { ok: true, value: profile };
