@@ -218,7 +218,61 @@ Biometric unlock     Pending
 (no open questions yet)
 ```
 
+After the briefing, embark proposes a concrete expedition plan and asks whether
+it looks right. The options are: "Looks good, let's go", "Adjust the plan",
+"Counsel this plan", or "Run /counsel-quest first".
+
 Await orders. Claude is now context-loaded and ready to work.
+
+---
+
+## Phase 2.5 — Counsel the plan before you commit (optional)
+
+Plans usually have a flaw or two. Instead of catching them mid-expedition,
+have an independent reviewer (the `fp-plan-reviewer` agent) vet the proposed
+steps first. Pick "Counsel this plan", or start with a flag:
+
+**Command:** `/embark --counsel 3`
+
+`--counsel N` iterates up to N rounds: review → apply blocking fixes →
+re-review, stopping as soon as the plan is clean. `--strict` makes only
+blocking issues drive the loop (minor nits are listed, never looped on).
+
+A reviewer who is the same context that wrote the plan tends to rubber-stamp
+it, so the review runs in a SEPARATE agent context. Each round ends in a
+verdict — `READY` (0 blocking) or `REVISE` (>=1 blocking):
+
+```
+Round 1 — fp-plan-reviewer
+### Unclear steps
+- Step 2 "wire up auth" has no executable action — name the function/file.
+### Suggested additions
+- No verification for the token-refresh change.
+### Verdict
+REVISE (blocking: 2, minor: 1)
+
+  ↳ applying blocking fixes, re-proposing...
+
+Round 2 — fp-plan-reviewer
+### Verdict
+READY (blocking: 0, minor: 1)
+
+Plan is clean. Presenting for approval.
+```
+
+Termination is bounded four ways: READY (clean), cap reached (round N),
+non-converging (a round fails to reduce the blocking count — surfaced to you),
+or you decline. The approval gate always stays — counsel never auto-executes.
+
+If the reviewer agent is not installed, embark degrades gracefully:
+```
+Plan counsel unavailable — fp-plan-reviewer not installed.
+Run /install-quest-system (or /update-quest-system) to enable.
+Proceeding to manual approval.
+```
+
+Plain `/embark` with no flag skips all of this — zero extra tokens. You can
+also vet a standalone plan file any time with `/counsel-plan path/to/plan.md`.
 
 ---
 

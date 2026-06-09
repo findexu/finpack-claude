@@ -66,6 +66,45 @@ else
   bad "spec lint: side-quest NOTE created date must be quoted"
 fi
 
+# 4. Plan-reviewer wiring -------------------------------------------------------
+AGENT="agents/fp-plan-reviewer.md"
+RUBRIC_SENTINEL="The verdict is a pure function of"
+
+# SHIP GUARD: the agent must reach both new installs and updaters.
+if grep -qF "fp-plan-reviewer.md" "$INSTALL"; then
+  ok "ship: fp-plan-reviewer in install AGENTS array"
+else
+  bad "ship: fp-plan-reviewer.md absent from install AGENTS array"
+fi
+if grep -qF "fp-plan-reviewer.md" "$UPDATE"; then
+  ok "ship: fp-plan-reviewer in update-quest-system agent list"
+else
+  bad "ship: fp-plan-reviewer.md absent from update-quest-system agent list"
+fi
+
+# DRIFT GUARD: the rubric is single-source — it lives in the agent and must NOT
+# be restated in any command (the commands delegate to the agent).
+if [ -f "$AGENT" ] && grep -qF "$RUBRIC_SENTINEL" "$AGENT"; then
+  dup=""
+  for f in "$SRC"/commands/*.md; do
+    grep -qF "$RUBRIC_SENTINEL" "$f" && dup="$dup\n  rubric duplicated in $(basename "$f")"
+  done
+  [ -z "$dup" ] && ok "drift: rubric single-sourced in fp-plan-reviewer agent" \
+    || bad "drift: rubric duplicated in a command" "$(printf "$dup")"
+else
+  bad "drift: rubric sentinel missing from $AGENT"
+fi
+
+# SYNC GUARD: the agent must be bundled into the quest-system plugin copy.
+QS_AGENT="plugins/quest-system/agents/fp-plan-reviewer.md"
+if [ -f "$QS_AGENT" ]; then
+  d=$(diff "$AGENT" "$QS_AGENT" 2>&1)
+  [ -z "$d" ] && ok "sync: fp-plan-reviewer bundled in quest-system plugin" \
+    || bad "sync: quest-system plugin agent copy stale — run sync-plugins.sh" "$d"
+else
+  bad "sync: fp-plan-reviewer.md not bundled in quest-system plugin ($QS_AGENT)"
+fi
+
 echo
 echo "qs-smoke: $pass passed, $fail failed"
 [ $fail -eq 0 ] || { printf 'Failed: %s\n' "${failed[@]}"; exit 1; }

@@ -2,9 +2,9 @@
 name: update-quest-system
 description: >
   Update quest-system to the latest version. Shows installed vs available
-  version, then overwrites all command files, skills, and the verifier hook
-  from source. Run after pulling finpack-claude updates. Requires quest-system
-  to already be installed (/install-quest-system).
+  version, then overwrites all command files, skills, the fp- agent suite, and
+  the verifier hook from source. Run after pulling finpack-claude updates.
+  Requires quest-system to already be installed (/install-quest-system).
 ---
 
 # Update Quest System
@@ -98,6 +98,7 @@ Will update:
   16 command files  → .claude/commands/
   quest-system-tutorial skill
   update-quest-system skill
+  fp- agent suite  → .claude/agents/  (if source found)
   quest-system-verify.sh hook  (if found)
   .quest-system-version
 
@@ -160,7 +161,30 @@ If found, write to `.claude/skills/update-quest-system/SKILL.md`.
 Try `hooks/quest-system-verify.sh`.
 If found, write to `.claude/hooks/quest-system-verify.sh`.
 
-## Step 11: Confirm
+## Step 11: Update agents
+
+Resolve `{agents-source}` — the first directory that exists:
+1. `{source}/../../../agents/` — repo layout (commands live in `skills/quest-system/commands/`)
+2. `agents/` — present when running inside the finpack-claude repo
+
+If neither exists, skip this step silently — consumers without a local agents
+source receive agents via the curl install-script path (Step 4), which ships
+the full suite.
+
+If found, copy each of these from `{agents-source}` to `.claude/agents/`
+(skip any not found, note it, don't error):
+
+- `fp-code-architect.md`
+- `fp-code-explorer.md`
+- `fp-code-reviewer.md`
+- `fp-plan-reviewer.md`
+- `fp-security-reviewer.md`
+- `fp-performance-reviewer.md`
+- `fp-doc-reviewer.md`
+- `fp-frontend-designer.md`
+- `fp-swiftui-designer.md`
+
+## Step 12: Confirm
 
 ```
 ✅ quest-system updated: {installed-version} → {source-version}
@@ -168,6 +192,7 @@ If found, write to `.claude/hooks/quest-system-verify.sh`.
 Updated {N} command files → .claude/commands/
 {if tutorial updated:  "  quest-system-tutorial skill"}
 {if self updated:      "  update-quest-system skill"}
+{if agents updated:    "  {M} agents → .claude/agents/"}
 {if hook updated:      "  quest-system-verify.sh hook"}
 {if any skipped:       "Skipped (not found): {list}"}
 

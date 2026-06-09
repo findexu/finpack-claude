@@ -1,6 +1,6 @@
 ---
 description: Start an expedition on the active quest. Scopes today's focus, loads only relevant subfiles, briefs the commander, proposes an expedition plan, and waits for approval before any work begins.
-argument-hint: "[--quest <name>] [--realm <realm>]"
+argument-hint: "[--quest <name>] [--realm <realm>] [--counsel [N]] [--strict]"
 ---
 
 # Embark
@@ -122,7 +122,69 @@ Then ask:
 Options:
 - "Looks good, let's go" — begin the expedition
 - "Adjust the plan" — take the commander's notes and revise; re-present; loop until approved
+- "Counsel this plan" — run one review round (see Step 6.5) before deciding
 - "Run /counsel-quest first" — stop here; the commander wants to lock decisions before executing
+
+**Do not begin any implementation work until the commander approves the expedition plan.**
+
+## Step 6.5: Counsel the expedition plan (opt-in)
+
+This step runs ONLY when the commander picks "Counsel this plan" OR `$ARGUMENTS`
+contains `--counsel`. With no counsel requested, skip this step entirely — plain
+`/embark` spends no extra tokens.
+
+Parse from `$ARGUMENTS` (after the quest/realm flags are consumed in Step 1):
+- `--counsel [N]` — N = max review rounds. Bare `--counsel` (or the menu pick)
+  means N=1. Any integer sets the cap.
+- `--strict` — only BLOCKING issues drive the loop; minor issues are listed but
+  never cause another round.
+
+**Availability check (graceful degrade).** Before the first review round, confirm
+the `fp-plan-reviewer` agent is installed:
+- Install-script distribution: check that `.claude/agents/fp-plan-reviewer.md` exists.
+- Plugin distribution: the agent ships atomically with the quest-system plugin, so
+  it is present whenever embark is.
+
+If it is unavailable, WARN and fall through to the normal approval prompt — never
+crash the expedition over an optional step:
+```
+Plan counsel unavailable — fp-plan-reviewer not installed.
+Run /install-quest-system (or /update-quest-system) to enable.
+Proceeding to manual approval.
+```
+
+**Review loop.** Otherwise run:
+
+```
+round = 0
+prev_blocking = +infinity
+loop:
+  round += 1
+  Spawn fp-plan-reviewer with: the current proposed steps, the loaded quest
+    context (dangers, locked decisions, battle status), and --strict if set.
+  Read the returned verdict line: "READY | REVISE (blocking: B, minor: M)".
+
+  if B == 0:                  -> READY. Present the plan for approval. Break.
+  if not --counsel (menu, N=1 done) or round >= N:
+                              -> STOP (cap reached). Present the latest plan plus
+                                 the outstanding blocking issues; let the commander
+                                 decide (adjust / approve anyway / abort). Break.
+  if B >= prev_blocking:      -> STOP (not converging). Present the latest plan plus
+                                 the outstanding blockers; hand the decision to the
+                                 commander. Break.
+  prev_blocking = B
+  Apply the agent's BLOCKING fixes to the proposed steps (you, the embark
+    context, are the author here — the agent only judges, never edits).
+  Re-present the revised steps and continue the loop.
+```
+
+The `B >= prev_blocking` guard stops a run that stalls or thrashes: it bails as
+soon as a round fails to reduce the blocking count, rather than churning to the
+cap. This is intentional — surfacing a stuck plan to the commander beats burning
+rounds on it.
+
+After the loop ends for any reason, the approval gate below still applies. Counsel
+informs the decision; it never auto-executes.
 
 **Do not begin any implementation work until the commander approves the expedition plan.**
 

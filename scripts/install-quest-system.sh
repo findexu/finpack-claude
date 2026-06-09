@@ -54,11 +54,13 @@ HOOKS=(
 
 # The full fp- agent suite quest-system can summon: counsel-quest spawns
 # architect+explorer; make-camp/complete-quest summon the reviewers; UI quests
-# summon the designers. Shipping all keeps every command's agents available.
+# summon the designers; counsel-plan/embark summon the plan reviewer. Shipping
+# all keeps every command's agents available.
 AGENTS=(
   fp-code-architect.md
   fp-code-explorer.md
   fp-code-reviewer.md
+  fp-plan-reviewer.md
   fp-security-reviewer.md
   fp-performance-reviewer.md
   fp-doc-reviewer.md

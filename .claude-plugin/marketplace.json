@@ -30,6 +30,12 @@
       "license": "MIT"
     },
     {
+      "name": "fp-plan-reviewer",
+      "source": "./plugins/fp-plan-reviewer",
+      "description": "Reviews a plan or expedition steps for executable completeness, risk, and scope drift. Returns a READY | REVISE verdict so a planning loop can terminate.",
+      "license": "MIT"
+    },
+    {
       "name": "fp-frontend-designer",
       "source": "./plugins/fp-frontend-designer",
       "description": "Builds production-grade UI. Tokens-first, anti-AI-slop aesthetics, design tokens enforced.",
