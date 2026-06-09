@@ -162,9 +162,9 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: active
 ## Step 8: Record the lifecycle transition
 
 After the commander approves the plan, append ONE `state` line to the lifecycle
-log with a SHELL APPEND (never Edit/Write). This is the only real-time signal
-the dashboard gets that an expedition has begun — `/embark` writes no journal
-entry, so without it the dashboard stays on the previous phase.
+log with a SHELL APPEND (never Edit/Write). This is the fast-path signal that an
+expedition has begun — `/embark` writes no journal entry, so this advances the
+dashboard the moment the plan is approved rather than waiting for the first edit.
 
 ```bash
 printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-xp/lifecycle.log
@@ -172,3 +172,8 @@ printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-
 
 `{quest-name}` is the basename of the quest folder (matching the XP event format).
 Do this once, silently — it is not part of the expedition work.
+
+If this step is ever missed, the `quest-lifecycle-bump.sh` PostToolUse hook is the
+deterministic backstop: it records `phase=embarked` on the first real code edit
+(edits to scrolls under `.ai-context/` or `.claude/` do not count). The hook is
+idempotent, so running this append as well is harmless.

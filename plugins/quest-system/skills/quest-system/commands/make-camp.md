@@ -197,6 +197,8 @@ SKILL.md -> "XP derivation (the fold)".
    printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=at-camp" >> .claude/quest-xp/lifecycle.log
    ```
    This flips the dashboard from "Embarked" back to "At Camp" the moment camp is made.
+   The next code edit re-bumps to "Embarked" via the `quest-lifecycle-bump.sh` hook,
+   so "At Camp" reads as "no work since last camp" rather than a stuck phase.
 
 ## Step 10: Confirm
 

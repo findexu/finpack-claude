@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.11.0
+version: 1.12.0
 ---
 
 # Quest System — Skill Definition
@@ -546,8 +546,15 @@ moment a quest changes phase:
 |---|---|
 | `planning` | `/new-quest` (fresh scaffold, no plan yet) |
 | `ready` | `/counsel-quest` PRE/PIVOT once the plan is locked (`planning` if open riddles remain) |
-| `embarked` | `/embark` after the commander approves the plan |
+| `embarked` | `/embark` after the commander approves the plan; also the `quest-lifecycle-bump.sh` PostToolUse hook on the first real code edit |
 | `at-camp` | `/make-camp` |
+
+The `quest-lifecycle-bump.sh` hook (PostToolUse on `Edit|Write`) is the deterministic
+backstop for `embarked`: command appends depend on the model running a buried shell
+step, so a skipped step or interrupted session left the dashboard stuck. The hook
+records `phase=embarked` on the first edit to a real project file (edits under
+`.ai-context/` or `.claude/` are planning artifacts and never bump). It is idempotent
+— it appends only when the last recorded phase is not already `embarked`.
 
 Why a separate file, not `events.log`: `/embark` is the only command that must
 signal a transition yet writes no scroll and earns no XP. Folding state lines
