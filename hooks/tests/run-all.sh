@@ -131,6 +131,15 @@ else
 fi
 
 echo
+echo "== quest-lifecycle-bump =="
+if bash "$ROOT/tests/quest-lifecycle-bump-test.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("quest-lifecycle-bump")
+fi
+
+echo
 echo "RESULT: $PASS passed, $FAIL failed"
 if [[ $FAIL -gt 0 ]]; then
   printf 'Failed: %s\n' "${FAILED_NAMES[@]}"

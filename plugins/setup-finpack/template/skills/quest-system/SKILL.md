@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.11.0
+version: 1.14.0
 ---
 
 # Quest System — Skill Definition
@@ -29,6 +29,24 @@ never loses context between conversations.
 | `ADVENTURE_JOURNAL.md` | Append-only expedition history |
 | `TOME_OF_DANGERS.md` | Technical constraints, dangers, workarounds |
 | `ADVENTURERS_HANDBOOK.md` | Guide explaining what belongs in each scroll |
+
+### Planned Expeditions convention
+
+`STRATEGY_SCROLL.md` carries a `## Planned Expeditions` checklist — the upcoming-work
+tracker the quest-dashboard renders. Lifecycle of one item:
+
+```
+- [ ] surface layer      ← seeded by /counsel-quest (planned)
+- [>] surface layer      ← /embark flips it on approval (active)
+- [x] surface layer      ← /make-camp flips it at camp (done), then appends the next - [ ]
+```
+
+Markers map to dashboard status: `[x]`→done, `[>]`→active, `[ ]` (or anything else)
+→planned. Maintained by: `/counsel-quest` (seeds one `- [ ]` per battle-plan phase;
+reconciles on MID/PIVOT), `/embark` (next `- [ ]`→`- [>]`, else appends `- [>]`),
+`/make-camp` (`- [>]`→`- [x]` + appends the next `- [ ]`). The block lives in the
+top-level scroll and is kept in the index on split (the dashboard parses the index
+only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.log`.
 
 ## Commands provided (installed by /install-quest-system)
 
@@ -546,8 +564,15 @@ moment a quest changes phase:
 |---|---|
 | `planning` | `/new-quest` (fresh scaffold, no plan yet) |
 | `ready` | `/counsel-quest` PRE/PIVOT once the plan is locked (`planning` if open riddles remain) |
-| `embarked` | `/embark` after the commander approves the plan |
+| `embarked` | `/embark` after the commander approves the plan; also the `quest-lifecycle-bump.sh` PostToolUse hook on the first real code edit |
 | `at-camp` | `/make-camp` |
+
+The `quest-lifecycle-bump.sh` hook (PostToolUse on `Edit|Write`) is the deterministic
+backstop for `embarked`: command appends depend on the model running a buried shell
+step, so a skipped step or interrupted session left the dashboard stuck. The hook
+records `phase=embarked` on the first edit to a real project file (edits under
+`.ai-context/` or `.claude/` are planning artifacts and never bump). It is idempotent
+— it appends only when the last recorded phase is not already `embarked`.
 
 Why a separate file, not `events.log`: `/embark` is the only command that must
 signal a transition yet writes no scroll and earns no XP. Folding state lines
@@ -638,6 +663,9 @@ last-updated: {date}
 (none yet)
 ## The Battle Plan (Implementation Sequence)
 (to be written before the next expedition)
+
+## Planned Expeditions
+(seeded by /counsel-quest from the battle plan; flipped [ ]→[>]→[x] by /embark and /make-camp)
 
 ### ADVENTURE_JOURNAL.md template
 ---

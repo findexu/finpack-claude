@@ -39,60 +39,37 @@ If `{plan-path}` is empty, look for these locations in order:
 
 If file not found: "Plan file not found at {plan-path}." Stop.
 
-## Step 4: Analyze the plan
+## Step 4: Delegate the review to fp-plan-reviewer
 
-Review the plan against:
+Spawn the `fp-plan-reviewer` agent. It owns the review rubric and verdict logic
+(single source — this command does not restate the criteria). Pass it:
 
-If `{your-opinion}` is present, treat it as a lens: actively look for evidence that
-supports or contradicts it. Address it directly in the feedback output.
+- The full plan text read in Step 3.
+- Any quest context loaded in Step 1 (DECISIONS_LOG entries, DANGER_REGISTRY
+  entries, battle status) — so it can flag conflicts with locked decisions or
+  known dangers.
+- The `{your-opinion}` lens if present — instruct it to address the concern
+  directly.
 
-**Completeness**
-- Does every step have a clear, executable action?
-- Is the verification section present and testable?
-- Are file paths specific (not vague references)?
+The agent runs in its own context, so the review is independent of whoever
+authored the plan.
 
-**Risks** (check against loaded quest context if available)
-- Does any step conflict with a locked decision from DECISIONS_LOG?
-- Does any step risk triggering a known danger from DANGER_REGISTRY?
-- Are there steps that could break in-progress work (battle status)?
-
-**Gaps**
-- What is assumed but not stated?
-- What edge cases are not handled?
-- Is rollback or undo possible if a step fails?
-
-**Scope**
-- Does the plan address the actual goal, or has it drifted?
-- Are there unnecessary steps that add risk with no value?
+If the `fp-plan-reviewer` agent is not available (not installed), say so:
+"Plan reviewer not available — run /install-quest-system or /update-quest-system
+to enable counsel." Then stop.
 
 ## Step 5: Output
 
-Present as:
+Relay the agent's feedback block verbatim, framed for pasting:
 
 ---
 **Plan feedback** — copy the block below and paste it into your planning session:
 
-```
-## Feedback on this plan
-
-{if your-opinion present:}
-### On your concern: "{your-opinion}"
-{direct response — does the plan address it, ignore it, or contradict it?}
-
-### Gaps
-{list — or "None identified"}
-
-### Risks
-{list — flag if any conflict with locked decisions or known dangers}
-
-### Unclear steps
-{list specific steps with the ambiguity noted — or "None"}
-
-### Scope concerns
-{note if plan has drifted or is over/under-scoped — or "None"}
-
-### Suggested additions
-{specific additions that would strengthen the plan — or "None"}
-```
+{the agent's returned block, which ends with a `### Verdict` line of the form
+`READY | REVISE (blocking: N, minor: M)`}
 
 ---
+
+If the verdict is `REVISE`, remind the commander they can revise the plan and
+re-run `/counsel-plan` to re-check — or run `/embark --counsel N` to iterate
+automatically up to N rounds.

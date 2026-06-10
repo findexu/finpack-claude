@@ -1,6 +1,6 @@
 ---
 description: Start an expedition on the active quest. Scopes today's focus, loads only relevant subfiles, briefs the commander, proposes an expedition plan, and waits for approval before any work begins.
-argument-hint: "[--quest <name>] [--realm <realm>]"
+argument-hint: "[--quest <name>] [--realm <realm>] [--counsel [N]] [--strict]"
 ---
 
 # Embark
@@ -122,9 +122,82 @@ Then ask:
 Options:
 - "Looks good, let's go" — begin the expedition
 - "Adjust the plan" — take the commander's notes and revise; re-present; loop until approved
+- "Counsel this plan" — run one review round (see Step 6.5) before deciding
 - "Run /counsel-quest first" — stop here; the commander wants to lock decisions before executing
 
 **Do not begin any implementation work until the commander approves the expedition plan.**
+
+## Step 6.5: Counsel the expedition plan (opt-in)
+
+This step runs ONLY when the commander picks "Counsel this plan" OR `$ARGUMENTS`
+contains `--counsel`. With no counsel requested, skip this step entirely — plain
+`/embark` spends no extra tokens.
+
+Parse from `$ARGUMENTS` (after the quest/realm flags are consumed in Step 1):
+- `--counsel [N]` — N = max review rounds. Bare `--counsel` (or the menu pick)
+  means N=1. Any integer sets the cap.
+- `--strict` — only BLOCKING issues drive the loop; minor issues are listed but
+  never cause another round.
+
+**Availability check (graceful degrade).** Before the first review round, confirm
+the `fp-plan-reviewer` agent is installed:
+- Install-script distribution: check that `.claude/agents/fp-plan-reviewer.md` exists.
+- Plugin distribution: the agent ships atomically with the quest-system plugin, so
+  it is present whenever embark is.
+
+If it is unavailable, WARN and fall through to the normal approval prompt — never
+crash the expedition over an optional step:
+```
+Plan counsel unavailable — fp-plan-reviewer not installed.
+Run /install-quest-system (or /update-quest-system) to enable.
+Proceeding to manual approval.
+```
+
+**Review loop.** Otherwise run:
+
+```
+round = 0
+prev_blocking = +infinity
+loop:
+  round += 1
+  Spawn fp-plan-reviewer with: the current proposed steps, the loaded quest
+    context (dangers, locked decisions, battle status), and --strict if set.
+  Read the returned verdict line: "READY | REVISE (blocking: B, minor: M)".
+
+  if B == 0:                  -> READY. Present the plan for approval. Break.
+  if not --counsel (menu, N=1 done) or round >= N:
+                              -> STOP (cap reached). Present the latest plan plus
+                                 the outstanding blocking issues; let the commander
+                                 decide (adjust / approve anyway / abort). Break.
+  if B >= prev_blocking:      -> STOP (not converging). Present the latest plan plus
+                                 the outstanding blockers; hand the decision to the
+                                 commander. Break.
+  prev_blocking = B
+  Apply the agent's BLOCKING fixes to the proposed steps (you, the embark
+    context, are the author here — the agent only judges, never edits).
+  Re-present the revised steps and continue the loop.
+```
+
+The `B >= prev_blocking` guard stops a run that stalls or thrashes: it bails as
+soon as a round fails to reduce the blocking count, rather than churning to the
+cap. This is intentional — surfacing a stuck plan to the commander beats burning
+rounds on it.
+
+After the loop ends for any reason, the approval gate below still applies. Counsel
+informs the decision; it never auto-executes.
+
+**Do not begin any implementation work until the commander approves the expedition plan.**
+
+## Step 6.9: Mark the planned expedition active
+
+Runs only AFTER the commander approves the plan (the approval is the human gate — add
+no extra confirm). If `STRATEGY_SCROLL.md` has a `## Planned Expeditions` checklist,
+find the next `- [ ]` whose label matches `{expedition-focus}` and flip it to `- [>]`;
+if none matches, append `- [>] {expedition-focus}` to the checklist. This is the only
+scroll `/embark` writes — a STRATEGY_SCROLL body edit. NEVER touch `events.log` or
+`lifecycle.log` here (the lifecycle line is Step 8's job; a non-XP append to events.log
+would wipe a migrated profile). If the checklist is absent (quest never counselled),
+skip silently — do not create it (that is `/counsel-quest`'s job).
 
 ## Step 7: Refresh context.md
 
@@ -162,9 +235,9 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: active
 ## Step 8: Record the lifecycle transition
 
 After the commander approves the plan, append ONE `state` line to the lifecycle
-log with a SHELL APPEND (never Edit/Write). This is the only real-time signal
-the dashboard gets that an expedition has begun — `/embark` writes no journal
-entry, so without it the dashboard stays on the previous phase.
+log with a SHELL APPEND (never Edit/Write). This is the fast-path signal that an
+expedition has begun — `/embark` writes no journal entry, so this advances the
+dashboard the moment the plan is approved rather than waiting for the first edit.
 
 ```bash
 printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-xp/lifecycle.log
@@ -172,3 +245,8 @@ printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-
 
 `{quest-name}` is the basename of the quest folder (matching the XP event format).
 Do this once, silently — it is not part of the expedition work.
+
+If this step is ever missed, the `quest-lifecycle-bump.sh` PostToolUse hook is the
+deterministic backstop: it records `phase=embarked` on the first real code edit
+(edits to scrolls under `.ai-context/` or `.claude/` do not count). The hook is
+idempotent, so running this append as well is harmless.

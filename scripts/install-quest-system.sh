@@ -49,15 +49,18 @@ REMOTE_COMMANDS=(
 HOOKS=(
   session-start.sh
   quest-system-verify.sh
+  quest-lifecycle-bump.sh
 )
 
 # The full fp- agent suite quest-system can summon: counsel-quest spawns
 # architect+explorer; make-camp/complete-quest summon the reviewers; UI quests
-# summon the designers. Shipping all keeps every command's agents available.
+# summon the designers; counsel-plan/embark summon the plan reviewer. Shipping
+# all keeps every command's agents available.
 AGENTS=(
   fp-code-architect.md
   fp-code-explorer.md
   fp-code-reviewer.md
+  fp-plan-reviewer.md
   fp-security-reviewer.md
   fp-performance-reviewer.md
   fp-doc-reviewer.md
@@ -160,6 +163,8 @@ DEPRECATED = [
     'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
 ]
 
+BUMP_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-lifecycle-bump.sh"
+
 path = pathlib.Path(sys.argv[1])
 data = json.loads(path.read_text())
 allow = data.setdefault("permissions", {}).setdefault("allow", [])
@@ -167,6 +172,28 @@ allow[:] = [r for r in allow if r not in DEPRECATED]
 for rule in RULES:
     if rule not in allow:
         allow.insert(0, rule)
+
+# Wire the activity-driven lifecycle bump as a PostToolUse(Edit|Write) hook so
+# the dashboard phase advances to `embarked` on the first real edit. Idempotent:
+# only added when no group already runs the command.
+post = data.setdefault("hooks", {}).setdefault("PostToolUse", [])
+already = any(
+    h.get("command") == BUMP_CMD
+    for group in post
+    for h in group.get("hooks", [])
+)
+if not already:
+    target = next((g for g in post if g.get("matcher") == "Edit|Write"), None)
+    if target is None:
+        target = {"matcher": "Edit|Write", "hooks": []}
+        post.append(target)
+    target.setdefault("hooks", []).append({
+        "type": "command",
+        "command": BUMP_CMD,
+        "timeout": 5000,
+        "statusMessage": "Updating quest phase...",
+    })
+
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"
@@ -258,6 +285,8 @@ DEPRECATED = [
     'Bash(curl -fsSL https://raw.githubusercontent.com/findexu/finpack-claude/main/skills/quest-system/VERSION *)',
 ]
 
+BUMP_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-lifecycle-bump.sh"
+
 path = pathlib.Path(sys.argv[1])
 data = json.loads(path.read_text())
 allow = data.setdefault("permissions", {}).setdefault("allow", [])
@@ -265,6 +294,28 @@ allow[:] = [r for r in allow if r not in DEPRECATED]
 for rule in RULES:
     if rule not in allow:
         allow.insert(0, rule)
+
+# Wire the activity-driven lifecycle bump as a PostToolUse(Edit|Write) hook so
+# the dashboard phase advances to `embarked` on the first real edit. Idempotent:
+# only added when no group already runs the command.
+post = data.setdefault("hooks", {}).setdefault("PostToolUse", [])
+already = any(
+    h.get("command") == BUMP_CMD
+    for group in post
+    for h in group.get("hooks", [])
+)
+if not already:
+    target = next((g for g in post if g.get("matcher") == "Edit|Write"), None)
+    if target is None:
+        target = {"matcher": "Edit|Write", "hooks": []}
+        post.append(target)
+    target.setdefault("hooks", []).append({
+        "type": "command",
+        "command": BUMP_CMD,
+        "timeout": 5000,
+        "statusMessage": "Updating quest phase...",
+    })
+
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"

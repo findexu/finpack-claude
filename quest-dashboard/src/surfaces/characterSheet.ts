@@ -123,6 +123,8 @@ export class CharacterSheetView implements vscode.WebviewViewProvider, SurfaceUp
       phase: QuestPhase.NoQuest,
       profile: null,
       expHistory: [],
+      expFold: null,
+      plannedExpeditions: [],
       activeQuest: null,
       scrolls: [],
       openSideQuests: [],

@@ -179,10 +179,15 @@ After all agents return:
 1. Move resolved riddles from **Open Riddles** → **Oaths Sworn** in STRATEGY_SCROLL
    Format: `- {decision}: {rationale in one sentence}`
 2. Write the chosen architecture as **The Battle Plan** (numbered, specific, bounded steps)
-3. Update `WORLD_MAP.md` with structural insights from architect agents
-4. Update `last-updated` frontmatter in all modified scrolls
-5. Refresh `.ai-context/` if it exists
-6. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
+3. Seed a `## Planned Expeditions` checklist in STRATEGY_SCROLL — one `- [ ]` per
+   battle-plan phase, each labeled with a short focus phrase (e.g. `- [ ] data layer`,
+   `- [ ] surface layer`). This is the upcoming-work tracker the dashboard reads;
+   `/embark` flips an item to `- [>]` (active) and `/make-camp` to `- [x]` (done).
+   Keep the block in the top-level scroll (it must survive a later split).
+4. Update `WORLD_MAP.md` with structural insights from architect agents
+5. Update `last-updated` frontmatter in all modified scrolls
+6. Refresh `.ai-context/` if it exists
+7. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
    dashboard reflects planning progress in real time. Use `phase=ready` when no open
    riddles remain (plan is locked and ready to embark), else `phase=planning`:
    ```bash
@@ -266,7 +271,9 @@ The plan should stay: **ordered, specific, bounded**.
 
 1. Move locked decisions from Open Riddles → Oaths Sworn
 2. Update The Battle Plan if adjusted
-3. Update `last-updated` frontmatter
+3. If the plan changed and a `## Planned Expeditions` checklist exists, reconcile it:
+   append a `- [ ]` for any newly added phase (leave existing `[>]`/`[x]` items alone).
+4. Update `last-updated` frontmatter
 
 ### MID Step 7: Confirm
 
@@ -308,6 +315,10 @@ Update `STRATEGY_SCROLL.md`:
    ```
 2. Mark any "In Progress" modules as "Cursed" in battle status table
 3. Preserve any "Conquered" modules as-is
+4. If a `## Planned Expeditions` checklist exists, retire the abandoned in-flight item:
+   flip the active `- [>]` to `- [x]` (it is done as far as the fallen plan goes) and
+   delete any unstarted `- [ ]` items belonging to the abandoned plan. PIVOT Step 6
+   re-runs PRE planning, which re-seeds `- [ ]` for the new direction.
 
 ### PIVOT Step 5: Write interrupted journal entry
 

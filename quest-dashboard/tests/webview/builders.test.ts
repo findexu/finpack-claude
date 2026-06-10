@@ -4,8 +4,9 @@ import { test } from "node:test";
 import { buildCharacterSheetV2 } from "../../src/webview/buildCharacterSheetV2";
 import type { SheetAssets } from "../../src/webview/buildCharacterSheetV2";
 import { buildExpChart } from "../../src/webview/buildExpChart";
+import { buildChartModel } from "../../src/webview/chartData";
 import { LoadingState, QuestPhase } from "../../src/types";
-import type { AdventurerProfile, ExpHistoryEntry, QuestState, SideQuest } from "../../src/types";
+import type { AdventurerProfile, ExpEvent, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, SideQuest } from "../../src/types";
 
 const PROFILE: AdventurerProfile = {
   adventurer: "Finde",
@@ -48,6 +49,8 @@ function readyState(overrides: Partial<QuestState> = {}): QuestState {
     phase: QuestPhase.AtCamp,
     profile: PROFILE,
     expHistory: [],
+    expFold: null,
+    plannedExpeditions: [],
     activeQuest: { questFolderPath: ".ai-context/quests/vs-code-QS-plugin", realm: "app" },
     scrolls: [],
     openSideQuests: [],
@@ -58,7 +61,8 @@ function readyState(overrides: Partial<QuestState> = {}): QuestState {
 }
 
 test("exp chart shows an empty message with no history", () => {
-  assert.match(buildExpChart([]), /No history yet/);
+  const model = buildChartModel({ fold: null, history: [], profile: PROFILE, activeLeaf: null, plannedCount: 0 });
+  assert.match(buildExpChart(model), /No history yet/);
 });
 
 test("exp chart draws a polyline when history has multiple entries", () => {
@@ -66,7 +70,8 @@ test("exp chart draws a polyline when history has multiple entries", () => {
     { questName: "a", date: "2026-05-01", expEarned: 100, totalExpAfter: 100, level: 1 },
     { questName: "b", date: "2026-05-10", expEarned: 200, totalExpAfter: 300, level: 2 },
   ];
-  assert.match(buildExpChart(history), /<polyline/);
+  const model = buildChartModel({ fold: null, history, profile: PROFILE, activeLeaf: null, plannedCount: 0 });
+  assert.match(buildExpChart(model), /<polyline/);
 });
 
 test("character sheet embeds the style nonce", () => {
@@ -159,4 +164,82 @@ test("empty state uses the v2 empty-state sprite sheet", () => {
   const html = buildCharacterSheetV2(state, ASSETS);
   assert.match(html, /v2-empty/);
   assert.match(html, /vscode-resource:\/\/empty-v2/);
+});
+
+const QUEST = { questFolderPath: ".ai-context/quests/q", realm: "app" };
+
+function exped(date: string, expDelta: number, dangers = 0, oaths = 0): ExpEvent {
+  return { type: "expedition", date, quest: "q", expDelta, cumExp: expDelta, dangers, oaths, split: false };
+}
+
+function fold(events: ExpEvent[]): ExpFold {
+  return { seedExp: 0, events, totalExp: events.reduce((sum, e) => sum + e.expDelta, 0) };
+}
+
+function plan(label: string, status: PlannedExpedition["status"], order = 0): PlannedExpedition {
+  return { label, status, order };
+}
+
+function countMatches(html: string, cls: string): number {
+  return html.split(cls).length - 1;
+}
+
+test("the tracker renders a done row per active-leaf expedition with its EXP", () => {
+  const state = readyState({ activeQuest: QUEST, expFold: fold([exped("2026-06-01", 5), exped("2026-06-02", 15)]) });
+  const html = buildCharacterSheetV2(state, ASSETS);
+  assert.equal(countMatches(html, "v2-exped-row v2-exped-done"), 2);
+  assert.match(html, /\+15 XP/);
+});
+
+test("the tracker shows an active row when on expedition", () => {
+  const state = readyState({ activeQuest: QUEST, phase: QuestPhase.Embarked, expFold: fold([]) });
+  assert.match(buildCharacterSheetV2(state, ASSETS), /v2-exped-row v2-exped-active/);
+});
+
+test("the tracker lists planned expeditions from the checklist", () => {
+  const state = readyState({ activeQuest: QUEST, expFold: fold([]), plannedExpeditions: [plan("wire projection", "planned")] });
+  const html = buildCharacterSheetV2(state, ASSETS);
+  assert.match(html, /v2-exped-row v2-exped-planned/);
+  assert.match(html, /wire projection/);
+});
+
+test("the counts header reflects the full done total, not the capped rows", () => {
+  const events = Array.from({ length: 8 }, (_, i) => exped(`2026-06-0${i + 1}`, 5));
+  const html = buildCharacterSheetV2(readyState({ activeQuest: QUEST, expFold: fold(events) }), ASSETS);
+  assert.match(html, /8 done/);
+});
+
+test("a planned label equal to the active label is not duplicated", () => {
+  const state = readyState({
+    activeQuest: QUEST,
+    phase: QuestPhase.Embarked,
+    expFold: fold([]),
+    plannedExpeditions: [plan("same", "active"), plan("same", "planned", 1)],
+  });
+  const html = buildCharacterSheetV2(state, ASSETS);
+  assert.match(html, /v2-exped-row v2-exped-active/);
+  assert.equal(countMatches(html, "v2-exped-row v2-exped-planned"), 0);
+});
+
+test("done rows cap at three with an overflow line", () => {
+  const events = Array.from({ length: 8 }, (_, i) => exped(`2026-06-0${i + 1}`, 5));
+  const html = buildCharacterSheetV2(readyState({ activeQuest: QUEST, expFold: fold(events) }), ASSETS);
+  assert.equal(countMatches(html, "v2-exped-row v2-exped-done"), 3);
+  assert.match(html, /\+5 earlier/);
+});
+
+test("a just-embarked quest with no expeditions shows zero done and an active row", () => {
+  const state = readyState({ activeQuest: QUEST, phase: QuestPhase.Embarked, expFold: fold([]) });
+  const html = buildCharacterSheetV2(state, ASSETS);
+  assert.match(html, /0 done · 1 active/);
+  assert.equal(countMatches(html, "v2-exped-row v2-exped-done"), 0);
+});
+
+test("a legacy install with no events.log shows no done rows", () => {
+  const state = readyState({ activeQuest: QUEST, expFold: null });
+  assert.equal(countMatches(buildCharacterSheetV2(state, ASSETS), "v2-exped-row v2-exped-done"), 0);
+});
+
+test("no active quest still renders the empty plate", () => {
+  assert.match(buildCharacterSheetV2(readyState({ activeQuest: null }), ASSETS), /No active quest/);
 });
