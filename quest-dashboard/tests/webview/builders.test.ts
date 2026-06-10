@@ -48,6 +48,8 @@ function readyState(overrides: Partial<QuestState> = {}): QuestState {
     phase: QuestPhase.AtCamp,
     profile: PROFILE,
     expHistory: [],
+    expFold: null,
+    plannedExpeditions: [],
     activeQuest: { questFolderPath: ".ai-context/quests/vs-code-QS-plugin", realm: "app" },
     scrolls: [],
     openSideQuests: [],

@@ -54,6 +54,46 @@ export interface ActiveQuest {
   realm: string; // line 2 of active-quest.txt
 }
 
+// A folded XP event from `.claude/quest-xp/events.log`. Discriminated on `type` so
+// `dangers`/`oaths` never carry two meanings on one shape: expedition lines record
+// "any new this expedition" flags, quest-complete lines record per-count totals.
+// `seed` lines are not events — they only set the fold baseline (see ExpFold).
+interface ExpEventBase {
+  date: string; // YYYY-MM-DD, raw from the log (display only)
+  quest: string; // quest-name leaf
+  expDelta: number; // EXP this event contributed (via expFormula)
+  cumExp: number; // running total incl. the seed baseline
+}
+export type ExpEvent =
+  | (ExpEventBase & { type: "expedition"; dangers: number; oaths: number; split: boolean })
+  | (ExpEventBase & {
+      type: "quest-complete";
+      modules: number;
+      expeditions: number;
+      dangers: number;
+      oaths: number;
+      splits: number;
+      clean: boolean;
+      speed: boolean;
+    });
+
+// Result of folding the whole events.log. `seedExp` is the migration baseline from a
+// leading `seed` line (0 if none); `totalExp` = seedExp + sum(expDelta) and equals
+// the last event's `cumExp` when `events` is non-empty.
+export interface ExpFold {
+  seedExp: number;
+  events: ExpEvent[];
+  totalExp: number;
+}
+
+// One row of the `## Planned Expeditions` checklist in STRATEGY_SCROLL.md.
+export type PlannedStatus = "done" | "active" | "planned";
+export interface PlannedExpedition {
+  label: string;
+  status: PlannedStatus;
+  order: number; // 0-based position in the checklist
+}
+
 export interface ScrollMeta {
   quest: string;
   realm: string;
@@ -85,6 +125,11 @@ export interface QuestState {
   phase: QuestPhase;
   profile: AdventurerProfile | null;
   expHistory: ExpHistoryEntry[];
+  // Folded events.log for the per-expedition EXP curve; null when events.log is
+  // absent (legacy install) — the chart falls back to the per-quest expHistory.
+  expFold: ExpFold | null;
+  // Active quest's `## Planned Expeditions` checklist; [] when absent.
+  plannedExpeditions: PlannedExpedition[];
   activeQuest: ActiveQuest | null;
   scrolls: ScrollFile[];
   openSideQuests: SideQuest[];

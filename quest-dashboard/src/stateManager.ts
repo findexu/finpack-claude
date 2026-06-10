@@ -1,17 +1,20 @@
 import * as vscode from "vscode";
 
 import { parseActiveQuest } from "./parsers/activeQuestParser";
+import { parseEventsLog } from "./parsers/eventsLogParser";
 import { latestPhaseForQuest } from "./parsers/lifecycleLogParser";
 import { parseHistory } from "./parsers/historyParser";
+import { parsePlannedExpeditions } from "./parsers/plannedExpeditionsParser";
 import { parseProfile } from "./parsers/profileParser";
 import { parseScroll } from "./parsers/scrollParser";
 import { detectPhase } from "./phaseDetector";
 import { checkSchemaVersion } from "./schema";
 import { LoadingState, QuestPhase } from "./types";
-import type { ActiveQuest, ExpHistoryEntry, QuestState, ScrollFile, SideQuest } from "./types";
+import type { ActiveQuest, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, ScrollFile, SideQuest } from "./types";
 
 const PROFILE_PATH = [".claude", "quest-xp", "profile.md"];
 const HISTORY_PATH = [".claude", "quest-xp", "quest-history.md"];
+const EVENTS_PATH = [".claude", "quest-xp", "events.log"];
 const LIFECYCLE_PATH = [".claude", "quest-xp", "lifecycle.log"];
 const ACTIVE_QUEST_PATH = [".claude", "active-quest.txt"];
 const VERSION_PATH = [".claude", "commands", ".quest-system-version"];
@@ -101,10 +104,12 @@ export class StateManager implements vscode.Disposable {
     const activeQuest = await this.readActiveQuest();
     const scrolls = activeQuest ? await this.readScrolls(activeQuest) : [];
     const expHistory = await this.readHistory();
+    const expFold = await this.readExpFold();
+    const plannedExpeditions = await this.readPlannedExpeditions(activeQuest);
     const phase = await this.detectPhase(activeQuest);
     const openSideQuests = await this.readSideQuests();
 
-    const base = { phase, expHistory, activeQuest, scrolls, openSideQuests, schemaVersion };
+    const base = { phase, expHistory, expFold, plannedExpeditions, activeQuest, scrolls, openSideQuests, schemaVersion };
 
     if (profileText === null) {
       return { loadingState: LoadingState.NoAdventurer, profile: null, error: null, ...base };
@@ -192,6 +197,30 @@ export class StateManager implements vscode.Disposable {
     return parsed.ok ? parsed.value : [];
   }
 
+  // null when events.log is absent (legacy install — the chart falls back to the
+  // per-quest expHistory). A present-but-empty log folds to an empty (non-null)
+  // ExpFold; the panel uses that distinction for its legacy done-rows trim.
+  private async readExpFold(): Promise<ExpFold | null> {
+    const text = await this.readText(this.uri(EVENTS_PATH));
+    if (text === null) {
+      return null;
+    }
+    const parsed = parseEventsLog(text);
+    return parsed.ok ? parsed.value : null;
+  }
+
+  // Explicit read of the active quest's STRATEGY_SCROLL.md — detectPhase only reads
+  // it in its fallback branch, so the common path would otherwise never load it.
+  private async readPlannedExpeditions(activeQuest: ActiveQuest | null): Promise<PlannedExpedition[]> {
+    if (activeQuest === null) {
+      return [];
+    }
+    const questDir = vscode.Uri.joinPath(this.root, ...activeQuest.questFolderPath.split("/"));
+    const text = await this.readText(vscode.Uri.joinPath(questDir, "STRATEGY_SCROLL.md"));
+    const parsed = parsePlannedExpeditions(text);
+    return parsed.ok ? parsed.value : [];
+  }
+
   private async readScrolls(activeQuest: ActiveQuest): Promise<ScrollFile[]> {
     const questDir = vscode.Uri.joinPath(this.root, ...activeQuest.questFolderPath.split("/"));
     const scrolls: ScrollFile[] = [];
@@ -228,6 +257,8 @@ export class StateManager implements vscode.Disposable {
       phase: QuestPhase.NoQuest,
       profile: null,
       expHistory: [],
+      expFold: null,
+      plannedExpeditions: [],
       activeQuest: null,
       scrolls: [],
       openSideQuests: [],
