@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { buildCharacterSheetV2 } from "../../src/webview/buildCharacterSheetV2";
 import type { SheetAssets } from "../../src/webview/buildCharacterSheetV2";
 import { buildExpChart } from "../../src/webview/buildExpChart";
+import { buildChartModel } from "../../src/webview/chartData";
 import { LoadingState, QuestPhase } from "../../src/types";
 import type { AdventurerProfile, ExpHistoryEntry, QuestState, SideQuest } from "../../src/types";
 
@@ -60,7 +61,8 @@ function readyState(overrides: Partial<QuestState> = {}): QuestState {
 }
 
 test("exp chart shows an empty message with no history", () => {
-  assert.match(buildExpChart([]), /No history yet/);
+  const model = buildChartModel({ fold: null, history: [], profile: PROFILE, activeLeaf: null, plannedCount: 0 });
+  assert.match(buildExpChart(model), /No history yet/);
 });
 
 test("exp chart draws a polyline when history has multiple entries", () => {
@@ -68,7 +70,8 @@ test("exp chart draws a polyline when history has multiple entries", () => {
     { questName: "a", date: "2026-05-01", expEarned: 100, totalExpAfter: 100, level: 1 },
     { questName: "b", date: "2026-05-10", expEarned: 200, totalExpAfter: 300, level: 2 },
   ];
-  assert.match(buildExpChart(history), /<polyline/);
+  const model = buildChartModel({ fold: null, history, profile: PROFILE, activeLeaf: null, plannedCount: 0 });
+  assert.match(buildExpChart(model), /<polyline/);
 });
 
 test("character sheet embeds the style nonce", () => {

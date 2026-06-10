@@ -1,51 +1,92 @@
-import type { ExpHistoryEntry } from "../types";
+import type { ChartModel, ChartPoint } from "./chartData";
 import { escapeHtml } from "./escape";
 
-const WIDTH = 320;
-const HEIGHT = 120;
+// Dumb SVG serializer over a ChartModel. All geometry/coordinates are computed in
+// chartData (the "dumb surfaces" oath); this only emits tags. No external chart lib
+// (strict webview CSP), no inline style attributes, no script. W/H/PAD are kept for
+// the viewBox and for lines that span the plot horizontally (threshold) — not for any
+// point math.
+const W = 320;
+const H = 120;
 const PAD = 14;
+const MARKER_R = 3.5;
 
-// Hand-rolled inline SVG line chart of cumulative EXP over completed quests.
-// No external chart library (strict webview CSP). Degrades to a "no history
-// yet" message until at least one quest is completed.
-export function buildExpChart(history: ExpHistoryEntry[]): string {
-  if (history.length === 0) {
-    return svg(
-      `<text x="${WIDTH / 2}" y="${HEIGHT / 2}" class="chart-empty" text-anchor="middle">No history yet — complete a quest</text>`,
-    );
+export function buildExpChart(model: ChartModel): string {
+  if (model.mode === "empty") {
+    return svg(`<text x="${W / 2}" y="${H / 2}" class="chart-empty" text-anchor="middle">No history yet — complete a quest</text>`);
   }
 
-  const values = history.map((entry) => entry.totalExpAfter);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
-  const span = max - min || 1;
-  const plotW = WIDTH - PAD * 2;
-  const plotH = HEIGHT - PAD * 2;
+  return svg([
+    segments(model.points),
+    markers(model.points),
+    threshold(model.threshold),
+    projection(model.projection),
+    nowHead(model.nowHead),
+  ].join(""));
+}
 
-  const points = history.map((entry, index) => {
-    const x = history.length === 1 ? WIDTH / 2 : PAD + (index / (history.length - 1)) * plotW;
-    const ratio = (entry.totalExpAfter - min) / span;
-    const y = PAD + (1 - ratio) * plotH;
-    return { x: round(x), y: round(y), entry };
-  });
+// One polyline per maximal run of equal `inActiveSegment`, with the boundary point
+// shared by adjacent runs so the line stays continuous. Robust to non-contiguous
+// active runs (leaf-name collisions, interleaved logs), not just the common tail case.
+function segments(points: ChartPoint[]): string {
+  if (points.length < 2) {
+    return ""; // a lone point is carried by its marker / now-head
+  }
+  const polys: string[] = [];
+  let start = 0;
+  for (let i = 1; i <= points.length; i++) {
+    const flip = i < points.length && points[i].inActiveSegment !== points[start].inActiveSegment;
+    if (i === points.length || flip) {
+      const run = points.slice(start, flip ? i + 1 : i); // include the boundary point in both runs
+      if (run.length >= 2) {
+        const cls = points[start].inActiveSegment ? "chart-seg-active" : "chart-seg-dim";
+        polys.push(`<polyline class="${cls}" fill="none" points="${run.map((p) => `${p.x},${p.y}`).join(" ")}" />`);
+      }
+      start = i;
+    }
+  }
+  return polys.join("");
+}
 
-  const polyline =
-    points.length > 1
-      ? `<polyline class="chart-line" fill="none" points="${points.map((p) => `${p.x},${p.y}`).join(" ")}" />`
-      : "";
-
-  const dots = points
+function markers(points: ChartPoint[]): string {
+  return points
+    .filter((p) => p.isMilestone)
     .map(
       (p) =>
-        `<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="3"><title>${escapeHtml(p.entry.questName)}: ${p.entry.totalExpAfter} EXP</title></circle>`,
+        `<path class="chart-marker" d="M ${p.x} ${p.y - MARKER_R} L ${p.x + MARKER_R} ${p.y} L ${p.x} ${p.y + MARKER_R} L ${p.x - MARKER_R} ${p.y} Z"><title>${escapeHtml(p.label)}: ${round(p.exp)} EXP</title></path>`,
     )
     .join("");
+}
 
-  return svg(`${polyline}${dots}`);
+function nowHead(head: ChartPoint | null): string {
+  if (head === null) {
+    return "";
+  }
+  return `<circle class="chart-now" cx="${head.x}" cy="${head.y}" r="${MARKER_R}"><title>now: ${round(head.exp)} EXP</title></circle>`;
+}
+
+function threshold(t: ChartModel["threshold"]): string {
+  if (t === null) {
+    return "";
+  }
+  return (
+    `<line class="chart-threshold" x1="${PAD}" y1="${t.y}" x2="${W - PAD}" y2="${t.y}" />` +
+    `<text class="chart-threshold-label" x="${W - PAD}" y="${round(t.y - 3)}" text-anchor="end">Lvl ${t.level}</text>`
+  );
+}
+
+function projection(p: ChartModel["projection"]): string {
+  if (p === null) {
+    return "";
+  }
+  return (
+    `<line class="chart-proj" x1="${p.from.x}" y1="${p.from.y}" x2="${p.to.x}" y2="${p.to.y}" />` +
+    `<text class="chart-proj-label" x="${p.to.x}" y="${round(p.to.y - 3)}" text-anchor="end">~${p.expeditions} to Lvl ${p.level}</text>`
+  );
 }
 
 function svg(inner: string): string {
-  return `<svg class="exp-chart" viewBox="0 0 ${WIDTH} ${HEIGHT}" preserveAspectRatio="xMidYMid meet" role="img">${inner}</svg>`;
+  return `<svg class="exp-chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img">${inner}</svg>`;
 }
 
 function round(n: number): number {

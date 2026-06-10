@@ -3,6 +3,8 @@ import { LoadingState, QuestPhase } from "../types";
 import type { ActiveQuest, AdventurerProfile, QuestPhase as QuestPhaseT, QuestState, SideQuest } from "../types";
 import { ALL_BADGES } from "../types";
 import type { BadgeDef, NumericStat } from "../types";
+import { leafName } from "../leafName";
+import { buildChartModel } from "./chartData";
 import { buildExpChart } from "./buildExpChart";
 import { escapeHtml } from "./escape";
 import { HERO_SVG } from "./heroSprite";
@@ -80,6 +82,10 @@ function readyDoc(state: QuestState, profile: AdventurerProfile, assets: SheetAs
     ? "MAX LEVEL"
     : `${progress.expThisLevel} / ${progress.expToNext} EXP to level ${progress.next?.level ?? ""}`;
 
+  const activeLeaf = state.activeQuest ? leafName(state.activeQuest.questFolderPath) : null;
+  const plannedCount = state.plannedExpeditions.filter((p) => p.status === "planned").length;
+  const chartModel = buildChartModel({ fold: state.expFold, history: state.expHistory, profile, activeLeaf, plannedCount });
+
   const body = `<div class="v2-frame">
     <div class="v2-frame-gold">
       ${frameCorners()}
@@ -117,8 +123,8 @@ function readyDoc(state: QuestState, profile: AdventurerProfile, assets: SheetAs
           <h2 class="v2-section-head"><span>EXP Progression</span></h2>
           <div class="v2-chart-frame">
             <span class="v2-chart-axis v2-chart-y" aria-hidden="true">EXP</span>
-            <div class="v2-chart-plot">${buildExpChart(state.expHistory)}</div>
-            <span class="v2-chart-axis v2-chart-x" aria-hidden="true">Quests</span>
+            <div class="v2-chart-plot">${buildExpChart(chartModel)}</div>
+            <span class="v2-chart-axis v2-chart-x" aria-hidden="true">${escapeHtml(chartModel.xAxisLabel)}</span>
           </div>
         </section>
       </main>

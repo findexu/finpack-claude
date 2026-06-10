@@ -571,8 +571,14 @@
     .chart-axis-y { left: 5px; top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: left center; }
     .chart-axis-x { right: var(--s-2); bottom: 3px; }
     .exp-chart { width: 100%; height: auto; display: block; background: transparent; }
-    .chart-line { stroke: var(--line); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-    .chart-dot { fill: var(--gold); stroke: var(--inset); stroke-width: 1; }
+    .chart-seg-dim { stroke: var(--edge); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+    .chart-seg-active { stroke: var(--gold); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; fill: none; }
+    .chart-marker { fill: var(--gold); stroke: var(--inset); stroke-width: 1; }
+    .chart-now { fill: var(--gold-soft); stroke: var(--inset); stroke-width: 1; transform-box: fill-box; transform-origin: center; animation: qd-pulse 2.4s ease-in-out infinite; }
+    .chart-threshold { stroke: var(--edge); stroke-width: 1; stroke-dasharray: 2 3; }
+    .chart-threshold-label { fill: var(--faint); font-size: var(--fs-caption); letter-spacing: 0.5px; }
+    .chart-proj { stroke: var(--teal); stroke-width: 2; stroke-dasharray: 4 3; stroke-linecap: round; }
+    .chart-proj-label { fill: var(--teal); font-size: var(--fs-caption); letter-spacing: 0.5px; }
     .chart-empty { fill: var(--faint); font-size: var(--fs-caption); letter-spacing: 0.5px; }
 
     /* ---- Empty states ---- */
@@ -1348,7 +1354,7 @@
       .v2-exp-fill, .v2-hero-idle-img, .v2-spark, .v2-badge-ready .v2-badge-medal,
       .badge.ready .badge-medal,
       .hero-frames-img,
-      .hero-body, .hero-orb, .hero-eyes { animation: none; }
+      .hero-body, .hero-orb, .hero-eyes, .chart-now { animation: none; }
       .stat, .badge-medal { transition: none; }
     }
 }

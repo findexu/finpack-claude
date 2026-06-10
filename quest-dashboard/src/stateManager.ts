@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 
+import { leafName } from "./leafName";
 import { parseActiveQuest } from "./parsers/activeQuestParser";
 import { parseEventsLog } from "./parsers/eventsLogParser";
 import { latestPhaseForQuest } from "./parsers/lifecycleLogParser";
@@ -266,9 +267,4 @@ export class StateManager implements vscode.Disposable {
       error: null,
     };
   }
-}
-
-function leafName(questFolderPath: string): string {
-  const parts = questFolderPath.split("/").filter((part) => part !== "");
-  return parts.length > 0 ? parts[parts.length - 1] : questFolderPath;
 }
