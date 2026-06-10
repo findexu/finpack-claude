@@ -200,7 +200,10 @@ counters. See SKILL.md -> "XP derivation (the fold)".
 Let `exp` (for the history entry below) = the quest-complete reward computed in
 step 2's formula.
 
-**Append to `.claude/quest-xp/quest-history.md`:**
+**Append at the END of `.claude/quest-xp/quest-history.md`** (entries are chronological;
+the dashboard's per-quest chart plots them in file order, so a new entry MUST go after
+the last existing one — never after the header). Read the WHOLE file first; never assume
+it is empty from its head alone:
 ```
 ## {quest-name} — {date}
 EXP earned: {exp}
