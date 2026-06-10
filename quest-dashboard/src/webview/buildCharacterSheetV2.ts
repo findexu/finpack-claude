@@ -1,6 +1,6 @@
 import { levelProgress } from "../levelMath";
 import { LoadingState, QuestPhase } from "../types";
-import type { ActiveQuest, AdventurerProfile, QuestPhase as QuestPhaseT, QuestState, SideQuest } from "../types";
+import type { ActiveQuest, AdventurerProfile, ExpFold, PlannedExpedition, QuestPhase as QuestPhaseT, QuestState, SideQuest } from "../types";
 import { ALL_BADGES } from "../types";
 import type { BadgeDef, NumericStat } from "../types";
 import { leafName } from "../leafName";
@@ -95,7 +95,7 @@ function readyDoc(state: QuestState, profile: AdventurerProfile, assets: SheetAs
             ${renderHeroStage(assets)}
           </section>
           <div class="v2-topstack">
-            ${renderStatus(state.phase, state.activeQuest, state.openSideQuests, assets)}
+            ${renderStatus(state.phase, state.activeQuest, state.expFold, state.plannedExpeditions, state.openSideQuests, assets)}
             ${renderNameplate(profile, progress.tier.title, fillWidth, expLabel)}
           </div>
         </div>
@@ -145,6 +145,8 @@ const PHASE_META: Record<QuestPhaseT, { label: string; sub: string; cls: string;
 function renderStatus(
   phase: QuestPhaseT,
   activeQuest: ActiveQuest | null,
+  expFold: ExpFold | null,
+  planned: PlannedExpedition[],
   openSideQuests: SideQuest[],
   assets: SheetAssets,
 ): string {
@@ -157,7 +159,7 @@ function renderStatus(
         <span class="v2-phase-sub">${escapeHtml(meta.sub)}</span>
       </span>
     </div>
-    ${renderQuest(activeQuest)}
+    ${renderExpeditionTracker(activeQuest, phase, expFold, planned)}
     ${renderSideQuests(openSideQuests)}
   </section>`;
 }
@@ -198,16 +200,62 @@ function renderSideQuests(openSideQuests: SideQuest[]): string {
   </div>`;
 }
 
-function renderQuest(activeQuest: ActiveQuest | null): string {
+const MAX_DONE_ROWS = 3;
+
+// Active-quest panel: an expedition tracker (active -> planned -> done). The chart
+// owns full history, so done is a short tail; the panel's job is "now + what's next".
+function renderExpeditionTracker(
+  activeQuest: ActiveQuest | null,
+  phase: QuestPhaseT,
+  expFold: ExpFold | null,
+  planned: PlannedExpedition[],
+): string {
   if (activeQuest === null) {
     return `<div class="v2-quest v2-quest-empty"><span class="v2-quest-name">No active quest</span></div>`;
   }
-  const parts = activeQuest.questFolderPath.split("/").filter((part) => part !== "");
-  const name = parts.length > 0 ? parts[parts.length - 1] : activeQuest.questFolderPath;
+  const leaf = leafName(activeQuest.questFolderPath);
+
+  const isActive = phase === QuestPhase.Embarked;
+  const activeLabel = planned.find((p) => p.status === "active")?.label ?? "current expedition";
+  const plannedRows = planned.filter((p) => p.status === "planned" && !(isActive && p.label === activeLabel));
+
+  const doneEvents = (expFold?.events ?? []).filter((e) => e.type === "expedition" && e.quest === leaf);
+  const doneTotal = doneEvents.length;
+  const doneShown = doneEvents.slice().reverse().slice(0, MAX_DONE_ROWS);
+  const overflow = doneTotal - doneShown.length;
+
+  const rows: string[] = [];
+  if (isActive) {
+    rows.push(row("active", "●", escapeHtml(activeLabel)));
+  }
+  for (const p of plannedRows) {
+    rows.push(row("planned", "○", escapeHtml(p.label)));
+  }
+  for (const e of doneShown) {
+    if (e.type !== "expedition") {
+      continue; // narrow the union; filter already guarantees this
+    }
+    const flags = [e.dangers > 0 ? `${e.dangers}d` : "", e.oaths > 0 ? `${e.oaths}o` : ""].filter(Boolean).join(" · ");
+    const meta = `+${e.expDelta} XP${flags ? ` · ${flags}` : ""}`;
+    rows.push(row("done", "✓", `${escapeHtml(e.date)} <span class="v2-exped-meta">${meta}</span>`));
+  }
+  if (overflow > 0) {
+    rows.push(`<li class="v2-exped-row v2-exped-more">+${overflow} earlier</li>`);
+  }
+
+  const counts = `${doneTotal} done · ${isActive ? 1 : 0} active · ${plannedRows.length} plan`;
   return `<div class="v2-quest">
-    <span class="v2-quest-name">${escapeHtml(name)}</span>
+    <div class="v2-exped-head">
+      <span class="v2-quest-name">${escapeHtml(leaf)}</span>
+      <span class="v2-exped-counts">${escapeHtml(counts)}</span>
+    </div>
     <span class="v2-quest-realm"><span>Realm:</span> ${escapeHtml(activeQuest.realm)}</span>
+    ${rows.length > 0 ? `<ul class="v2-exped-list">${rows.join("")}</ul>` : ""}
   </div>`;
+}
+
+function row(status: string, symbol: string, body: string): string {
+  return `<li class="v2-exped-row v2-exped-${status}"><span class="v2-exped-status">${symbol}</span> ${body}</li>`;
 }
 
 function renderNameplate(profile: AdventurerProfile, title: string, fillWidth: number, expLabel: string): string {
