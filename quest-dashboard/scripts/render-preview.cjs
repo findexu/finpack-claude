@@ -27,9 +27,29 @@ const profile = {
     "Diamond",
   ],
 };
+// Sample fold: a prior quest's completion (dim, milestone) then the active quest's
+// expedition tail (gold) — exercises run-based segments, markers, now-head, threshold,
+// and projection. Reconciliation rescales the curve to profile.totalExp.
+const expFold = {
+  seedExp: 0,
+  events: [
+    { type: "quest-complete", date: "2026-05-01", quest: "older-quest", expDelta: 600, cumExp: 600, modules: 4, expeditions: 6, dangers: 8, oaths: 5, splits: 1, clean: true, speed: false },
+    { type: "expedition", date: "2026-05-10", quest: "vs-code-cs-plugin", expDelta: 15, cumExp: 615, dangers: 2, oaths: 1, split: false },
+    { type: "expedition", date: "2026-05-12", quest: "vs-code-cs-plugin", expDelta: 25, cumExp: 640, dangers: 1, oaths: 2, split: false },
+    { type: "expedition", date: "2026-05-14", quest: "vs-code-cs-plugin", expDelta: 15, cumExp: 655, dangers: 0, oaths: 1, split: false },
+  ],
+  totalExp: 655,
+};
+const plannedExpeditions = [
+  { label: "ship the integration", status: "active", order: 0 },
+  { label: "write the docs", status: "planned", order: 1 },
+  { label: "polish the edges", status: "planned", order: 2 },
+];
 const state = {
-  loadingState: LoadingState.Ready, phase: QuestPhase.AtCamp, profile,
+  loadingState: LoadingState.Ready, phase: QuestPhase.Embarked, profile,
   expHistory: [],
+  expFold,
+  plannedExpeditions,
   activeQuest: { questFolderPath: ".ai-context/quests/vs-code-cs-plugin", realm: "devforge" },
   openSideQuests: [],
   scrolls: [], schemaVersion: null, error: null,

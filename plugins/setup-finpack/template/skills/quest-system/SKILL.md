@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.13.0
+version: 1.14.0
 ---
 
 # Quest System — Skill Definition
@@ -29,6 +29,24 @@ never loses context between conversations.
 | `ADVENTURE_JOURNAL.md` | Append-only expedition history |
 | `TOME_OF_DANGERS.md` | Technical constraints, dangers, workarounds |
 | `ADVENTURERS_HANDBOOK.md` | Guide explaining what belongs in each scroll |
+
+### Planned Expeditions convention
+
+`STRATEGY_SCROLL.md` carries a `## Planned Expeditions` checklist — the upcoming-work
+tracker the quest-dashboard renders. Lifecycle of one item:
+
+```
+- [ ] surface layer      ← seeded by /counsel-quest (planned)
+- [>] surface layer      ← /embark flips it on approval (active)
+- [x] surface layer      ← /make-camp flips it at camp (done), then appends the next - [ ]
+```
+
+Markers map to dashboard status: `[x]`→done, `[>]`→active, `[ ]` (or anything else)
+→planned. Maintained by: `/counsel-quest` (seeds one `- [ ]` per battle-plan phase;
+reconciles on MID/PIVOT), `/embark` (next `- [ ]`→`- [>]`, else appends `- [>]`),
+`/make-camp` (`- [>]`→`- [x]` + appends the next `- [ ]`). The block lives in the
+top-level scroll and is kept in the index on split (the dashboard parses the index
+only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.log`.
 
 ## Commands provided (installed by /install-quest-system)
 
@@ -645,6 +663,9 @@ last-updated: {date}
 (none yet)
 ## The Battle Plan (Implementation Sequence)
 (to be written before the next expedition)
+
+## Planned Expeditions
+(seeded by /counsel-quest from the battle plan; flipped [ ]→[>]→[x] by /embark and /make-camp)
 
 ### ADVENTURE_JOURNAL.md template
 ---

@@ -86,6 +86,10 @@ Changes to make:
 - Add new oaths to `## Oaths Sworn (Resolved Decisions)`
 - Add fallen strategies to `## Fallen Strategies (Rejected Approaches)`
 - Remove resolved items from `## Open Riddles (Decisions Needed)`
+- If a `## Planned Expeditions` checklist exists: flip the active `- [>]` (this
+  expedition's focus) to `- [x]`, then append a new `- [ ]` whose label is a SHORT
+  focus phrase summarizing "The Road Ahead" just written (not the full prose). If no
+  checklist exists, skip. This is a scroll-body edit — never events.log/lifecycle.log.
 
 Update `last-updated: {date}` in YAML frontmatter.
 
@@ -132,7 +136,9 @@ For each file that exceeds 500 lines:
    - Keep YAML frontmatter (update `last-updated`)
    - Keep summary / overview (~50 lines max)
    - Add `## Content Index` table pointing to each subfile
-   - STRATEGY_SCROLL: always keep battle status table in the index
+   - STRATEGY_SCROLL: always keep battle status table AND the `## Planned Expeditions`
+     checklist in the index (the dashboard parses the checklist from the index only —
+     never strand it in a module subfile)
    - ADVENTURE_JOURNAL: keep last 3 entries in the index
    - TOME_OF_DANGERS: keep 3 most critical dangers as fast-read summary
 6. Confirm: "Split complete. {filename} → {list of subfiles created}."

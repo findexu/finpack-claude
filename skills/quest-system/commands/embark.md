@@ -188,6 +188,17 @@ informs the decision; it never auto-executes.
 
 **Do not begin any implementation work until the commander approves the expedition plan.**
 
+## Step 6.9: Mark the planned expedition active
+
+Runs only AFTER the commander approves the plan (the approval is the human gate — add
+no extra confirm). If `STRATEGY_SCROLL.md` has a `## Planned Expeditions` checklist,
+find the next `- [ ]` whose label matches `{expedition-focus}` and flip it to `- [>]`;
+if none matches, append `- [>] {expedition-focus}` to the checklist. This is the only
+scroll `/embark` writes — a STRATEGY_SCROLL body edit. NEVER touch `events.log` or
+`lifecycle.log` here (the lifecycle line is Step 8's job; a non-XP append to events.log
+would wipe a migrated profile). If the checklist is absent (quest never counselled),
+skip silently — do not create it (that is `/counsel-quest`'s job).
+
 ## Step 7: Refresh context.md
 
 Write `{quest-folder}/context.md` using data already loaded:
