@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>quest-system — leveling memory for Claude Code</title>
   <meta name="description" content="quest-system gives Claude Code persistent, RPG-themed memory: quests, expeditions, scrolls, XP. Every lesson learned is loaded into the next session." />
-  <link rel="preload" href="assets/fonts/PressStart2P-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css" />
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
@@ -51,20 +50,8 @@
       </div>
 
       <div class="hero__stage">
-        <!-- CSS-only decor: rune ring pedestal, glints, gold sparks -->
-        <span class="stage__rune stage__rune--a" aria-hidden="true"></span>
-        <span class="stage__rune stage__rune--b" aria-hidden="true"></span>
-        <span class="stage__rune stage__rune--c" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--1" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--2" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--3" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--4" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--5" aria-hidden="true"></span>
-        <span class="stage__spark stage__spark--6" aria-hidden="true"></span>
         <img class="hero__sprite" src="assets/sprites/hero.png" width="244" height="256"
              alt="Pixel-art wizard holding a glowing rune staff and a spellbook — the quest-system mascot" />
-        <span class="stage__ring stage__ring--outer" aria-hidden="true"></span>
-        <span class="stage__ring stage__ring--inner" aria-hidden="true"></span>
         <span class="stage__glow" aria-hidden="true"></span>
       </div>
     </section>
@@ -109,29 +96,67 @@
     <section class="ph" id="workflow" aria-labelledby="workflow-heading">
       <h2 class="ph__heading" id="workflow-heading">How it works</h2>
       <p class="section-lead">
-        Five commands, one loop. Each one reads the scrolls before it acts and
-        writes them before it stops &mdash; so no chat ever starts from zero.
+        Five commands, one loop &mdash; here's a real week. You're building user
+        avatars, and on day two you hit a bug: HEIC photos decode blank on
+        Safari. Watch where that lesson goes.
       </p>
-      <ol class="loop-steps" role="list">
-        <li>
-          <span class="loop-steps__cmd">/new-quest</span>
-          <span class="loop-steps__why">A feature becomes a quest: five persistent scrolls that outlive every chat.</span>
+      <ol class="journey" role="list">
+        <li class="journey__node">
+          <span class="journey__day">Day 1</span>
+          <div class="journey__card">
+            <p class="journey__cmd">/new-quest user-avatars</p>
+            <p class="journey__desc">The feature becomes a quest: five markdown
+            files appear in your repo, ready to hold everything Claude learns.</p>
+          </div>
         </li>
-        <li>
-          <span class="loop-steps__cmd">/counsel-quest</span>
-          <span class="loop-steps__why">Scout agents explore the codebase; the battle plan is locked before any code.</span>
+        <li class="journey__node">
+          <span class="journey__day">Day 1</span>
+          <div class="journey__card">
+            <p class="journey__cmd">/counsel-quest</p>
+            <p class="journey__desc">Scout agents explore the codebase; the plan
+            is locked before any code is written.</p>
+          </div>
         </li>
-        <li>
-          <span class="loop-steps__cmd">/embark</span>
-          <span class="loop-steps__why">A work session opens with a briefing built from the scrolls: status, dangers, decisions.</span>
+        <li class="journey__node journey__node--cycle">
+          <span class="journey__day">Day 2&ndash;3</span>
+          <div class="journey__cycle" aria-label="The session loop — these two commands repeat every work session">
+            <p class="journey__cycle-label"><span aria-hidden="true">&#8635;</span> the session loop &mdash; repeat until built</p>
+            <ol class="journey__inner" role="list">
+              <li>
+                <div class="journey__card">
+                  <p class="journey__cmd">/embark</p>
+                  <p class="journey__desc">The session opens with a briefing built
+                  from the files: status, known pitfalls, decisions on record.</p>
+                </div>
+              </li>
+              <li>
+                <div class="journey__card journey__card--incident">
+                  <p class="journey__desc"><strong>Mid-session, the real world bites:</strong>
+                  HEIC photos decode blank on Safari. The fix &mdash; resize
+                  client-side before upload &mdash; is written down the moment
+                  it's found.</p>
+                </div>
+              </li>
+              <li>
+                <div class="journey__card">
+                  <p class="journey__cmd">/make-camp</p>
+                  <p class="journey__desc">The session ends by writing everything
+                  back: journal entry, the HEIC lesson, XP.</p>
+                </div>
+              </li>
+            </ol>
+            <p class="journey__cycle-note">Day 3, a brand-new chat: <code>/embark</code>'s
+            briefing already warns about HEIC <em>before you ask</em>. No re-explaining.</p>
+          </div>
         </li>
-        <li>
-          <span class="loop-steps__cmd">/make-camp</span>
-          <span class="loop-steps__why">The session ends by writing everything back: journal entry, lessons, XP.</span>
-        </li>
-        <li>
-          <span class="loop-steps__cmd">/complete-quest</span>
-          <span class="loop-steps__why">The quest's lessons distill into project-wide memory for every future quest.</span>
+        <li class="journey__node">
+          <span class="journey__day">Day 4</span>
+          <div class="journey__card">
+            <p class="journey__cmd">/complete-quest</p>
+            <p class="journey__desc">The feature ships. Its lessons distill into
+            project-wide memory &mdash; the <em>next</em> feature's first briefing
+            starts smarter.</p>
+          </div>
         </li>
       </ol>
       <div class="ph__panel" id="demo-caption">
@@ -191,8 +216,8 @@
             <caption>Per expedition (at /make-camp)</caption>
             <tbody>
               <tr><th scope="row">Completing an expedition</th><td>5</td></tr>
-              <tr><th scope="row">New danger mapped</th><td>+10</td></tr>
-              <tr><th scope="row">New oath sworn</th><td>+10</td></tr>
+              <tr><th scope="row">New danger (pitfall) mapped</th><td>+10</td></tr>
+              <tr><th scope="row">New oath (locked decision) sworn</th><td>+10</td></tr>
             </tbody>
           </table>
         </div>
@@ -201,7 +226,7 @@
             <caption>Per quest (at /complete-quest)</caption>
             <tbody>
               <tr><th scope="row">Base reward</th><td>100</td></tr>
-              <tr><th scope="row">Per module conquered</th><td>25</td></tr>
+              <tr><th scope="row">Per module (plan item) conquered</th><td>25</td></tr>
               <tr><th scope="row">Per expedition logged</th><td>10</td></tr>
               <tr><th scope="row">Per danger / per oath</th><td>15 / 20</td></tr>
               <tr><th scope="row">Per scroll split (a file outgrew 500 lines and was divided)</th><td>50</td></tr>
@@ -213,7 +238,10 @@
       <p class="section-note">
         Fifty levels from Apprentice Coder to Transcendent Engineer, fifteen badges
         &mdash; and the numbers above are the real formula, straight from the system's
-        own ledger. The demo quest earns 405 EXP and a level-up; check the math.
+        own ledger. The demo quest earns 405 EXP: two camps (25&nbsp;+&nbsp;15) plus
+        completion &mdash; 100 base + 2&nbsp;modules&times;25 + 2&nbsp;expeditions&times;10
+        + 2&nbsp;dangers&times;15 + 2&nbsp;oaths&times;20 + 75 clean sweep + 50 speed
+        run = 365. Check the math &mdash; it closes.
       </p>
       <div class="xpcard" role="group" aria-label="Example adventurer profile after the demo quest">
         <div class="xpcard__head">
@@ -272,7 +300,7 @@
     <p>
       Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>.
     </p>
-    <p>MIT licensed. Press Start 2P (SIL OFL) &mdash; license in <a href="assets/fonts/OFL.txt">assets/fonts/OFL.txt</a>.</p>
+    <p>MIT licensed.</p>
   </footer>
 </body>
 </html>

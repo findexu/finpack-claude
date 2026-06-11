@@ -2,14 +2,6 @@
    quest-dashboard/src/webview/tailwind.css (:root tokens 8-71, body gradient 75-87).
    That file is the single source of visual truth; do not invent new raw values. */
 
-@font-face {
-  font-family: "Press Start 2P";
-  src: url("assets/fonts/PressStart2P-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   /* ---- Surfaces: deep dungeon navy, never pure black; layered for depth. */
   --bg: #0e0c1a;
@@ -75,20 +67,31 @@
   --z-decor-overlay: 4;
 
   /* ---- Web-only tokens (no --vscode-* host vars on the open web). */
-  --font-display: "Press Start 2P", monospace;
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Ubuntu, sans-serif;
+  --font-serif: ui-serif, Georgia, 'Times New Roman', Times, serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --p-complete: var(--gold-soft); /* the real dashboard has no Complete phase — mock-only hue */
+
+  /* ---- Warm editorial shell (hybrid redesign). The dungeon tokens above stay
+     verbatim and scope the DARK ISLAND: .ide__frame, .sheet, .contrast__quote,
+     .install__code. Everything else renders on paper. AA: measured pairs —
+     ink-warm/paper ~14:1, ink-soft/paper ~5.5:1, accent-deep/paper ~5.3:1,
+     white/accent-deep ~6:1. Bare --accent is decorative/large-text only. */
+  --paper: #F0EEE6;
+  --paper-2: #FAF9F5;
+  --ink-warm: #1F1E1D;
+  --ink-soft: #5F5B54;
+  --accent: #D97757;
+  --accent-deep: #9C4A33;
+  --edge-warm: #DAD5C9;
+  --xp-deep: #1E7A55; /* XP green re-derived for paper (~4.6:1) */
 
   /* ---- Page-scale additions (dashboard scale is sidebar-sized; these extend it
      for full-page reading without touching the ported values above). Ported
      sidebar sizes stay defined, but PAGE surfaces use the page scale — the
-     12px body and the 9-10px pixel-font label layer were launch-review
-     failures. Press Start 2P appears in exactly two places: the h1 punch and
-     section headings. */
-  --fs-display-1: clamp(15px, 5.6vw, 40px); /* Press Start punch line — short words only;
-     floor sized so ~15 glyphs/line (1em advance each) fit a 375px viewport */
-  --fs-display-2: clamp(18px, 2.2vw, 22px); /* section headings in display font */
+     12px body was a launch-review failure. */
+  --fs-display-1: clamp(34px, 6vw, 56px);  /* serif punch line (PS2P glyph-width floor obsolete) */
+  --fs-display-2: clamp(22px, 2.6vw, 28px); /* serif section headings */
   --fs-lead: clamp(17px, 2.4vw, 24px);      /* body-font promise line under the punch */
   --fs-copy: clamp(15px, 1.6vw, 16px);      /* page-level body copy */
   --fs-base: 16px;                          /* page body baseline (web norm) */
@@ -110,30 +113,12 @@
 
 body {
   margin: 0;
-  color: var(--ink);
+  color: var(--ink-warm);
   font-family: var(--font-body);
   font-size: var(--fs-base);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background-color: var(--bg);
-}
-
-/* Pinned dungeon backdrop. The dashboard uses background-attachment: fixed; on the
-   open web that forces main-thread scrolling + full-viewport gradient repaint per
-   frame (and misbehaves on iOS Safari), so the same four ported gradient layers
-   live on a composited fixed layer instead. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(130% 90% at 50% -12%, rgba(245,196,81,0.08), transparent 55%),
-    radial-gradient(80% 60% at 100% 4%, rgba(79,217,194,0.06), transparent 55%),
-    radial-gradient(80% 60% at 0% 8%, rgba(197,155,255,0.05), transparent 55%),
-    linear-gradient(180deg, var(--bg-2), var(--bg) 42%);
+  background-color: var(--paper);
 }
 
 /* ---- Keyframes ported from the dashboard (qd-* ambient set + static-hero subset).
@@ -170,13 +155,13 @@ body::before {
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: var(--s-16);
+  /* Mobile-first: the sticky header wraps to ~3 rows (~150px) on narrow
+     viewports, so the larger anchor offset is the default. (.ph mirrors this
+     next to its base rule below.) */
+  scroll-padding-top: calc(var(--s-24) + var(--s-16));
 }
-/* Narrow viewports: the sticky header wraps to ~3 rows (~150px) — anchor targets
-   need a matching offset or they scroll underneath it. (.ph gets the same offset
-   next to its base rule below — it must cascade after it.) */
-@media (max-width: 819px) {
-  html { scroll-padding-top: calc(var(--s-24) + var(--s-16)); }
+@media (min-width: 820px) {
+  html { scroll-padding-top: var(--s-16); }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -184,7 +169,8 @@ html {
 
 /* ---- Focus + skip link -------------------------------------------- */
 :focus-visible {
-  outline: 2px solid var(--gold);
+  /* --accent-deep, not --accent: the ring must clear 3:1 against paper */
+  outline: 2px solid var(--accent-deep);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -195,10 +181,10 @@ html {
   left: var(--s-4);
   z-index: calc(var(--z-nav) + 1); /* above the sticky header or it's invisible when focused */
   padding: var(--s-3) var(--s-4);
-  background: var(--panel);
-  border: 1px solid var(--gold-deep);
+  background: var(--paper-2);
+  border: 1px solid var(--accent-deep);
   border-radius: var(--radius-sm);
-  color: var(--gold);
+  color: var(--ink-warm);
   font-size: var(--fs-ui);
   text-decoration: none;
   transition: top var(--t-fast);
@@ -210,10 +196,10 @@ html {
   position: sticky;
   top: 0;
   z-index: var(--z-nav);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--edge-soft);
+  border-bottom: 1px solid var(--edge-warm);
 }
 
 .site-header__inner {
@@ -231,13 +217,12 @@ html {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
-  font-family: var(--font-body);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: var(--fs-ui);
-  color: var(--gold);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-size: var(--fs-base);
+  color: var(--ink-warm);
   text-decoration: none;
-  text-shadow: 0 0 12px color-mix(in srgb, var(--gold) 45%, transparent);
 }
 
 .site-nav {
@@ -254,20 +239,21 @@ html {
   min-height: var(--tap);
   padding: var(--s-2) var(--s-3);
   border-radius: var(--radius-sm);
-  color: var(--muted);
+  color: var(--ink-soft);
   font-size: var(--fs-ui);
   text-decoration: none;
   transition: color var(--t-fast);
 }
-.site-nav a:hover { color: var(--ink); }
+.site-nav a:hover { color: var(--ink-warm); }
 
 .site-nav a.site-nav__ext {
-  color: var(--teal);
-  border: 1px solid var(--edge);
+  color: var(--accent-deep);
+  border: 1px solid var(--edge-warm);
 }
 .site-nav a.site-nav__ext:hover {
-  color: var(--ink);
-  border-color: var(--teal-deep);
+  color: var(--accent-deep);
+  background: var(--paper-2);
+  border-color: var(--accent);
 }
 
 /* ---- Hero ----------------------------------------------------------- */
@@ -301,6 +287,7 @@ html {
 }
 @media (min-width: 820px) {
   .hero__copy { text-align: left; }
+  .hero__sub { margin-inline: 0; }
 }
 
 .hero__eyebrow {
@@ -310,7 +297,7 @@ html {
   font-size: var(--fs-meta);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--accent-deep);
 }
 
 .hero h1 {
@@ -321,13 +308,12 @@ html {
 }
 
 .hero__punch {
-  font-family: var(--font-display);
+  font-family: var(--font-serif);
+  font-weight: 600;
   font-size: var(--fs-display-1);
-  line-height: 1.6;
-  color: var(--ink);
-  text-shadow:
-    0 0 22px color-mix(in srgb, var(--gold) 28%, transparent),
-    3px 3px 0 var(--inset);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--ink-warm);
 }
 
 .hero__promise {
@@ -335,18 +321,16 @@ html {
   font-weight: 400;
   font-size: var(--fs-lead);
   line-height: 1.5;
-  color: var(--gold-soft);
+  color: var(--ink-warm);
 }
 
 .hero__sub {
   margin: 0;
+  margin-inline: auto;
   max-width: 52ch;
   font-size: var(--fs-copy);
   line-height: 1.65;
-  color: var(--muted);
-}
-@media (max-width: 819px) {
-  .hero__sub { margin-inline: auto; }
+  color: var(--ink-soft);
 }
 
 .hero__ctas {
@@ -379,28 +363,28 @@ html {
 .btn:active { transform: translateY(0); }
 
 .btn--primary {
-  color: var(--inset);
-  background: linear-gradient(180deg, var(--gold-soft), var(--gold) 55%, var(--gold-deep));
-  border: 1px solid var(--gold-deep);
-  box-shadow:
-    0 2px 0 var(--gold-deep),
-    0 6px 18px color-mix(in srgb, var(--gold) 30%, transparent);
+  color: var(--paper-2);
+  background: var(--accent-deep);
+  border: 1px solid var(--accent-deep);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink-warm) 18%, transparent);
 }
 .btn--primary:hover {
-  box-shadow:
-    0 4px 0 var(--gold-deep),
-    0 10px 26px color-mix(in srgb, var(--gold) 42%, transparent);
+  /* full --accent under near-white text measures ~3.2:1; a 35% mix toward
+     --accent stays >=4.5:1 while still reading as a lift */
+  background: color-mix(in srgb, var(--accent) 35%, var(--accent-deep));
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--accent-deep));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .btn--ghost {
-  color: var(--teal);
-  background: color-mix(in srgb, var(--panel) 70%, transparent);
-  border: 1px solid var(--edge);
-  box-shadow: inset 0 0 10px color-mix(in srgb, var(--teal) 8%, transparent);
+  color: var(--ink-warm);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink-warm) 8%, transparent);
 }
 .btn--ghost:hover {
-  border-color: var(--teal-deep);
-  box-shadow: inset 0 0 14px color-mix(in srgb, var(--teal) 16%, transparent);
+  border-color: var(--accent-deep);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--ink-warm) 12%, transparent);
 }
 
 /* ---- Hero stage: pedestal, rune ring, sparks ------------------------ */
@@ -420,39 +404,11 @@ html {
   height: auto;
   image-rendering: pixelated;
   animation: heroBob 5s ease-in-out infinite;
-  filter: drop-shadow(0 var(--s-3) var(--s-4) color-mix(in srgb, var(--inset) 80%, transparent));
-}
-
-.stage__ring {
-  position: absolute;
-  z-index: var(--z-decor);
-  left: 50%;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--teal) 55%, transparent);
-  /* Static glow + opacity pulse instead of the ported qd-ring box-shadow animation:
-     animated box-shadow repaints the rings every frame; opacity composites. */
-  box-shadow:
-    0 0 16px 2px color-mix(in srgb, var(--teal) 50%, transparent),
-    inset 0 0 12px color-mix(in srgb, var(--teal) 33%, transparent);
-  animation: qd-ring-web 3.4s ease-in-out infinite;
-}
-@keyframes qd-ring-web { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-.stage__ring--outer {
-  bottom: var(--s-4);
-  width: 250px;
-  height: 72px;
-  margin-left: -125px;
-}
-.stage__ring--inner {
-  bottom: var(--s-6);
-  width: 170px;
-  height: 48px;
-  margin-left: -85px;
-  border-color: color-mix(in srgb, var(--teal) 35%, transparent);
-  animation-delay: 1.1s;
+  filter: drop-shadow(0 var(--s-2) var(--s-3) color-mix(in srgb, var(--ink-warm) 28%, transparent));
 }
 
 .stage__glow {
+  /* warm pedestal shadow — static; a ground shadow that shimmers reads as a glitch */
   position: absolute;
   z-index: var(--z-decor);
   left: 50%;
@@ -463,67 +419,37 @@ html {
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    color-mix(in srgb, var(--teal) 22%, transparent),
+    color-mix(in srgb, var(--ink-warm) 16%, transparent),
     transparent 65%
   );
-  animation: qd-shimmer 3.4s ease-in-out infinite;
 }
-
-.stage__rune {
-  position: absolute;
-  z-index: var(--z-decor-overlay);
-  width: var(--s-3);
-  height: var(--s-3);
-  border: 2px solid var(--purple);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--purple) 60%, transparent);
-  transform: rotate(45deg); /* base diamond shape survives the reduced-motion kill switch */
-  animation: qd-rune 2.8s ease-in-out infinite;
-}
-.stage__rune--a { top: 12%; left: 6%; }
-.stage__rune--b { top: 30%; right: 2%; animation-delay: 0.9s; }
-.stage__rune--c { bottom: 26%; left: 0; animation-delay: 1.7s; border-color: var(--blue);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--blue) 60%, transparent); }
-
-.stage__spark {
-  position: absolute;
-  z-index: var(--z-decor-overlay);
-  width: var(--s-1);
-  height: var(--s-1);
-  border-radius: 50%;
-  background: var(--gold-soft);
-  box-shadow: 0 0 6px var(--gold);
-  animation: qd-twinkle 2.2s ease-in-out infinite;
-}
-.stage__spark--1 { top: 6%;  left: 28%; }
-.stage__spark--2 { top: 16%; right: 14%; animation-delay: 0.4s; }
-.stage__spark--3 { top: 44%; left: 10%;  animation-delay: 0.8s; }
-.stage__spark--4 { top: 56%; right: 6%;  animation-delay: 1.2s; }
-.stage__spark--5 { bottom: 18%; left: 22%; animation-delay: 1.6s; }
-.stage__spark--6 { bottom: 30%; right: 24%; animation-delay: 2s; }
 
 /* ---- Placeholder sections (pending expeditions) --------------------- */
 .ph {
   max-width: 1100px;
   margin: 0 auto;
-  padding: var(--s-10) var(--s-4);
-  scroll-margin-top: var(--s-16);
+  padding: var(--s-12) var(--s-4);
+  scroll-margin-top: calc(var(--s-24) + var(--s-16));
 }
-@media (max-width: 819px) {
-  .ph { scroll-margin-top: calc(var(--s-24) + var(--s-16)); }
+@media (min-width: 820px) {
+  .ph {
+    padding-block: var(--s-16);
+    scroll-margin-top: var(--s-16);
+  }
 }
 
 .ph__heading {
-  margin: 0 0 var(--s-4);
-  font-family: var(--font-display);
+  margin: 0 0 var(--s-5);
+  font-family: var(--font-serif);
   font-size: var(--fs-display-2);
-  font-weight: 400;
-  line-height: 1.8;
-  color: var(--gold);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink-warm);
 }
 .ph__heading::before {
-  content: "\25C6" / ""; /* pixel-flavored diamond bullet; empty alt keeps it out of AT */
+  content: "\25C6" / ""; /* diamond bullet; empty alt keeps it out of AT */
   margin-right: var(--s-3);
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .ph__panel {
@@ -531,21 +457,22 @@ html {
   flex-direction: column;
   gap: var(--s-2);
   padding: var(--s-6);
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  border: 1px solid var(--edge);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
   border-radius: var(--radius);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ink) 5%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink-warm) 6%, transparent);
 }
 
 .ph__panel p {
   margin: 0;
   font-size: var(--fs-copy);
-  color: var(--muted);
+  color: var(--ink-warm);
 }
 
 .ph__panel p.ph__note {
   font-size: var(--fs-meta);
   font-style: italic;
+  color: var(--ink-soft);
 }
 
 /* ---- Section content (expedition 2: copy + static structure) -------- */
@@ -554,14 +481,14 @@ html {
   max-width: 62ch;
   font-size: var(--fs-copy);
   line-height: 1.65;
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .section-note {
   margin: var(--s-6) 0 0;
   max-width: 62ch;
   font-size: var(--fs-copy);
   line-height: 1.65;
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 
 .loop-steps {
@@ -580,8 +507,8 @@ html {
   align-items: baseline;
   gap: var(--s-2) var(--s-4);
   padding: var(--s-4);
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  border: 1px solid var(--edge);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
   border-radius: var(--radius);
 }
 .loop-steps li::before {
@@ -594,21 +521,21 @@ html {
   font-weight: 700;
   font-size: var(--fs-meta);
   line-height: 1.6;
-  color: var(--gold-deep);
+  color: var(--accent-deep);
 }
 .loop-steps__cmd {
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: var(--fs-ui);
   line-height: 1.6;
-  color: var(--teal);
+  color: var(--accent-deep);
   overflow-wrap: anywhere;
 }
 .loop-steps__why {
   grid-column: 2;
   font-size: var(--fs-copy);
   line-height: 1.55;
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 
 .contrast {
@@ -622,14 +549,10 @@ html {
 .contrast__panel {
   padding: var(--s-6);
   border-radius: var(--radius);
-  border: 1px solid var(--edge);
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--edge-warm);
+  background: var(--paper-2);
 }
-.contrast__panel--before { border-color: var(--edge-soft); }
-.contrast__panel--after {
-  border-color: var(--teal-deep);
-  box-shadow: inset 0 0 12px color-mix(in srgb, var(--teal) 10%, transparent);
-}
+.contrast__panel--after { border-color: var(--accent); }
 .contrast__label {
   margin: 0 0 var(--s-3);
   font-family: var(--font-body);
@@ -638,29 +561,31 @@ html {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.6;
-  color: var(--muted); /* --faint fails AA on the panel gradient */
+  color: var(--ink-soft);
 }
-.contrast__panel--after .contrast__label { color: var(--teal); }
+.contrast__panel--after .contrast__label { color: var(--accent-deep); }
 .contrast__panel p {
   margin: 0 0 var(--s-3);
   font-size: var(--fs-copy);
   line-height: 1.65;
-  color: var(--muted);
+  color: var(--ink-warm);
 }
 .contrast__panel p:last-child { margin-bottom: 0; }
-.contrast__panel--after p { color: var(--ink); }
-.contrast__quote {
+/* p.-qualified: must outrank `.contrast__panel p` (0,1,1) or the dark inset
+   renders charcoal-on-dark — dark-island text keeps dungeon ink. */
+p.contrast__quote {
   padding: var(--s-3) var(--s-4);
   border-left: 2px solid var(--gold);
-  background: color-mix(in srgb, var(--inset) 60%, transparent);
+  background: color-mix(in srgb, var(--inset) 85%, transparent);
   border-radius: var(--radius-sm);
   font-style: italic;
+  color: var(--ink);
 }
 .contrast__panel code {
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: var(--fs-ui);
-  color: var(--teal);
+  color: var(--accent-deep);
 }
 
 .xp-grid {
@@ -674,8 +599,8 @@ html {
 /* Panel chrome lives on a wrapper div: a table's background/border box excludes
    its <caption>, and border-collapse drops border-radius entirely. */
 .xp-card {
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  border: 1px solid var(--edge);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -694,22 +619,22 @@ html {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   line-height: 1.6;
-  color: var(--gold);
+  color: var(--ink-warm);
 }
 .xp-table th,
 .xp-table td {
   padding: var(--s-2) var(--s-4);
-  border-top: 1px solid var(--edge-soft);
+  border-top: 1px solid var(--edge-warm);
   font-size: var(--fs-copy);
   line-height: 1.5;
   text-align: left;
 }
-.xp-table th { font-weight: 400; color: var(--muted); }
+.xp-table th { font-weight: 400; color: var(--ink-soft); }
 .xp-table td {
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: var(--fs-meta);
-  color: var(--xp);
+  color: var(--xp-deep);
   text-align: right;
   white-space: nowrap;
 }
@@ -738,12 +663,17 @@ html {
   opacity: 0.45;
   cursor: default;
 }
-.ide__btn--off:hover { transform: none; box-shadow: inset 0 0 10px color-mix(in srgb, var(--teal) 8%, transparent); }
+.ide__btn--off:hover {
+  /* inert: hold the ghost rest state so the disabled button doesn't react */
+  transform: none;
+  border-color: var(--edge-warm);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink-warm) 8%, transparent);
+}
 .ide__progress {
   margin-left: auto;
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
   overflow-wrap: anywhere;
 }
 
@@ -764,8 +694,8 @@ html {
   }
 }
 .ide--aha .ide__frame {
-  border-color: var(--gold-deep);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--gold) 25%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .ide__titlebar {
@@ -847,7 +777,7 @@ html {
 
 .ide__chatlog {
   flex: 1;
-  padding: var(--s-3);
+  padding: var(--s-3) var(--s-3) var(--s-4); /* bottom room — last line was clipping against the prompt row */
   overflow: auto;
   max-height: 220px;
   font-family: var(--font-mono);
@@ -877,14 +807,14 @@ html {
   margin: 0;
   font-size: var(--fs-copy);
   line-height: 1.6;
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .ide__why-label {
   margin-right: var(--s-3);
   font-family: var(--font-body);
   font-weight: 700;
   font-size: var(--fs-meta);
-  color: var(--gold);
+  color: var(--accent-deep);
   letter-spacing: 0.12em;
 }
 
@@ -898,14 +828,14 @@ html {
   margin: 0;
   font-size: var(--fs-copy);
   line-height: 1.55;
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .ide__step-cmd {
   margin: 0;
   font-family: var(--font-mono);
   font-weight: 600;
   font-size: var(--fs-ui);
-  color: var(--teal);
+  color: var(--accent-deep);
   overflow-wrap: anywhere;
 }
 .ide__tree-dir { color: var(--muted); } /* color token, never opacity (AA danger) */
@@ -920,8 +850,8 @@ html {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--s-2) var(--s-6);
   padding: var(--s-4) var(--s-5);
-  background: color-mix(in srgb, var(--panel) 70%, transparent);
-  border: 1px solid var(--edge-soft);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
   border-radius: var(--radius);
 }
 .legend div { display: flex; gap: var(--s-2); align-items: baseline; }
@@ -929,13 +859,13 @@ html {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--fs-meta);
-  color: var(--gold);
+  color: var(--accent-deep);
   white-space: nowrap;
 }
 .legend dd {
   margin: 0;
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 
 /* ---- Honest-objections facts (#install) ------------------------------- */
@@ -949,17 +879,17 @@ html {
 }
 .facts li {
   padding: var(--s-3) var(--s-4);
-  background: color-mix(in srgb, var(--panel) 70%, transparent);
-  border-left: 2px solid var(--teal-deep);
+  background: var(--paper-2);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm);
   font-size: var(--fs-copy);
   line-height: 1.6;
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .facts code {
   font-family: var(--font-mono);
   font-size: var(--fs-ui);
-  color: var(--teal);
+  color: var(--accent-deep);
 }
 .ide__xp {
   margin: 0;
@@ -973,11 +903,11 @@ html {
   font-weight: 700;
   font-size: var(--fs-ui);
   line-height: 1.6;
-  color: var(--xp);
+  color: var(--xp-deep);
 }
 .ide__xp-detail {
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 
 /* ---- Mock character sheet + stepper (expedition 4) -------------------- */
@@ -999,13 +929,14 @@ html {
   border-radius: var(--radius);
   transition: box-shadow var(--t-med), border-color var(--t-med);
 }
+/* aha/levelup glows read against the PAPER shell, not the dark sheet inside */
 .sheet--aha {
-  border-color: var(--teal-deep);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--teal) 25%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .sheet--levelup {
-  border-color: var(--gold-deep);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--gold) 30%, transparent);
+  border-color: var(--accent-deep);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .sheet__banner {
@@ -1114,10 +1045,10 @@ html {
   flex-direction: column;
   gap: var(--s-4);
   padding: var(--s-5);
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  border: 1px solid var(--gold-deep);
+  background: var(--paper-2);
+  border: 1px solid var(--accent);
   border-radius: var(--radius);
-  box-shadow: 0 0 14px color-mix(in srgb, var(--gold) 18%, transparent);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--ink-warm) 10%, transparent);
 }
 .xpcard__head {
   display: flex;
@@ -1125,18 +1056,18 @@ html {
   align-items: baseline;
   gap: var(--s-2) var(--s-4);
   padding-bottom: var(--s-3);
-  border-bottom: 1px solid var(--edge-soft);
+  border-bottom: 1px solid var(--edge-warm);
 }
 .xpcard__name {
-  font-family: var(--font-body);
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-weight: 600;
   font-size: var(--fs-base);
   line-height: 1.5;
-  color: var(--gold);
+  color: var(--ink-warm);
 }
 .xpcard__title {
   font-size: var(--fs-copy);
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .xpcard__exp {
   display: flex;
@@ -1147,7 +1078,7 @@ html {
 .xpcard__expnum, .xpcard__tonext {
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
   white-space: nowrap;
 }
 .xpcard__track {
@@ -1155,13 +1086,13 @@ html {
   min-width: 120px;
   height: var(--s-3);
   border-radius: var(--radius-sm);
-  background: var(--inset);
-  border: 1px solid var(--edge-soft);
+  background: var(--paper);
+  border: 1px solid var(--edge-warm);
   overflow: hidden;
 }
 .xpcard__fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--teal-deep), var(--xp));
+  background: var(--xp-deep);
   animation: qd-shimmer 2s ease-in-out infinite;
 }
 .xpcard__stats {
@@ -1171,18 +1102,18 @@ html {
   gap: var(--s-2) var(--s-4);
 }
 .xpcard__stats div { display: flex; justify-content: space-between; gap: var(--s-3); }
-.xpcard__stats dt { font-size: var(--fs-meta); color: var(--muted); }
+.xpcard__stats dt { font-size: var(--fs-meta); color: var(--ink-soft); }
 .xpcard__stats dd {
   margin: 0;
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
-  color: var(--ink);
+  color: var(--ink-warm);
 }
 .xpcard__badges {
   list-style: none;
   margin: 0;
   padding: var(--s-3) 0 0;
-  border-top: 1px solid var(--edge-soft);
+  border-top: 1px solid var(--edge-warm);
   display: flex;
   flex-direction: column;
   gap: var(--s-1);
@@ -1190,24 +1121,25 @@ html {
 .xpcard__badge {
   font-size: var(--fs-meta);
   line-height: 1.6;
-  color: var(--ink);
+  color: var(--ink-warm);
   overflow-wrap: anywhere;
 }
-/* no opacity: --muted alone is ~6.3:1; dimming composites below AA at 11px.
-   The "(1/5)" counters already signal the locked state. */
-.xpcard__badge--locked { color: var(--muted); }
+/* no opacity: --ink-soft alone is ~5.5:1 on paper-2; dimming composites below
+   AA at this size. The "(1/5)" counters already signal the locked state. */
+.xpcard__badge--locked { color: var(--ink-soft); }
 .xpcard__foot {
   margin: 0;
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 .xpcard__foot code, .section-note code {
   font-family: var(--font-mono);
-  color: var(--teal);
+  color: var(--accent-deep);
 }
 
 .install__code {
   margin: 0 0 var(--s-4);
+  white-space: pre-wrap; /* wrap > hidden scroll: full command stays selectable on mobile */
   padding: var(--s-4);
   background: var(--inset);
   border: 1px solid var(--edge);
@@ -1220,14 +1152,138 @@ html {
   line-height: 1.7;
   color: var(--teal);
 }
-#install .section-note a { color: var(--gold); text-underline-offset: 3px; }
+#install .section-note a { color: var(--accent-deep); text-underline-offset: 3px; }
+
+/* ---- Journey flowchart (#workflow, hybrid redesign) -------------------
+   A day-by-day journey with a connector rail; the embark↔make-camp cycle is
+   a nested list inside a dashed cycle box with a CSS bracket loop-back arrow
+   (no SVG — no arrowhead-scaling problem, list semantics intact). */
+.journey {
+  list-style: none;
+  margin: 0 0 var(--s-6);
+  padding: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.journey::before { /* connector rail through the day badges */
+  content: "";
+  position: absolute;
+  left: 36px;
+  top: var(--s-2);
+  bottom: var(--s-2);
+  width: 2px;
+  background: var(--edge-warm);
+}
+.journey__node {
+  position: relative;
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: start;
+}
+.journey__day {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  margin-top: var(--s-3);
+  padding: 2px 10px;
+  background: var(--paper);
+  border: 1px solid var(--edge-warm);
+  border-radius: 999px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-meta);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.journey__card {
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
+  border-radius: var(--radius);
+  padding: var(--s-4) var(--s-5);
+}
+.journey__cmd {
+  margin: 0 0 var(--s-1);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--fs-ui);
+  color: var(--accent-deep);
+  overflow-wrap: anywhere;
+}
+.journey__desc {
+  margin: 0;
+  font-size: var(--fs-copy);
+  line-height: 1.6;
+  color: var(--ink-warm);
+}
+.journey__card--incident {
+  background: color-mix(in srgb, var(--accent) 9%, var(--paper-2));
+  border-left: 3px solid var(--accent);
+}
+.journey__cycle {
+  position: relative;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius);
+  padding: var(--s-4);
+}
+.journey__cycle-label {
+  margin: 0 0 var(--s-3);
+  font-weight: 700;
+  font-size: var(--fs-ui);
+  color: var(--accent-deep);
+}
+.journey__inner {
+  list-style: none;
+  margin: 0;
+  padding: 0 30px 0 0; /* gutter for the loop-back bracket */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+.journey__inner::after { /* loop-back bracket: camp back up to embark */
+  content: "";
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  right: 6px;
+  width: 14px;
+  border: 2px solid var(--accent);
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+}
+.journey__inner::before { /* arrowhead pointing back into /embark */
+  content: "";
+  position: absolute;
+  top: 19px;
+  right: 16px;
+  border: 5px solid transparent;
+  border-right: 7px solid var(--accent);
+}
+.journey__cycle-note {
+  margin: var(--s-3) 0 0;
+  font-size: var(--fs-meta);
+  color: var(--ink-soft);
+}
+.journey__cycle-note code {
+  font-family: var(--font-mono);
+  color: var(--accent-deep);
+}
+@media (max-width: 599px) {
+  .journey::before { display: none; }
+  .journey__node { grid-template-columns: minmax(0, 1fr); }
+  .journey__day { justify-self: start; margin-top: 0; }
+}
 
 /* ---- Footer ---------------------------------------------------------- */
 .site-footer {
   max-width: 1100px;
   margin: var(--s-16) auto 0;
   padding: var(--s-8) var(--s-4) var(--s-12);
-  border-top: 1px solid var(--edge-soft);
+  border-top: 1px solid var(--edge-warm);
   display: flex;
   flex-direction: column;
   gap: var(--s-2);
@@ -1236,12 +1292,12 @@ html {
 .site-footer p {
   margin: 0;
   font-size: var(--fs-meta);
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 
 .site-footer a {
-  color: var(--gold);
+  color: var(--accent-deep);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-.site-footer a:hover { color: var(--gold-soft); }
+.site-footer a:hover { color: var(--ink-warm); }
