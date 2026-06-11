@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.14.0
+version: 1.14.1
 ---
 
 # Quest System — Skill Definition
@@ -341,9 +341,10 @@ The intended end-to-end flow, two chats in one folder:
    `parent: .ai-context/quests/dashboard-redesign`, appends a one-line breadcrumb
    to the parent journal, and **leaves A on dashboard-redesign** (no switch).
 3. **Chat B** (new chat, same folder) picks it up: `/start-quest badge-label-font`
-   (or any command with `--quest badge-label-font`). The shared pointer now reads
-   badge-label-font, but Chat A ignores the pointer — it resolves
-   `--quest dashboard-redesign` from its own conversation.
+   (or any command with `--quest badge-label-font`). Side-quest pickup activates
+   the NOTE as a lightweight one-scroll context and does NOT touch the shared
+   pointer — it still reads dashboard-redesign — so Chat A is unaffected either
+   way; Chat B works directly against the NOTE.
 4. Both finish together. Chat A `/make-camp` echoes "camping dashboard-redesign /
    realm app — confirm?", appends an `expedition` line to `events.log` via `>>`,
    recomputes `profile.md`. Chat B `/close-side-quest` distills the font danger up
