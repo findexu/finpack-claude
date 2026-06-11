@@ -17,9 +17,10 @@
     <div class="site-header__inner">
       <a class="site-brand" href="#top">quest-system</a>
       <nav class="site-nav" aria-label="Site sections">
-        <a href="#workflow">Quest loop</a>
+        <a href="#why">Why it sticks</a>
+        <a href="#workflow">How it works</a>
         <a href="#side-quests">Side quests</a>
-        <a href="#payoff">Payoff</a>
+        <a href="#payoff">Watch it level</a>
         <a href="#xp">XP</a>
         <a href="#install">Install</a>
         <a class="site-nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">
@@ -37,11 +38,11 @@
         <p class="hero__eyebrow">A Claude Code plugin</p>
         <h1 id="hero-heading">
           <span class="hero__punch">Claude forgets between chats.</span>
-          <span class="hero__promise">quest-system gives it leveling memory that carries lessons forward.</span>
+          <span class="hero__promise">quest-system makes every lesson it learns load into the next session.</span>
         </h1>
         <p class="hero__sub">
-          RPG-themed feature management for Claude Code &mdash; quests, expeditions,
-          scrolls, XP. Every lesson learned is loaded into the next session.
+          RPG-themed feature management for Claude Code: plain markdown files in
+          your repo that Claude reads before it works and writes before it stops.
         </p>
         <div class="hero__ctas">
           <a class="btn btn--primary" href="#install">Install quest-system</a>
@@ -68,12 +69,48 @@
       </div>
     </section>
 
-    <!-- ====================== PENDING EXPEDITIONS ====================== -->
-    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
-      <h2 class="ph__heading" id="workflow-heading">The quest loop</h2>
+    <!-- ============================ WHY ============================ -->
+    <section class="ph" id="why" aria-labelledby="why-heading">
+      <h2 class="ph__heading" id="why-heading">Why it sticks</h2>
       <p class="section-lead">
-        Five commands. Each one reads the scrolls before it acts and writes them
-        before it stops &mdash; so no chat ever starts from zero.
+        The moment it clicks is the <em>second</em> session. A brand-new chat,
+        zero shared history &mdash; and the briefing already knows last week's trap.
+      </p>
+      <div class="contrast">
+        <div class="contrast__panel contrast__panel--before">
+          <h3 class="contrast__label">Without quest-system</h3>
+          <p>&ldquo;Here's the context again: we're building avatars, last time we
+          found that HEIC photos break on Safari, we decided to&hellip;&rdquo;
+          &mdash; ten minutes of re-explaining, every single chat. Forget once and
+          the same bug bites twice.</p>
+        </div>
+        <div class="contrast__panel contrast__panel--after">
+          <h3 class="contrast__label">With quest-system</h3>
+          <p><code>/embark</code> answers before you ask:</p>
+          <p class="contrast__quote">&ldquo;Quest dangers: HEIC decodes as 1&times;1 on
+          Safari canvas &rarr; resize client-side to 512px JPEG. Decisions on
+          record: resize before upload.&rdquo;</p>
+          <p>This chat never saw last week. The files did.</p>
+        </div>
+      </div>
+      <p class="section-note">
+        And when the feature ships, those lessons distill into a project-wide
+        registry &mdash; so the <em>next</em> feature's first briefing starts smarter too.
+      </p>
+      <dl class="legend">
+        <div><dt>quest</dt><dd>a feature or epic you're building</dd></div>
+        <div><dt>expedition</dt><dd>one work session on it</dd></div>
+        <div><dt>scrolls</dt><dd>markdown files in your repo that Claude reads and writes</dd></div>
+        <div><dt>XP</dt><dd>a score computed from what you actually recorded</dd></div>
+        <div><dt>realm</dt><dd>the app target a quest is scoped to (for mono-repos)</dd></div>
+      </dl>
+    </section>
+
+    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
+      <h2 class="ph__heading" id="workflow-heading">How it works</h2>
+      <p class="section-lead">
+        Five commands, one loop. Each one reads the scrolls before it acts and
+        writes them before it stops &mdash; so no chat ever starts from zero.
       </p>
       <ol class="loop-steps" role="list">
         <li>
@@ -97,9 +134,15 @@
           <span class="loop-steps__why">The quest's lessons distill into project-wide memory for every future quest.</span>
         </li>
       </ol>
-      <div class="ph__panel">
-        <p>Watch it run &mdash; press Play below and a full quest plays out, command by command.</p>
-        <p class="ph__note">Step through at your own pace, or just hit Play and watch the scrolls fill.</p>
+      <div class="ph__panel" id="demo-caption">
+        <p>Below is a <strong>simulated Claude Code session</strong> for a
+        fictional avatar feature &mdash; 5 commands across 8 steps. Press
+        <strong>Play</strong> to watch it run (about a minute), or
+        <strong>Step</strong> through at your own pace.</p>
+        <p class="ph__note">Where to look: commands and output stream in the
+        chat (right), the file being written shows in the editor (middle), and
+        new files appear in the explorer (left). Each step's one-line
+        &ldquo;why&rdquo; sits above the window.</p>
       </div>
     </section>
 
@@ -127,31 +170,12 @@
     </section>
 
     <section class="ph" id="payoff" aria-labelledby="payoff-heading">
-      <h2 class="ph__heading" id="payoff-heading">Payoff</h2>
+      <h2 class="ph__heading" id="payoff-heading">Watch it level</h2>
       <p class="section-lead">
-        The moment it clicks is the <em>second</em> expedition. A brand-new chat,
-        zero shared history &mdash; and the briefing already knows last week's trap.
-      </p>
-      <div class="contrast">
-        <div class="contrast__panel contrast__panel--before">
-          <h3 class="contrast__label">Without quest-system</h3>
-          <p>&ldquo;Here's the context again: we're building avatars, last time we
-          found that HEIC photos break on Safari, we decided to&hellip;&rdquo;
-          &mdash; ten minutes of re-explaining, every single chat. Forget once and
-          the same bug bites twice.</p>
-        </div>
-        <div class="contrast__panel contrast__panel--after">
-          <h3 class="contrast__label">With quest-system</h3>
-          <p><code>/embark</code> answers before you ask:</p>
-          <p class="contrast__quote">&ldquo;Quest dangers: HEIC decodes as 1&times;1 on
-          Safari canvas &rarr; resize client-side to 512px JPEG. Oaths sworn:
-          resize before upload.&rdquo;</p>
-          <p>This chat never saw expedition&nbsp;1. The scrolls did.</p>
-        </div>
-      </div>
-      <p class="section-note">
-        And when the quest completes, those lessons distill into a project-wide
-        registry &mdash; so the <em>next</em> quest's first briefing starts smarter too.
+        quest-system also ships a read-only VS Code sidebar dashboard &mdash; a
+        character sheet for your project. This is a faithful mock, opened on the
+        finished demo quest: press Back to rewind to the start and watch the
+        phase, the progress, and the badges react.
       </p>
     </section>
 
@@ -180,8 +204,8 @@
               <tr><th scope="row">Per module conquered</th><td>25</td></tr>
               <tr><th scope="row">Per expedition logged</th><td>10</td></tr>
               <tr><th scope="row">Per danger / per oath</th><td>15 / 20</td></tr>
-              <tr><th scope="row">Per split scroll</th><td>50</td></tr>
-              <tr><th scope="row">Clean sweep / speed run</th><td>+75 / +50</td></tr>
+              <tr><th scope="row">Per scroll split (a file outgrew 500 lines and was divided)</th><td>50</td></tr>
+              <tr><th scope="row">Clean sweep (no open questions) / speed run (&le;3 sessions)</th><td>+75 / +50</td></tr>
             </tbody>
           </table>
         </div>
@@ -222,6 +246,12 @@
 
     <section class="ph" id="install" aria-labelledby="install-heading">
       <h2 class="ph__heading" id="install-heading">Install</h2>
+      <ul class="facts" aria-label="What it actually is">
+        <li>Plain markdown files + slash commands. No server, no database, no build.</li>
+        <li>Everything lives in <code>.ai-context/</code> in your repo &mdash; committed, reviewable, greppable.</li>
+        <li>vs CLAUDE.md: that's static always-on instructions. Quests are per-feature working memory with a lifecycle &mdash; plan, work, record, distill.</li>
+        <li>The RPG flavor lives in filenames and banners. Your code and commits stay normal.</li>
+      </ul>
       <p class="section-lead">
         Two commands in Claude Code, then restart and start your first quest.
       </p>
@@ -240,8 +270,7 @@
 
   <footer class="site-footer">
     <p>
-      Hugely copied from <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>
-      &mdash; go check out the original.
+      Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>.
     </p>
     <p>MIT licensed. Press Start 2P (SIL OFL) &mdash; license in <a href="assets/fonts/OFL.txt">assets/fonts/OFL.txt</a>.</p>
   </footer>

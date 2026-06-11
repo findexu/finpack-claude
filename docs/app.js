@@ -45,20 +45,36 @@
     root.setAttribute("role", "group");
     root.setAttribute("aria-label", (opts && opts.label) || "Interactive quest demo");
 
+    /* The aha beat, if the script has one — drives the skip control. */
+    var ahaIdx = -1;
+    for (var bi = 0; bi < beats.length; bi++) {
+      if (beats[bi].aha) { ahaIdx = bi; break; }
+    }
+
     var controls = el("div", "ide__controls");
     var btnPlay = playable ? el("button", "btn btn--ghost ide__btn", "Play") : null;
     var btnBack = el("button", "btn btn--ghost ide__btn", "Back");
     var btnStep = el("button", "btn btn--ghost ide__btn", "Step");
     var btnReset = el("button", "btn btn--ghost ide__btn", "Reset");
+    var btnAha = ahaIdx >= 0 ? el("button", "btn btn--ghost ide__btn", "Skip to the payoff") : null;
     if (btnPlay) controls.appendChild(btnPlay);
     controls.appendChild(btnBack);
     controls.appendChild(btnStep);
     controls.appendChild(btnReset);
+    if (btnAha) controls.appendChild(btnAha);
     var progress = el("span", "ide__progress");
     /* role=status: manual Step/Back/Reset get screen-reader feedback (the chat
        log is deliberately not live outside Play mode). */
     progress.setAttribute("role", "status");
     controls.appendChild(progress);
+
+    /* Step headline ABOVE the frame: the beat's "why" is the narrative thread —
+       below the frame it was read for the wrong moment (launch-review M3). */
+    var stepHead = el("div", "ide__step-head");
+    var stepWhy = el("p", "ide__step-why", "");
+    var stepCmd = el("p", "ide__step-cmd", "");
+    stepHead.appendChild(stepWhy);
+    stepHead.appendChild(stepCmd);
 
     var frame = el("div", "ide__frame");
     var titlebar = el("div", "ide__titlebar");
@@ -99,20 +115,15 @@
     frame.appendChild(chat);
 
     var meta = el("div", "ide__meta");
-    var whyRow = el("p", "ide__why");
-    var whyLabel = el("span", "ide__why-label", "WHY");
-    var whyText = el("span", "ide__why-text", "");
-    whyRow.appendChild(whyLabel);
-    whyRow.appendChild(whyText);
     var xpRow = el("p", "ide__xp");
     var xpMain = el("span", "ide__xp-main", "");
     var xpDetail = el("span", "ide__xp-detail", "");
     xpRow.appendChild(xpMain);
     xpRow.appendChild(xpDetail);
-    meta.appendChild(whyRow);
     meta.appendChild(xpRow);
 
     root.appendChild(controls);
+    root.appendChild(stepHead);
     root.appendChild(frame);
     root.appendChild(meta);
 
@@ -128,7 +139,15 @@
       var current = {};
       (beat.fileTree || []).forEach(function (p) { current[p] = true; });
       treeUnion(beats, i).forEach(function (p) {
-        tree.appendChild(el("li", "ide__tree-item" + (current[p] ? " ide__tree-item--new" : ""), p));
+        /* basename + muted dir prefix as two textContent elements — full paths
+           shattered mid-word at 190px (launch-review M3). Dimming is a COLOR
+           token, never opacity (inscribed AA danger). */
+        var li = el("li", "ide__tree-item" + (current[p] ? " ide__tree-item--new" : ""));
+        var parts = p.replace(/\/$/, "").split("/");
+        var base = parts.pop() + (p.charAt(p.length - 1) === "/" ? "/" : "");
+        if (parts.length) li.appendChild(el("span", "ide__tree-dir", parts.join("/") + "/"));
+        li.appendChild(el("span", "ide__tree-base", base));
+        tree.appendChild(li);
       });
 
       tab.textContent = beat.scroll.file;
@@ -137,13 +156,14 @@
         editorBody.appendChild(el("div", "ide__line", line));
       });
 
-      whyText.textContent = beat.why;
+      stepWhy.textContent = beat.why;
+      stepCmd.textContent = beat.command;
       var xp = beat.xp;
       xpMain.textContent = "XP " + xp.total +
         (xp.delta ? " (+" + xp.delta + ")" : "") + " · Level " + xp.level;
       xpDetail.textContent = xp.detail || "";
 
-      progress.textContent = "Beat " + (i + 1) + " / " + beats.length + " — " + beat.command;
+      progress.textContent = "Step " + (i + 1) + " of " + beats.length;
       root.classList.toggle("ide--aha", !!beat.aha);
 
       /* aria-disabled, not .disabled: a hard-disabled element drops keyboard
@@ -259,30 +279,47 @@
       idx = 0;
       renderInstant(idx);
     });
+    if (btnAha) btnAha.addEventListener("click", function () {
+      stopPlaying();
+      idx = ahaIdx;
+      renderInstant(idx);
+    });
 
     renderInstant(0);
     mount.appendChild(root);
+
+    return {
+      startPlay: function () {
+        if (btnPlay && !playing) btnPlay.click();
+      }
+    };
   }
 
-  /* ---- mounts (zero index.html edits: runtime replacement/insertion) ---- */
+  /* ---- mounts ----
+     The #workflow caption panel STAYS — it is the demo's instructions (the
+     launch review's top critical finding was removing it). One engine mount
+     only; the side-quest section is static (its beats remain in data.js as
+     the engine interface, just unmounted). */
+  var workflowEngine = null;
   var workflow = document.getElementById("workflow");
   if (workflow) {
-    var panel = workflow.querySelector(".ph__panel");
-    if (panel) panel.remove();
-    Engine(workflow, QUEST_DEMO.steps, {
+    workflowEngine = Engine(workflow, QUEST_DEMO.steps, {
       playable: true,
       label: "Interactive quest loop demo",
       title: "user-avatars — Claude Code"
     });
   }
 
-  var side = document.getElementById("side-quests");
-  if (side && QUEST_DEMO.sideQuest && QUEST_DEMO.sideQuest.beats) {
-    side.appendChild(el("p", "section-note", QUEST_DEMO.sideQuest.intro));
-    Engine(side, QUEST_DEMO.sideQuest.beats, {
-      playable: false,
-      label: "Side-quest demo",
-      title: "side-quest — Claude Code"
+  /* Hero CTA: "Watch the loop" scrolls to the demo AND starts it — the anchor
+     alone landed on a section where nothing played (launch-review M6). Anchor
+     href stays as the no-JS fallback. */
+  var ctaWatch = document.querySelector('.hero a[href="#workflow"]');
+  if (ctaWatch && workflowEngine) {
+    ctaWatch.addEventListener("click", function () {
+      if (workflow.scrollIntoView) {
+        workflow.scrollIntoView(REDUCED.matches ? { behavior: "auto" } : { behavior: "smooth" });
+      }
+      workflowEngine.startPlay();
     });
   }
 
@@ -398,9 +435,10 @@
 
   /* Standalone stepper — Engine internals are conquered code, NOT extracted.
      Same control patterns: aria-disabled boundaries + early-return, role=status
-     progress. No Play mode, no timers — every step renders instantly. */
-  function Stepper(mount, beats, renderFn) {
-    var idx = 0;
+     progress. No Play mode, no timers — every step renders instantly.
+     startIdx lets the payoff sheet open at its most interesting state. */
+  function Stepper(mount, beats, renderFn, startIdx) {
+    var idx = typeof startIdx === "number" ? startIdx : 0;
 
     var controls = el("div", "ide__controls");
     var btnBack = el("button", "btn btn--ghost ide__btn", "Back");
@@ -426,7 +464,7 @@
       whyText.textContent = beat.why;
       var st = SHEET_STATE[beat.id];
       progress.textContent = "Phase: " + (st ? st.phase : "—") +
-        " — beat " + (idx + 1) + " / " + beats.length;
+        " — step " + (idx + 1) + " of " + beats.length;
       btnBack.setAttribute("aria-disabled", String(idx === 0));
       btnBack.classList.toggle("ide__btn--off", idx === 0);
       btnStep.setAttribute("aria-disabled", String(idx === beats.length - 1));
@@ -451,17 +489,18 @@
     return { mountWhy: function () { mount.appendChild(why); }, render: render };
   }
 
+  /* The intro sentence is STATIC in index.html (constant-content oath); the
+     sheet opens at the FINAL leveled-up state — opening on "no expeditions
+     planned yet" buried the interesting state seven clicks deep. */
   var payoff = document.getElementById("payoff");
   if (payoff) {
-    payoff.appendChild(el("p", "section-note",
-      "This is the character sheet the real extension renders in your sidebar — step the loop and watch it level."));
     var stepperBox = el("div", "sheet-demo");
     payoff.appendChild(stepperBox);
     var sheetHolder = { sheet: null };
     var stepper = Stepper(stepperBox, QUEST_DEMO.steps, function (beat) {
       if (!sheetHolder.sheet) sheetHolder.sheet = Sheet(stepperBox);
       sheetHolder.sheet.update(beat);
-    });
+    }, QUEST_DEMO.steps.length - 1);
     stepper.render();
     stepper.mountWhy();
   }
