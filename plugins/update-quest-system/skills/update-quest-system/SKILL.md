@@ -96,7 +96,6 @@ Source:    {source}
 
 Will update:
   16 command files  → .claude/commands/
-  quest-system-tutorial skill
   update-quest-system skill
   fp- agent suite  → .claude/agents/  (if source found)
   quest-system-verify.sh hook  (if found)
@@ -140,15 +139,7 @@ Skip any file not found at `{source}` — note it, don't error.
 Copy `{source}/../VERSION` to `.claude/commands/.quest-system-version`.
 If source VERSION absent, skip silently.
 
-## Step 8: Update tutorial skill
-
-Try in order:
-1. `.claude/skills/quest-system-tutorial/SKILL.md`
-2. `skills/quest-system-tutorial/SKILL.md`
-
-If found, write to `.claude/skills/quest-system-tutorial/SKILL.md`.
-
-## Step 9: Update this skill
+## Step 8: Update this skill
 
 Try in order:
 1. `.claude/skills/update-quest-system/SKILL.md` (source copy, not destination)
@@ -156,12 +147,22 @@ Try in order:
 
 If found, write to `.claude/skills/update-quest-system/SKILL.md`.
 
-## Step 10: Update verifier hook
+## Step 9: Update verifier hook
 
 Try `hooks/quest-system-verify.sh`.
 If found, write to `.claude/hooks/quest-system-verify.sh`.
 
-## Step 11: Update agents
+## Step 9.5: Remove retired tutorial skill
+
+The quest-system-tutorial skill is retired — the interactive tutorial lives at
+https://findexu.github.io/finpack-claude/ (no install needed).
+
+If `.claude/skills/quest-system-tutorial/` exists, delete the directory and
+note it for the confirm output. This step runs AFTER the verifier-hook refresh
+(Step 9) on purpose: the old hook still checks for the tutorial, so deleting
+first would fail verification if the update aborted between the two steps.
+
+## Step 10: Update agents
 
 Resolve `{agents-source}` — the first directory that exists:
 1. `{source}/../../../agents/` — repo layout (commands live in `skills/quest-system/commands/`)
@@ -184,16 +185,16 @@ If found, copy each of these from `{agents-source}` to `.claude/agents/`
 - `fp-frontend-designer.md`
 - `fp-swiftui-designer.md`
 
-## Step 12: Confirm
+## Step 11: Confirm
 
 ```
 ✅ quest-system updated: {installed-version} → {source-version}
 
 Updated {N} command files → .claude/commands/
-{if tutorial updated:  "  quest-system-tutorial skill"}
 {if self updated:      "  update-quest-system skill"}
 {if agents updated:    "  {M} agents → .claude/agents/"}
 {if hook updated:      "  quest-system-verify.sh hook"}
+{if tutorial removed:  "  retired quest-system-tutorial skill removed — tutorial now at https://findexu.github.io/finpack-claude/"}
 {if any skipped:       "Skipped (not found): {list}"}
 
 Note: restart Claude Code if updated commands do not take effect immediately.

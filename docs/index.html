@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>quest-system — leveling memory for Claude Code</title>
+  <meta name="description" content="quest-system gives Claude Code persistent, RPG-themed memory: quests, expeditions, scrolls, XP. Every lesson learned is loaded into the next session." />
+  <link rel="preload" href="assets/fonts/PressStart2P-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-brand" href="#top">quest-system</a>
+      <nav class="site-nav" aria-label="Site sections">
+        <a href="#workflow">Quest loop</a>
+        <a href="#side-quests">Side quests</a>
+        <a href="#payoff">Payoff</a>
+        <a href="#xp">XP</a>
+        <a href="#install">Install</a>
+        <a class="site-nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.5 7.5 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============================== HERO ============================== -->
+    <section class="hero" id="top" aria-labelledby="hero-heading">
+      <div class="hero__copy">
+        <p class="hero__eyebrow">A Claude Code plugin</p>
+        <h1 id="hero-heading">
+          <span class="hero__punch">Claude forgets between chats.</span>
+          <span class="hero__promise">quest-system gives it leveling memory that carries lessons forward.</span>
+        </h1>
+        <p class="hero__sub">
+          RPG-themed feature management for Claude Code &mdash; quests, expeditions,
+          scrolls, XP. Every lesson learned is loaded into the next session.
+        </p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="#install">Install quest-system</a>
+          <a class="btn btn--ghost" href="#workflow">Watch the loop</a>
+        </div>
+      </div>
+
+      <div class="hero__stage">
+        <!-- CSS-only decor: rune ring pedestal, glints, gold sparks -->
+        <span class="stage__rune stage__rune--a" aria-hidden="true"></span>
+        <span class="stage__rune stage__rune--b" aria-hidden="true"></span>
+        <span class="stage__rune stage__rune--c" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--1" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--2" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--3" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--4" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--5" aria-hidden="true"></span>
+        <span class="stage__spark stage__spark--6" aria-hidden="true"></span>
+        <img class="hero__sprite" src="assets/sprites/hero.png" width="244" height="256"
+             alt="Pixel-art wizard holding a glowing rune staff and a spellbook — the quest-system mascot" />
+        <span class="stage__ring stage__ring--outer" aria-hidden="true"></span>
+        <span class="stage__ring stage__ring--inner" aria-hidden="true"></span>
+        <span class="stage__glow" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <!-- ====================== PENDING EXPEDITIONS ====================== -->
+    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
+      <h2 class="ph__heading" id="workflow-heading">The quest loop</h2>
+      <p class="section-lead">
+        Five commands. Each one reads the scrolls before it acts and writes them
+        before it stops &mdash; so no chat ever starts from zero.
+      </p>
+      <ol class="loop-steps" role="list">
+        <li>
+          <span class="loop-steps__cmd">/new-quest</span>
+          <span class="loop-steps__why">A feature becomes a quest: five persistent scrolls that outlive every chat.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">/counsel-quest</span>
+          <span class="loop-steps__why">Scout agents explore the codebase; the battle plan is locked before any code.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">/embark</span>
+          <span class="loop-steps__why">A work session opens with a briefing built from the scrolls: status, dangers, decisions.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">/make-camp</span>
+          <span class="loop-steps__why">The session ends by writing everything back: journal entry, lessons, XP.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">/complete-quest</span>
+          <span class="loop-steps__why">The quest's lessons distill into project-wide memory for every future quest.</span>
+        </li>
+      </ol>
+      <div class="ph__panel">
+        <p>Watch it run &mdash; press Play below and a full quest plays out, command by command.</p>
+        <p class="ph__note">Step through at your own pace, or just hit Play and watch the scrolls fill.</p>
+      </div>
+    </section>
+
+    <section class="ph" id="side-quests" aria-labelledby="side-quests-heading">
+      <h2 class="ph__heading" id="side-quests-heading">Side quests</h2>
+      <p class="section-lead">
+        Mid-work you spot a one-line bug that has nothing to do with today's focus.
+        Fixing it now derails the session; ignoring it loses it forever. Side-quests
+        are the third option.
+      </p>
+      <ol class="loop-steps" role="list">
+        <li>
+          <span class="loop-steps__cmd">/side-quest "avatar border clips"</span>
+          <span class="loop-steps__why">Captured in one scroll. Your active quest does not change.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">(another chat) open the NOTE</span>
+          <span class="loop-steps__why">Another chat &mdash; even another day &mdash; picks it up by name; one scroll holds everything it needs.</span>
+        </li>
+        <li>
+          <span class="loop-steps__cmd">/close-side-quest</span>
+          <span class="loop-steps__why">What was learned distills UP into the parent quest's scrolls.</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="ph" id="payoff" aria-labelledby="payoff-heading">
+      <h2 class="ph__heading" id="payoff-heading">Payoff</h2>
+      <p class="section-lead">
+        The moment it clicks is the <em>second</em> expedition. A brand-new chat,
+        zero shared history &mdash; and the briefing already knows last week's trap.
+      </p>
+      <div class="contrast">
+        <div class="contrast__panel contrast__panel--before">
+          <h3 class="contrast__label">Without quest-system</h3>
+          <p>&ldquo;Here's the context again: we're building avatars, last time we
+          found that HEIC photos break on Safari, we decided to&hellip;&rdquo;
+          &mdash; ten minutes of re-explaining, every single chat. Forget once and
+          the same bug bites twice.</p>
+        </div>
+        <div class="contrast__panel contrast__panel--after">
+          <h3 class="contrast__label">With quest-system</h3>
+          <p><code>/embark</code> answers before you ask:</p>
+          <p class="contrast__quote">&ldquo;Quest dangers: HEIC decodes as 1&times;1 on
+          Safari canvas &rarr; resize client-side to 512px JPEG. Oaths sworn:
+          resize before upload.&rdquo;</p>
+          <p>This chat never saw expedition&nbsp;1. The scrolls did.</p>
+        </div>
+      </div>
+      <p class="section-note">
+        And when the quest completes, those lessons distill into a project-wide
+        registry &mdash; so the <em>next</em> quest's first briefing starts smarter too.
+      </p>
+    </section>
+
+    <section class="ph" id="xp" aria-labelledby="xp-heading">
+      <h2 class="ph__heading" id="xp-heading">XP</h2>
+      <p class="section-lead">
+        Discipline needs a reason. Every camp and every completed quest pays out
+        EXP &mdash; computed from what you actually recorded, not from vibes.
+      </p>
+      <div class="xp-grid">
+        <div class="xp-card">
+          <table class="xp-table">
+            <caption>Per expedition (at /make-camp)</caption>
+            <tbody>
+              <tr><th scope="row">Completing an expedition</th><td>5</td></tr>
+              <tr><th scope="row">New danger mapped</th><td>+10</td></tr>
+              <tr><th scope="row">New oath sworn</th><td>+10</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="xp-card">
+          <table class="xp-table">
+            <caption>Per quest (at /complete-quest)</caption>
+            <tbody>
+              <tr><th scope="row">Base reward</th><td>100</td></tr>
+              <tr><th scope="row">Per module conquered</th><td>25</td></tr>
+              <tr><th scope="row">Per expedition logged</th><td>10</td></tr>
+              <tr><th scope="row">Per danger / per oath</th><td>15 / 20</td></tr>
+              <tr><th scope="row">Per split scroll</th><td>50</td></tr>
+              <tr><th scope="row">Clean sweep / speed run</th><td>+75 / +50</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="section-note">
+        Fifty levels from Apprentice Coder to Transcendent Engineer, fifteen badges
+        &mdash; and the numbers above are the real formula, straight from the system's
+        own ledger. The demo quest earns 405 EXP and a level-up; check the math.
+      </p>
+      <div class="xpcard" role="group" aria-label="Example adventurer profile after the demo quest">
+        <div class="xpcard__head">
+          <span class="xpcard__name">Adventurer</span>
+          <span class="xpcard__title">Level 2 &mdash; Apprentice Coder II</span>
+        </div>
+        <div class="xpcard__exp">
+          <span class="xpcard__expnum">EXP: 405</span>
+          <div class="xpcard__track"><div class="xpcard__fill" style="width: 17.5%"></div></div>
+          <span class="xpcard__tonext">105 / 600 to Level 3</span>
+        </div>
+        <dl class="xpcard__stats">
+          <div><dt>Quests completed</dt><dd>1</dd></div>
+          <div><dt>Total expeditions</dt><dd>2</dd></div>
+          <div><dt>Dangers mapped</dt><dd>2</dd></div>
+          <div><dt>Oaths sworn</dt><dd>2</dd></div>
+          <div><dt>Scroll splits</dt><dd>0</dd></div>
+        </dl>
+        <ul class="xpcard__badges" role="list">
+          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">🗡️</span> First Blood &mdash; completed your first quest</li>
+          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">🚀</span> Speed Runner &mdash; quest in 3 expeditions or fewer</li>
+          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">✨</span> Clean Sweep &mdash; zero open riddles at completion</li>
+          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">📜</span> Scroll Keeper &mdash; complete 5 quests (1/5)</li>
+          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">🕵️</span> Danger Mapper &mdash; map 10 dangers (2/10)</li>
+          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">🤝</span> Oath Keeper &mdash; swear 10 oaths (2/10)</li>
+        </ul>
+        <p class="xpcard__foot">The profile <code>/quest-xp</code> prints after the demo quest. Yours is local, gitignored, and grows with every camp.</p>
+      </div>
+    </section>
+
+    <section class="ph" id="install" aria-labelledby="install-heading">
+      <h2 class="ph__heading" id="install-heading">Install</h2>
+      <p class="section-lead">
+        Two commands in Claude Code, then restart and start your first quest.
+      </p>
+      <pre class="install__code" tabindex="0" role="region" aria-label="Install commands"><code>/plugin marketplace add findexu/finpack-claude
+/plugin install quest-system@finpack-claude</code></pre>
+      <p class="section-note">
+        Restart Claude Code, open your project, and run <code>/new-quest</code>.
+        Prefer owning the files? The repo can also be
+        <a href="https://github.com/findexu/finpack-claude#option-2-clone-the-repo" rel="noopener">cloned</a>
+        &mdash; <code>/install-quest-system</code> bootstraps any project; the
+        <a href="https://github.com/findexu/finpack-claude" rel="noopener">README</a>
+        is the canonical install doc.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      Hugely copied from <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>
+      &mdash; go check out the original.
+    </p>
+    <p>MIT licensed. Press Start 2P (SIL OFL) &mdash; license in <a href="assets/fonts/OFL.txt">assets/fonts/OFL.txt</a>.</p>
+  </footer>
+</body>
+</html>

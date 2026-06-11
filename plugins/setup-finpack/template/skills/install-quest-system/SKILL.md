@@ -2,21 +2,19 @@
 name: install-quest-system
 description: >
   Bootstrap quest-system in the current project. Copies all command files to
-  .claude/commands/ and install the quest-system tutorial skill to
-  .claude/skills/quest-system-tutorial/SKILL.md so /new-quest, /counsel-quest,
-  /embark, /make-camp, /quest-log, /change-quest, /complete-quest,
-  /summon-witch-doctor, /quest-xp, /ask-sages, /init-xp, /counsel-prompt,
-  /counsel-plan, and /quest-system-tutorial become available. It also installs
-  a stable verifier hook and a project-local permission override so the
-  verification step does not keep triggering ad hoc approval prompts. Run once
-  per project. Safe to re-run — confirms before overwriting.
+  .claude/commands/ so /new-quest, /counsel-quest, /embark, /make-camp,
+  /quest-log, /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp,
+  /ask-sages, /init-xp, /counsel-prompt, and /counsel-plan become available.
+  It also installs a stable verifier hook and a project-local permission
+  override so the verification step does not keep triggering ad hoc approval
+  prompts. Run once per project. Safe to re-run — confirms before overwriting.
 ---
 
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-and install the tutorial skill into `.claude/skills/quest-system-tutorial/`
-so all quest-system slash commands plus `/quest-system-tutorial` become available.
+so all quest-system slash commands become available. The interactive tutorial
+lives at https://findexu.github.io/finpack-claude/ — no install needed.
 The install also writes a stable verifier hook at
 `.claude/hooks/quest-system-verify.sh` and adds a local permissions override
 for that one helper when needed.
@@ -73,26 +71,7 @@ Report each file as it is written.
 
 Skip any file not found at `{source}` — do not error, just skip and note it.
 
-## Step 4.5: Install tutorial skill
-
-Try these source paths in order:
-
-1. `.claude/skills/quest-system-tutorial/SKILL.md`
-2. `skills/quest-system-tutorial/SKILL.md`
-
-If found, write to:
-
-- `.claude/skills/quest-system-tutorial/SKILL.md`
-
-Create parent directories if needed.
-
-If not found, report:
-
-```
-SKIP: quest-system-tutorial skill source not found
-```
-
-## Step 4.6: Install update skill
+## Step 4.5: Install update skill
 
 Try these source paths in order:
 
@@ -103,7 +82,7 @@ If found, write to `.claude/skills/update-quest-system/SKILL.md`.
 Create parent directories if needed.
 If not found, skip silently.
 
-## Step 4.7: Install stable verifier hook and local permission override
+## Step 4.6: Install stable verifier hook and local permission override
 
 Copy `hooks/quest-system-verify.sh` to `.claude/hooks/quest-system-verify.sh`
 when present. If `.claude/settings.local.json` does not already exist, copy
@@ -122,9 +101,6 @@ Manual install:
   Find your finpack-claude installation and run:
 
   cp /path/to/finpack-claude/skills/quest-system/commands/*.md .claude/commands/
-  mkdir -p .claude/skills/quest-system-tutorial
-  cp /path/to/finpack-claude/skills/quest-system-tutorial/SKILL.md \
-     .claude/skills/quest-system-tutorial/SKILL.md
 
   Common locations:
     ~/dotfiles/finpack-claude/skills/quest-system/commands/
@@ -155,14 +131,14 @@ Commands now available:
   /init-xp             — bootstrap XP profile on migrated/existing projects
   /counsel-prompt      — rewrite a rough prompt into a sharp copyable Claude prompt
   /counsel-plan        — review a plan.md and produce copyable structured feedback
-  /quest-system-tutorial — dry-run walkthrough of the full quest workflow
 
 Installed skills:
-  /quest-system-tutorial — full dry-run walkthrough of the quest workflow
   /update-quest-system   — update to the latest version after pulling finpack-claude
 
+Interactive tutorial (no install needed):
+  https://findexu.github.io/finpack-claude/
+
 Next steps:
-  /quest-system-tutorial    — see a dry-run of the full workflow
   /new-quest {name} {realm} — start your first quest
 ```
 

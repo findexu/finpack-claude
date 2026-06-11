@@ -120,12 +120,6 @@
       "license": "MIT"
     },
     {
-      "name": "quest-system-tutorial",
-      "source": "./plugins/quest-system-tutorial",
-      "description": "Dry-run tutorial for quest-system. Simulates full quest lifecycle with no files written.",
-      "license": "MIT"
-    },
-    {
       "name": "install-quest-system",
       "source": "./plugins/install-quest-system",
       "description": "Bootstrap quest-system in any project. Copies all seven command files to .claude/commands/ in one step.",

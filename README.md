@@ -34,7 +34,9 @@ If you only want one or two pieces instead of the full kit, install them individ
 /plugin install ship@finpack-claude
 ```
 
-Full plugin list: `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `quest-system-tutorial`, `install-quest-system`.
+Full plugin list: `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `install-quest-system`.
+
+Curious what quest-system does before installing? The interactive tutorial runs the full quest loop in your browser: https://findexu.github.io/finpack-claude/
 
 ### Option 2: clone the repo
 
@@ -99,8 +101,7 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 | `/test-writer` | *(auto-triggers)* | Writes comprehensive tests for new or changed code. Discovers changes via `git diff`, maps all code paths (happy, edge, error, concurrency), writes one test per scenario with Arrange-Act-Assert. The only skill that can auto-trigger. Claude may invoke it after you add new features. |
 | `/context-budget` | `[--api]` | Estimates per-turn token cost of this project's `.claude/` and `CLAUDE.md`. Reports always-loaded vs path-scoped vs invoked-only, ranks top contributors, flags entries over budget. Default heuristic is `chars/4`. Add `--api` for Anthropic-tokenizer exact counts (requires `$ANTHROPIC_API_KEY`). |
 | `/quest-system` | *(manual only)* | RPG-themed expedition and epic management. Tracks quests (features/epics), expeditions (work loops), and realms (app targets) across expeditions using five persistent scrolls. Maintains `.ai-context/` (committed to git) for Copilot/Gemini compatibility — paste `quest.md` at chat start for instant context. Commands: `/new-quest`, `/counsel-quest`, `/embark`, `/make-camp`, `/quest-log`, `/change-quest`, `/summon-witch-doctor` (scroll health diagnostics and repair). Run `/install-quest-system` once per project. |
-| `/quest-system-tutorial` | *(manual only)* | Dry-run tutorial for quest-system. Simulates the full quest lifecycle using a fictional project with no files written. Includes a plain-language vocabulary decoder and the updated `/counsel-quest` step. Run this before using quest-system for the first time. |
-| `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all quest-system command files to `.claude/commands/` and installs `/quest-system-tutorial` into `.claude/skills/quest-system-tutorial/`. Run once per project before using `/new-quest`. Safe to re-run. Restart Claude Code after running it. |
+| `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all quest-system command files to `.claude/commands/`. Run once per project before using `/new-quest`. Safe to re-run. Restart Claude Code after running it. Want to see the workflow before installing? Interactive tutorial: https://findexu.github.io/finpack-claude/ |
 | `/quest-xp` | *(manual only)* | Show your adventurer profile: level, EXP progress bar, total stats, and badge wall (unlocked and locked with counters). Profile is local and gitignored. |
 
 ## Agents (subagents)
@@ -174,7 +175,7 @@ finpack-claude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
 ├── .gitignore                          # Gitignore for the finpack-claude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
-│   └── marketplace.json                #   18 plugin entries pointing at ./plugins/<name>
+│   └── marketplace.json                #   17 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/
 │   ├── code-quality.md                 #   Principles, naming, comments, markers, file organization
 │   ├── testing.md                      #   Testing conventions (always loaded)
@@ -201,7 +202,6 @@ finpack-claude/
 │   │       ├── quest-log.md            #       /quest-log. Frontmatter-only status check.
 │   │       ├── change-quest.md         #       /change-quest. Switch quest or realm.
 │   │       └── complete-quest.md       #       /complete-quest. Distill, archive, clear active quest.
-│   ├── quest-system-tutorial/SKILL.md  #   /quest-system-tutorial. Dry-run lifecycle tutorial.
 │   └── install-quest-system/SKILL.md  #   /install-quest-system. Bootstrap commands into .claude/commands/.
 ├── agents/                             # Specialized subagents, copy to .claude/agents/   (also published as plugins)
 │   ├── fp-frontend-designer.md            #   Distinctive web UI, anti-AI-slop.
