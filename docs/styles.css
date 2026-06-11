@@ -150,6 +150,7 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important; /* delayed animations otherwise idle in their delay phase */
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
@@ -1006,6 +1007,121 @@ html {
   0% { transform: scale(0.85); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* ---- XP profile card + install section (expedition 5) ----------------- */
+.xpcard {
+  max-width: 520px;
+  margin-top: var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--gold-deep);
+  border-radius: var(--radius);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--gold) 18%, transparent);
+}
+.xpcard__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--edge-soft);
+}
+.xpcard__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-sub);
+  line-height: 1.8;
+  color: var(--gold);
+}
+.xpcard__title {
+  font-size: var(--fs-copy);
+  color: var(--ink);
+}
+.xpcard__exp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+.xpcard__expnum, .xpcard__tonext {
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.xpcard__track {
+  flex: 1;
+  min-width: 120px;
+  height: var(--s-3);
+  border-radius: var(--radius-sm);
+  background: var(--inset);
+  border: 1px solid var(--edge-soft);
+  overflow: hidden;
+}
+.xpcard__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal-deep), var(--xp));
+  animation: qd-shimmer 2s ease-in-out infinite;
+}
+.xpcard__stats {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--s-2) var(--s-4);
+}
+.xpcard__stats div { display: flex; justify-content: space-between; gap: var(--s-3); }
+.xpcard__stats dt { font-size: var(--fs-caption); color: var(--muted); }
+.xpcard__stats dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  color: var(--ink);
+}
+.xpcard__badges {
+  list-style: none;
+  margin: 0;
+  padding: var(--s-3) 0 0;
+  border-top: 1px solid var(--edge-soft);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.xpcard__badge {
+  font-size: var(--fs-caption);
+  line-height: 1.6;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+/* no opacity: --muted alone is ~6.3:1; dimming composites below AA at 11px.
+   The "(1/5)" counters already signal the locked state. */
+.xpcard__badge--locked { color: var(--muted); }
+.xpcard__foot {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+.xpcard__foot code, .section-note code {
+  font-family: var(--font-mono);
+  color: var(--teal);
+}
+
+.install__code {
+  margin: 0 0 var(--s-4);
+  padding: var(--s-4);
+  background: var(--inset);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+.install__code code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-copy);
+  line-height: 1.7;
+  color: var(--teal);
+}
+#install .section-note a { color: var(--gold); text-underline-offset: 3px; }
 
 /* ---- Footer ---------------------------------------------------------- */
 .site-footer {
