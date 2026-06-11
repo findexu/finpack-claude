@@ -13,7 +13,6 @@ REPO="https://raw.githubusercontent.com/findexu/finpack-claude/main"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install-quest-system.sh}")" 2>/dev/null && pwd || echo "")"
 LOCAL_COMMANDS="$SCRIPT_DIR/../skills/quest-system/commands"
 LOCAL_HOOKS="$SCRIPT_DIR/../hooks"
-LOCAL_TUTORIAL_SKILL="$SCRIPT_DIR/../skills/quest-system-tutorial/SKILL.md"
 LOCAL_UPDATE_SKILL="$SCRIPT_DIR/../skills/update-quest-system/SKILL.md"
 LOCAL_VERSION="$SCRIPT_DIR/../skills/quest-system/VERSION"
 LOCAL_SETTINGS_EXAMPLE="$SCRIPT_DIR/../settings.local.json.example"
@@ -21,7 +20,6 @@ LOCAL_AGENTS="$SCRIPT_DIR/../agents"
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
 AGENTS_DEST=".claude/agents"
-TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
 UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
 VERSION_DEST=".claude/commands/.quest-system-version"
 SETTINGS_LOCAL_DEST=".claude/settings.local.json"
@@ -68,7 +66,7 @@ AGENTS=(
   fp-swiftui-designer.md
 )
 
-mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$AGENTS_DEST" "$(dirname "$TUTORIAL_SKILL_DEST")" "$(dirname "$UPDATE_SKILL_DEST")"
+mkdir -p "$COMMANDS_DEST" "$HOOKS_DEST" "$AGENTS_DEST" "$(dirname "$UPDATE_SKILL_DEST")"
 
 UPDATED=0
 COMMANDS=()
@@ -116,14 +114,6 @@ if [ -d "$LOCAL_COMMANDS" ]; then
       echo "  SKIP (not found): agents/$agent" >&2
     fi
   done
-
-  if [ -f "$LOCAL_TUTORIAL_SKILL" ]; then
-    cp "$LOCAL_TUTORIAL_SKILL" "$TUTORIAL_SKILL_DEST"
-    echo "  skills/quest-system-tutorial/SKILL.md"
-    UPDATED=$((UPDATED + 1))
-  else
-    echo "  SKIP (not found): skills/quest-system-tutorial/SKILL.md" >&2
-  fi
 
   if [ -f "$LOCAL_UPDATE_SKILL" ]; then
     cp "$LOCAL_UPDATE_SKILL" "$UPDATE_SKILL_DEST"
@@ -236,14 +226,6 @@ else
     fi
   done
 
-  tutorial_url="$REPO/skills/quest-system-tutorial/SKILL.md"
-  if curl -fsSL "$tutorial_url" -o "$TUTORIAL_SKILL_DEST"; then
-    echo "  skills/quest-system-tutorial/SKILL.md"
-    UPDATED=$((UPDATED + 1))
-  else
-    echo "  FAIL: skills/quest-system-tutorial/SKILL.md (HTTP error)" >&2
-  fi
-
   update_url="$REPO/skills/update-quest-system/SKILL.md"
   if curl -fsSL "$update_url" -o "$UPDATE_SKILL_DEST"; then
     echo "  skills/update-quest-system/SKILL.md"
@@ -354,4 +336,5 @@ connect_serena
 INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""
 echo "quest-system $INSTALLED_VERSION: $UPDATED files installed"
+echo "Interactive tutorial (no install needed): https://findexu.github.io/finpack-claude/"
 echo "Restart Claude Code if commands don't appear immediately."

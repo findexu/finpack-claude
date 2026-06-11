@@ -5,7 +5,6 @@ set -euo pipefail
 
 COMMANDS_DEST=".claude/commands"
 HOOKS_DEST=".claude/hooks"
-TUTORIAL_SKILL_DEST=".claude/skills/quest-system-tutorial/SKILL.md"
 
 required_commands=(
   ask-sages.md
@@ -41,11 +40,6 @@ for hook in session-start.sh quest-system-verify.sh; do
     missing=1
   fi
 done
-
-if [ ! -f "$TUTORIAL_SKILL_DEST" ]; then
-  echo "Missing tutorial skill: $TUTORIAL_SKILL_DEST" >&2
-  missing=1
-fi
 
 if [ "$missing" -ne 0 ]; then
   exit 1
