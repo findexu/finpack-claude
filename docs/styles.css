@@ -538,23 +538,28 @@ html {
   color: var(--ink-soft);
 }
 
-.contrast {
+/* ---- Why-it-sticks flow diagram: two parallel timelines, same story —
+   the only variable is whether anything is remembered between chats. */
+.flow {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-4);
+  gap: var(--s-6);
+  align-items: start;
 }
 @media (min-width: 820px) {
-  .contrast { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-6); }
 }
-.contrast__panel {
-  padding: var(--s-6);
-  border-radius: var(--radius);
+.flow__col {
+  display: flex;
+  flex-direction: column;
+  padding: var(--s-5);
   border: 1px solid var(--edge-warm);
-  background: var(--paper-2);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--paper-2) 60%, transparent);
 }
-.contrast__panel--after { border-color: var(--accent); }
-.contrast__label {
-  margin: 0 0 var(--s-3);
+.flow__col--with { border-color: var(--accent); }
+.flow__label {
+  margin: 0 0 var(--s-4);
   font-family: var(--font-body);
   font-weight: 700;
   font-size: var(--fs-meta);
@@ -563,16 +568,92 @@ html {
   line-height: 1.6;
   color: var(--ink-soft);
 }
-.contrast__panel--after .contrast__label { color: var(--accent-deep); }
-.contrast__panel p {
+.flow__label--with { color: var(--accent-deep); }
+.flow__track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.flow__node { display: flex; flex-direction: column; gap: var(--s-2); }
+.flow__chip {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border: 1px solid var(--edge-warm);
+  border-radius: 999px;
+  background: var(--paper);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-meta);
+  color: var(--ink-soft);
+}
+.flow__card {
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
+  border-radius: var(--radius);
+  padding: var(--s-4) var(--s-5);
+}
+.flow__card p {
   margin: 0 0 var(--s-3);
   font-size: var(--fs-copy);
   line-height: 1.65;
   color: var(--ink-warm);
 }
-.contrast__panel p:last-child { margin-bottom: 0; }
-/* p.-qualified: must outrank `.contrast__panel p` (0,1,1) or the dark inset
-   renders charcoal-on-dark — dark-island text keeps dungeon ink. */
+.flow__card p:last-child { margin-bottom: 0; }
+.flow__card code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--fs-ui);
+  color: var(--accent-deep);
+}
+/* The connector between chats — the entire argument lives in this gap. */
+.flow__gap {
+  position: relative;
+  margin: var(--s-2) 0;
+  padding: var(--s-4) var(--s-2) var(--s-4) var(--s-8);
+  font-size: var(--fs-meta);
+  line-height: 1.5;
+}
+.flow__gap::before { /* vertical connector line */
+  content: "";
+  position: absolute;
+  left: var(--s-4);
+  top: 0;
+  bottom: 14px;
+  width: 0;
+}
+.flow__gap::after { /* downward arrowhead */
+  content: "";
+  position: absolute;
+  left: calc(var(--s-4) - 5px);
+  bottom: 2px;
+  border: 6px solid transparent;
+}
+.flow__gap--lost { color: var(--ink-soft); font-style: italic; }
+.flow__gap--lost::before { border-left: 2px dashed var(--ink-soft); }
+.flow__gap--lost::after { border-top: 8px solid var(--ink-soft); }
+.flow__gap--kept { color: var(--accent-deep); font-weight: 600; }
+.flow__gap--kept::before { border-left: 3px solid var(--accent); }
+.flow__gap--kept::after { border-top: 8px solid var(--accent); }
+.flow__gap code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--accent-deep);
+}
+.flow__verdict {
+  margin: var(--s-4) 0 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-copy);
+}
+.flow__verdict--lost { color: var(--ink-soft); }
+.flow__verdict--kept { color: var(--accent-deep); }
+
+/* Dark-island inset quote (reused inside the flow's briefing card). p.-qualified
+   to outrank any `* p` descendant rules — dark-island text keeps dungeon ink. */
 p.contrast__quote {
   padding: var(--s-3) var(--s-4);
   border-left: 2px solid var(--gold);
@@ -580,12 +661,6 @@ p.contrast__quote {
   border-radius: var(--radius-sm);
   font-style: italic;
   color: var(--ink);
-}
-.contrast__panel code {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: var(--fs-ui);
-  color: var(--accent-deep);
 }
 
 .xp-grid {

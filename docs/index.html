@@ -60,37 +60,71 @@
     <section class="ph" id="why" aria-labelledby="why-heading">
       <h2 class="ph__heading" id="why-heading">Why it sticks</h2>
       <p class="section-lead">
-        The moment it clicks is the <em>second</em> session. A brand-new chat,
-        zero shared history &mdash; and the briefing already knows last week's trap.
+        Same project, same two chats &mdash; you're adding avatar upload to your
+        web app. The only difference between these two timelines is whether
+        anything is <em>remembered</em>.
       </p>
-      <div class="contrast">
-        <div class="contrast__panel contrast__panel--before">
-          <h3 class="contrast__label">Without quest-system</h3>
-          <p>&ldquo;Here's the context again: we're building avatars, last time we
-          found that HEIC photos break on Safari, we decided to&hellip;&rdquo;
-          &mdash; ten minutes of re-explaining, every single chat. Forget once and
-          the same bug bites twice.</p>
-        </div>
-        <div class="contrast__panel contrast__panel--after">
-          <h3 class="contrast__label">With quest-system</h3>
-          <p><code>/embark</code> answers before you ask:</p>
-          <p class="contrast__quote">&ldquo;Quest dangers: HEIC decodes as 1&times;1 on
-          Safari canvas &rarr; resize client-side to 512px JPEG. Decisions on
-          record: resize before upload.&rdquo;</p>
-          <p>This chat never saw last week. The files did.</p>
-        </div>
+      <div class="flow">
+        <section class="flow__col" aria-labelledby="flow-without">
+          <h3 class="flow__label" id="flow-without">Without quest-system</h3>
+          <ol class="flow__track" role="list">
+            <li class="flow__node">
+              <span class="flow__chip">Monday &mdash; chat 1</span>
+              <div class="flow__card">
+                <p>You build the upload form. Mid-way, a surprise: HEIC photos
+                from iPhones decode <em>blank</em> on Safari. Twenty minutes of
+                debugging later you fix it &mdash; resize client-side to 512px
+                JPEG &mdash; and you decide that's the rule from now on.</p>
+              </div>
+            </li>
+            <li class="flow__gap flow__gap--lost" aria-label="Between chats, without quest-system">
+              <span>chat ends &mdash; the bug, the fix, the decision: all gone</span>
+            </li>
+            <li class="flow__node">
+              <span class="flow__chip">Wednesday &mdash; chat 2</span>
+              <div class="flow__card">
+                <p>&ldquo;Now add avatar cropping.&rdquo; Claude happily suggests
+                server-side resizing &mdash; the decision you already made, unmade.
+                The new code path skips the HEIC fix, the bug ships a second
+                time, and you're typing the same explanation again.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="flow__verdict flow__verdict--lost">every chat starts at zero</p>
+        </section>
+        <section class="flow__col flow__col--with" aria-labelledby="flow-with">
+          <h3 class="flow__label flow__label--with" id="flow-with">With quest-system</h3>
+          <ol class="flow__track" role="list">
+            <li class="flow__node">
+              <span class="flow__chip">Monday &mdash; chat 1</span>
+              <div class="flow__card">
+                <p>Same build, same HEIC surprise, same fix. One difference: the
+                session ends with <code>/make-camp</code>, and the trap plus your
+                resize decision are written into the repo.</p>
+              </div>
+            </li>
+            <li class="flow__gap flow__gap--kept" aria-label="Between chats, with quest-system">
+              <span>lessons land in <code>.ai-context/</code> &mdash; committed with your code</span>
+            </li>
+            <li class="flow__node">
+              <span class="flow__chip">Wednesday &mdash; chat 2</span>
+              <div class="flow__card">
+                <p><code>/embark</code> briefs the new chat before any code:</p>
+                <p class="contrast__quote">&ldquo;Danger: HEIC decodes blank on Safari
+                &rarr; resize client-side to 512px JPEG. Decision on record:
+                resize before upload.&rdquo;</p>
+                <p>Cropping gets built <em>on top of</em> the fix. Nothing
+                re-explained, nothing regressed, your rule still the rule.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="flow__verdict flow__verdict--kept">every chat starts ahead</p>
+        </section>
       </div>
       <p class="section-note">
         And when the feature ships, those lessons distill into a project-wide
         registry &mdash; so the <em>next</em> feature's first briefing starts smarter too.
       </p>
-      <dl class="legend">
-        <div><dt>quest</dt><dd>a feature or epic you're building</dd></div>
-        <div><dt>expedition</dt><dd>one work session on it</dd></div>
-        <div><dt>scrolls</dt><dd>markdown files in your repo that Claude reads and writes</dd></div>
-        <div><dt>XP</dt><dd>a score computed from what you actually recorded</dd></div>
-        <div><dt>realm</dt><dd>the app target a quest is scoped to (for mono-repos)</dd></div>
-      </dl>
     </section>
 
     <section class="ph" id="workflow" aria-labelledby="workflow-heading">
@@ -100,6 +134,13 @@
         avatars, and on day two you hit a bug: HEIC photos decode blank on
         Safari. Watch where that lesson goes.
       </p>
+      <dl class="legend">
+        <div><dt>quest</dt><dd>a feature or epic you're building</dd></div>
+        <div><dt>expedition</dt><dd>one work session on it</dd></div>
+        <div><dt>scrolls</dt><dd>markdown files in your repo that Claude reads and writes</dd></div>
+        <div><dt>XP</dt><dd>a score computed from what you actually recorded</dd></div>
+        <div><dt>realm</dt><dd>the app target a quest is scoped to (for mono-repos)</dd></div>
+      </dl>
       <ol class="journey" role="list">
         <li class="journey__node">
           <span class="journey__day">Day 1</span>
