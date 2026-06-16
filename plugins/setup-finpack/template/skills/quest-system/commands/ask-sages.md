@@ -1,6 +1,6 @@
 ---
 description: Summon three specialist sages to counsel on a decision or dilemma. Loads quest context, then spawns The Cartographer (codebase), The Emissary (web research), and The Sage (critical reason) in parallel. Synthesizes their findings into council accord.
-argument-hint: "[question or dilemma] [--quest <name>] [--realm <realm>]"
+argument-hint: "[question or dilemma] [--quest <name>] [--realm <realm>] [--critique]"
 ---
 
 # Ask Sages
@@ -10,8 +10,10 @@ Convene the council. Three sages examine your matter from different vantage poin
 ## Step 1: Resolve the active quest
 
 First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
-(`--quest` consumes the next whitespace-delimited token as the name); everything
-left over is the question/dilemma.
+(`--quest` consumes the next whitespace-delimited token as the name). Also strip the
+bare `--critique` flag, if present, and set `{critique} = true` (default `false`);
+it MUST be removed here so it never leaks into `{matter}` (Step 2 reads what is left
+over). Everything left over after all three flags is the question/dilemma.
 
 Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
 1. If `--quest` was given, use it; read its realm from `STRATEGY_SCROLL.md`
@@ -179,6 +181,44 @@ Report as structured critique. Be direct. Challenge everything. Under 300 words.
 
 ---
 
+## Step 5.5: Cross-critique (only if `--critique`)
+
+Skip this step entirely unless `{critique}` is true (see SKILL.md ->
+"Council cross-critique (shared)"). When skipped, the council accord below is
+byte-for-byte unchanged from the default flow.
+
+When `{critique}` is true, after all three sages have returned, launch ONE critic
+with the Agent tool, `subagent_type: general-purpose`. The critic judges what the
+sages said — it is given no codebase or web tools and does not re-research.
+
+Prompt:
+```
+You are the Council's critic. Three sages have answered the matter below, each from
+a different vantage. Your job is NOT to re-answer — it is to cross-examine their
+answers against each other and expose what the chairman should not gloss over.
+
+Matter: {matter}
+
+The Cartographer (codebase) said:
+{Cartographer's findings}
+
+The Emissary (web research) said:
+{Emissary's findings}
+
+The Sage (pure reason) said:
+{Sage's findings}
+
+Report, terse, under 250 words, in these four sections:
+1. Conflicts — where the sages directly contradict each other, and who is right.
+2. Blind spots — a claim two or more sages assumed but none actually verified.
+3. What all missed — a risk or option absent from all three answers.
+4. Trust map — which sage to believe on which point.
+
+No filler. No restating their answers. Only the tensions between them.
+```
+
+Hold the critic's report for the accord below.
+
 ## Step 6: Deliver council accord
 
 After all three sages return, present:
@@ -201,9 +241,18 @@ The Sage speaks from reason alone:
 ──────────────────────────────────────────
 {Sage's critical analysis}
 
+{ONLY IF `--critique` ran — otherwise omit this entire block, divider and all, so the
+output is identical to the default flow:}
+──────────────────────────────────────────
+The critic's cross-examination:
+──────────────────────────────────────────
+{critic's report — conflicts, blind spots, what all missed, trust map}
+
 ══════════════════════════════════════════
 The Council's accord:
-{1-3 sentence synthesis — where the sages agree, where they diverge, recommended path forward}
+{1-3 sentence synthesis — where the sages agree, where they diverge, recommended path
+forward. If the critic ran, fold its tensions in: resolve flagged conflicts explicitly
+rather than averaging over them.}
 ══════════════════════════════════════════
 ```
 

@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.15.0
+version: 1.16.0
 ---
 
 # Quest System — Skill Definition
@@ -159,6 +159,48 @@ Races only exist when multiple chats share one folder. The rules:
   shell append (`printf '%s\n' >> events.log`) ONLY — never via Edit/Write (a
   whole-file rewrite reintroduces the lost-update race). See the XP section.
 - `.claude/locks/` is gitignored.
+
+## Council cross-critique (shared)
+
+A reusable round that council-style commands (`/ask-sages`, `/counsel-quest`, and the
+`/embark --counsel` plan loop) can run AFTER their independent advisors return but BEFORE
+the chairman synthesis. It adapts the LLM-Council peer-review idea to our grounded
+councils: independent voices are good, but they never challenge EACH OTHER before the
+synthesis — so a confident-but-wrong voice survives, and tensions between voices get
+smoothed over instead of surfaced. This round adds the missing adversarial pass.
+
+**Opt-in.** Never runs by default. A command enables it only when invoked with the
+`--critique` flag (or its own documented prompt). With the flag absent, the command's
+default output is byte-for-byte unchanged — the round adds nothing to the fast path.
+
+**Orchestration lives in the command.** fp-* agents and the inline sages are leaves —
+they have no Agent/Task tool and cannot spawn anything. Only the command (running in the
+main session) can launch the critic. This section DOCUMENTS the contract; the literal
+`Agent` tool call lives in the consuming command, never here.
+
+**The critic contract.** When `--critique` is set, after all round-1 advisors return the
+command spawns exactly ONE critic via the `Agent` tool with `subagent_type: general-purpose`,
+passing it every round-1 output verbatim. The critic does NOT re-do the advisors' work and
+is given no tools to re-research — it only judges what was said. It reports, terse:
+- **Conflicts** — where the advisors directly contradict each other, and who is right.
+- **Blind spots** — a claim a majority assumed but none verified.
+- **What all missed** — a risk or option absent from every round-1 output.
+- **Trust map** — which advisor to believe on which point.
+
+**Chairman fold.** The command then synthesizes as it normally would, but treats the
+critic's report as an additional input: resolve flagged conflicts explicitly, and surface
+the critic's tensions in the final output. The line/section that carries the critic's
+output is CONDITIONALLY EMITTED — present only when `--critique` ran, fully omitted (not
+blank) otherwise, so the default template is preserved exactly.
+
+**Lens-rotation sub-pattern (for loop consumers).** A command that runs the SAME single
+reviewer in a loop (e.g. `/embark --counsel N`) escapes local minima not by adding agents
+but by ROTATING the reviewer's lens each round: round 1 the base rubric, round 2 a
+contrarian lens ("what fails?"), round 3 an executor lens ("Monday-morning gaps?"), then
+cycle. A single fixed lens is gradient descent on one rubric — it deepens a basin, never
+leaves it; rotating the lens perturbs the loss axis so a different class of flaw surfaces
+each round. The reviewer's underlying rubric is unchanged — only the emphasis passed in
+the prompt rotates.
 
 ## Sacred laws (enforced by all commands)
 
