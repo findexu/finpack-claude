@@ -1,6 +1,6 @@
 ---
 description: Review a plan.md file against active quest context. Flags gaps, risks, and unclear steps. Output is a single copyable feedback block to paste back into the planning session.
-argument-hint: "[path/to/plan.md] [--quest <name>] [optional: your opinion or concern]"
+argument-hint: "[path/to/plan.md] [--quest <name>] [--critique] [optional: your opinion or concern]"
 ---
 
 # Counsel Plan
@@ -22,7 +22,9 @@ If a quest resolved, load:
 ## Step 2: Parse arguments
 
 First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
-(already consumed in Step 1). From what remains:
+(already consumed in Step 1). Also strip the bare `--critique` flag, if present, and
+set `{critique} = true` (default `false`) — it MUST be removed here so it never leaks
+into `{plan-path}` or `{your-opinion}`. From what remains:
 - First token = `{plan-path}` (the file to review)
 - Remaining text = `{your-opinion}` (optional — your concern, doubt, or perspective on the plan)
 
@@ -41,8 +43,13 @@ If file not found: "Plan file not found at {plan-path}." Stop.
 
 ## Step 4: Delegate the review to fp-plan-reviewer
 
-Spawn the `fp-plan-reviewer` agent. It owns the review rubric and verdict logic
-(single source — this command does not restate the criteria). Pass it:
+If the `fp-plan-reviewer` agent is not available (not installed), say so:
+"Plan reviewer not available — run /install-quest-system or /update-quest-system
+to enable counsel." Then stop.
+
+**Default (single reviewer).** When `{critique}` is false, spawn ONE `fp-plan-reviewer`
+agent. It owns the review rubric and verdict logic (single source — this command does
+not restate the criteria). Pass it:
 
 - The full plan text read in Step 3.
 - Any quest context loaded in Step 1 (DECISIONS_LOG entries, DANGER_REGISTRY
@@ -54,18 +61,35 @@ Spawn the `fp-plan-reviewer` agent. It owns the review rubric and verdict logic
 The agent runs in its own context, so the review is independent of whoever
 authored the plan.
 
-If the `fp-plan-reviewer` agent is not available (not installed), say so:
-"Plan reviewer not available — run /install-quest-system or /update-quest-system
-to enable counsel." Then stop.
+**Panel (only if `--critique`).** When `{critique}` is true, run the shared council
+panel (see SKILL.md -> "Council cross-critique (shared)"). A single reviewer iterated
+would sink into a local minimum; a panel of distinct lenses in one shot escapes it.
+This command (NOT the agent — `fp-plan-reviewer` cannot spawn) launches THREE
+`fp-plan-reviewer` agents in parallel, each with the same plan + context but a different
+lens emphasis:
+- **base** — the standard rubric
+- **contrarian** — "what fails / what breaks / where is this wrong?"
+- **executor** — "Monday-morning gaps — is this actually doable as written?"
+
+Each returns its own `### Verdict` line. Then launch ONE `general-purpose` critic that
+folds the three blocks into a single feedback block:
+- Folded verdict is `READY` iff ALL three lenses returned zero blockers.
+- Folded `blocking` = the count of the DEDUP'D UNION of blocking issues (the same issue
+  raised by two lenses counts once); folded `minor` = the dedup'd union of minors.
+- If any lens returned a missing or unparseable verdict, treat that lens as REVISE with
+  blocking >= 1 — never silently drop a lens from the fold.
+- The critic MUST end with a `### Verdict` line `READY | REVISE (blocking: N, minor: M)`
+  (this plan-panel critic emits a verdict, unlike the prose-synthesis critics elsewhere).
 
 ## Step 5: Output
 
-Relay the agent's feedback block verbatim, framed for pasting:
+Relay the returned feedback block verbatim, framed for pasting — the single reviewer's
+block by default, or the critic's folded block when `--critique` ran:
 
 ---
 **Plan feedback** — copy the block below and paste it into your planning session:
 
-{the agent's returned block, which ends with a `### Verdict` line of the form
+{the returned block, which ends with a `### Verdict` line of the form
 `READY | REVISE (blocking: N, minor: M)`}
 
 ---

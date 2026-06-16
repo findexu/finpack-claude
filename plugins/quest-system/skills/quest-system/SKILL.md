@@ -6,9 +6,9 @@ description: >
   and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
-  /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
+  /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.15.0
+version: 1.19.0
 ---
 
 # Quest System — Skill Definition
@@ -62,8 +62,13 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 | `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, split issues, and legacy terminology migration needs |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
+| `/quest-help` | Cheat-sheet of every command and its `--` flags (the VS Code arg-hint is not reliable); pass a command name to show just one |
 | `/side-quest` | Capture a small thing found mid-quest (UI bug, font tweak) in one step — does NOT switch your active quest |
 | `/close-side-quest` | Close a side-quest, distilling its dangers/decisions up to its parent (or `--promote` it to a full quest) |
+| `/ask-sages` | Summon three sages (codebase, web, reason) to counsel a decision; `--critique` adds a cross-examination round |
+| `/counsel-plan` | Review a `plan.md` against quest context — paste-back feedback ending in a READY/REVISE verdict; `--critique` runs a lens panel |
+| `/counsel-prompt` | Rewrite a rough prompt into a sharp, well-contextualized one |
+| `/init-xp` | Bootstrap the adventurer XP profile for an existing project, without starting a new quest |
 
 ## Key concepts
 
@@ -155,10 +160,107 @@ Races only exist when multiple chats share one folder. The rules:
   `[ -e ] && touch` is a TOCTOU race — never use it. The lock is **advisory /
   best-effort** (LLM-executed); a stale lock is reported and offered for manual
   `rmdir`, never silently broken.
+- **Per-quest scroll writes use the cross-tool-call quest lock.** "Single-writer-
+  per-quest" holds for the OWNING chat, but a `/close-side-quest` in another chat
+  distills UP into its parent's `TOME_OF_DANGERS.md`, `STRATEGY_SCROLL.md`, and
+  `ADVENTURE_JOURNAL.md` — a second writer to the same scrolls. Any command that
+  mutates a quest's scrolls from a possibly-concurrent context wraps those writes
+  in a per-quest lock. This differs from the registry lock above: the mutation is
+  done by the LLM via `Edit` (a mid-file table/section insert), which CANNOT live
+  inside one `printf >>`, so the lock spans separate tool calls in THREE phases:
+
+  1. **ACQUIRE** — one bash invocation, mkdir retry loop, **no `trap` release**
+     (a trap fires when this bash process exits — i.e. before the Edits run —
+     and would release the lock immediately). Budget longer than the registry
+     lock's, to outlast a 500-line split rewrite:
+     ```bash
+     L=".claude/locks/quest-$(printf '%s' "{quest-basename}" | tr ' /' '--').lock"
+     mkdir -p .claude/locks
+     for i in $(seq 1 150); do mkdir "$L" 2>/dev/null && break || sleep 0.2; done
+     [ -d "$L" ] || { echo "quest {quest-basename} busy (lock held)"; exit 1; }
+     ```
+     If not acquired within the budget (~30s): report the quest is busy and STOP —
+     never force-break (stale-lock policy as above: report, offer manual `rmdir`).
+  2. **MUTATE** — the LLM performs the scroll Edits (split-aware: write to the
+     `dangers/` / `strategy/` / `journal/` subfile if the split subfolder exists,
+     else the index section).
+  3. **RELEASE** — an explicit bash `rmdir "$L"` (recompute `$L` from the SAME
+     basename, never from a moved/archived path). RULE: release runs on **every**
+     exit path — normal completion AND any failed/aborted Edit. If any Edit in
+     MUTATE fails, immediately RELEASE and STOP (do not leave a half-write).
+
+  `{quest-basename}` is the quest folder's BASENAME (last path segment), never the
+  full path. All writers to the same quest compute the identical key. **Invariant:**
+  a command holds AT MOST ONE per-quest lock at a time → no lock-ordering cycle →
+  no deadlock. A waiter that times out STOPs safely (e.g. a side-quest stays OPEN),
+  it never proceeds unguarded. (LLM-executed: the release-on-failure protocol is
+  verified by review, not by an automated test.)
 - **XP is append-only.** Append XP events to `.claude/quest-xp/events.log` with a
   shell append (`printf '%s\n' >> events.log`) ONLY — never via Edit/Write (a
   whole-file rewrite reintroduces the lost-update race). See the XP section.
 - `.claude/locks/` is gitignored.
+
+## Council cross-critique (shared)
+
+A reusable round that council-style commands (`/ask-sages`, `/counsel-quest`, and the
+`/embark --counsel` plan loop) can run AFTER their independent advisors return but BEFORE
+the chairman synthesis. It adapts the LLM-Council peer-review idea to our grounded
+councils: independent voices are good, but they never challenge EACH OTHER before the
+synthesis — so a confident-but-wrong voice survives, and tensions between voices get
+smoothed over instead of surfaced. This round adds the missing adversarial pass.
+
+**Opt-in.** Never runs by default. A command enables it only when invoked with the
+`--critique` flag (or its own documented prompt). With the flag absent, the command's
+default output is byte-for-byte unchanged — the round adds nothing to the fast path.
+
+**Orchestration lives in the command.** fp-* agents and the inline sages are leaves —
+they have no Agent/Task tool and cannot spawn anything. Only the command (running in the
+main session) can launch the critic. This section DOCUMENTS the contract; the literal
+`Agent` tool call lives in the consuming command, never here.
+
+**The critic contract.** When `--critique` is set, after all round-1 advisors return the
+command spawns exactly ONE critic via the `Agent` tool with `subagent_type: general-purpose`,
+passing it every round-1 output verbatim. The critic does NOT re-do the advisors' work and
+is given no tools to re-research — it only judges what was said. It reports, terse:
+- **Conflicts** — where the advisors directly contradict each other, and who is right.
+- **Blind spots** — a claim a majority assumed but none verified.
+- **What all missed** — a risk or option absent from every round-1 output.
+- **Trust map** — which advisor to believe on which point.
+
+**Chairman fold.** The command then synthesizes as it normally would, but treats the
+critic's report as an additional input: resolve flagged conflicts explicitly, and surface
+the critic's tensions in the final output. The line/section that carries the critic's
+output is CONDITIONALLY EMITTED — present only when `--critique` ran, fully omitted (not
+blank) otherwise, so the default template is preserved exactly.
+
+**Lens-rotation sub-pattern (for loop consumers).** A command that runs the SAME single
+reviewer in a loop (e.g. `/embark --counsel N`) escapes local minima not by adding agents
+but by ROTATING the reviewer's lens each round: round 1 the base rubric, round 2 a
+contrarian lens ("what fails?"), round 3 an executor lens ("Monday-morning gaps?"), then
+cycle. A single fixed lens is gradient descent on one rubric — it deepens a basin, never
+leaves it; rotating the lens perturbs the loss axis so a different class of flaw surfaces
+each round. The reviewer's underlying rubric is unchanged — only the emphasis passed in
+the prompt rotates.
+
+Two consequences a loop consumer MUST handle:
+- **Per-lens convergence guard.** A non-convergence guard that bails when the blocking
+  count fails to drop assumes a fixed lens. Under rotation a new lens legitimately raises
+  the count, so track the prior blocking count PER LENS and trip the guard only when the
+  SAME lens twice fails to reduce its own count (it is inert until a lens recurs). Keep an
+  absolute round cap as the backstop.
+- **Rotation is multi-round.** At N=1 only the base lens runs — a single pass has no
+  iteration and no minimum to escape, so this is identical to an unrotated single review.
+  The benefit needs N>=2 (and a full cycle N>=3); recommend `--counsel 3` when a local
+  minimum is a real risk. Do not silently floor N — respect the caller's explicit cap.
+
+**Panel variant (for one-shot consumers).** A command that does NOT loop (e.g.
+`/counsel-plan --critique`) gets the same diversity in one shot: run the SAME reviewer
+under each lens IN PARALLEL (base / contrarian / executor), then fold with a single
+`general-purpose` critic. Unlike the prose-synthesis critic above, this fold critic MUST
+emit a verdict line. Fold rule: `READY` iff every lens returned zero blockers; folded
+blocking/minor = the count of the DEDUP'D UNION across lenses (an issue raised by two
+lenses counts once); a lens whose verdict is missing or unparseable is treated as REVISE
+(blocking >= 1), never silently dropped.
 
 ## Sacred laws (enforced by all commands)
 

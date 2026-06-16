@@ -56,6 +56,21 @@ low-confidence noise):
 
 Findings inscribed here count as "new dangers" for Steps 5 and 9.
 
+## Step 2.9: Acquire the per-quest scroll lock
+
+Steps 3–7 write this quest's `ADVENTURE_JOURNAL.md`, `STRATEGY_SCROLL.md`, and
+`TOME_OF_DANGERS.md` — the same sections a `/close-side-quest` in another chat
+distills INTO from a child side-quest. ACQUIRE the per-quest lock now (SKILL.md ->
+"Concurrency" -> cross-tool-call quest lock), keyed by this quest's BASENAME, so a
+concurrent child close cannot interleave a lost-update append between your write
+and the Step 7 split rewrite.
+
+If the lock cannot be acquired within the budget, report "quest {quest-name} busy
+(another chat is writing its scrolls) — retry shortly" and STOP. The lock is held
+across Steps 3–7 and RELEASED in Step 7.5 on every exit path (including a failed
+Edit). World-map (Step 6 is fine inside too), context.md (Step 8), and XP (Step 9)
+run AFTER release.
+
 ## Step 3: Update ADVENTURE_JOURNAL.md
 
 If `journal/` subfolder exists, write to `journal/{YYYY-MM}.md` (current month).
@@ -142,6 +157,13 @@ For each file that exceeds 500 lines:
    - ADVENTURE_JOURNAL: keep last 3 entries in the index
    - TOME_OF_DANGERS: keep 3 most critical dangers as fast-read summary
 6. Confirm: "Split complete. {filename} → {list of subfiles created}."
+
+## Step 7.5: Release the per-quest scroll lock
+
+RELEASE the per-quest lock acquired in Step 2.9 (explicit `rmdir`, recomputing the
+key from the SAME basename — not from any path changed by a split). This runs on
+EVERY exit path: if any Edit in Steps 3–7 failed, release here and STOP rather than
+leaving a stranded lock. Steps 8–10 (context.md, XP, confirm) run after release.
 
 ## Step 8: Refresh context.md
 
