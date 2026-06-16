@@ -17,10 +17,9 @@
       <a class="site-brand" href="#top">quest-system</a>
       <nav class="site-nav" aria-label="Site sections">
         <a href="#why">Why it sticks</a>
-        <a href="#workflow">How it works</a>
-        <a href="#side-quests">Side quests</a>
+        <a href="#workflow">The normal path</a>
         <a href="#payoff">Watch it level</a>
-        <a href="#xp">XP</a>
+        <a href="#reality">Built for interruption</a>
         <a href="#install">Install</a>
         <a class="site-nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">
           <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.5 7.5 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -37,11 +36,13 @@
         <p class="hero__eyebrow">A Claude Code plugin</p>
         <h1 id="hero-heading">
           <span class="hero__punch">Claude forgets between chats.</span>
-          <span class="hero__promise">quest-system makes every lesson it learns load into the next session.</span>
+          <span class="hero__promise">quest-system gives it a world to remember
+          &mdash; and a journal it never loses.</span>
         </h1>
         <p class="hero__sub">
-          RPG-themed feature management for Claude Code: plain markdown files in
-          your repo that Claude reads before it works and writes before it stops.
+          Your repo becomes the realm. Features are quests; each work session is
+          an expedition; and everything the hero learns is written down in plain
+          markdown &mdash; so the next session starts stronger, not from zero.
         </p>
         <div class="hero__ctas">
           <a class="btn btn--primary" href="#install">Install quest-system</a>
@@ -60,29 +61,80 @@
     <section class="ph" id="why" aria-labelledby="why-heading">
       <h2 class="ph__heading" id="why-heading">Why it sticks</h2>
       <p class="section-lead">
-        The moment it clicks is the <em>second</em> session. A brand-new chat,
-        zero shared history &mdash; and the briefing already knows last week's trap.
+        Same project, same two chats &mdash; you're adding avatar upload to your
+        web app. The only difference between these two timelines is whether
+        anything is <em>remembered</em>.
       </p>
-      <div class="contrast">
-        <div class="contrast__panel contrast__panel--before">
-          <h3 class="contrast__label">Without quest-system</h3>
-          <p>&ldquo;Here's the context again: we're building avatars, last time we
-          found that HEIC photos break on Safari, we decided to&hellip;&rdquo;
-          &mdash; ten minutes of re-explaining, every single chat. Forget once and
-          the same bug bites twice.</p>
-        </div>
-        <div class="contrast__panel contrast__panel--after">
-          <h3 class="contrast__label">With quest-system</h3>
-          <p><code>/embark</code> answers before you ask:</p>
-          <p class="contrast__quote">&ldquo;Quest dangers: HEIC decodes as 1&times;1 on
-          Safari canvas &rarr; resize client-side to 512px JPEG. Decisions on
-          record: resize before upload.&rdquo;</p>
-          <p>This chat never saw last week. The files did.</p>
-        </div>
+      <div class="flow">
+        <section class="flow__col" aria-labelledby="flow-without">
+          <h3 class="flow__label" id="flow-without">Without quest-system</h3>
+          <ol class="flow__track" role="list">
+            <li class="flow__node">
+              <span class="flow__chip">Monday &mdash; chat 1</span>
+              <div class="flow__card">
+                <p>You build the upload form. Mid-way, a surprise: HEIC photos
+                from iPhones decode <em>blank</em> on Safari. Twenty minutes of
+                debugging later you fix it &mdash; resize client-side to 512px
+                JPEG &mdash; and you decide that's the rule from now on.</p>
+              </div>
+            </li>
+            <li class="flow__gap flow__gap--lost" aria-label="Between chats, without quest-system">
+              <span>chat ends &mdash; the bug, the fix, the decision: all gone</span>
+            </li>
+            <li class="flow__node">
+              <span class="flow__chip">Wednesday &mdash; chat 2</span>
+              <div class="flow__card">
+                <p>&ldquo;Now add avatar cropping.&rdquo; Claude happily suggests
+                server-side resizing &mdash; the decision you already made, unmade.
+                The new code path skips the HEIC fix, the bug ships a second
+                time, and you're typing the same explanation again.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="flow__verdict flow__verdict--lost">every chat starts at zero</p>
+        </section>
+        <section class="flow__col flow__col--with" aria-labelledby="flow-with">
+          <h3 class="flow__label flow__label--with" id="flow-with">With quest-system</h3>
+          <ol class="flow__track" role="list">
+            <li class="flow__node">
+              <span class="flow__chip">Monday &mdash; chat 1</span>
+              <div class="flow__card">
+                <p>Same build, same HEIC surprise, same fix. One difference: the
+                session ends with <code>/make-camp</code>, and the trap plus your
+                resize decision are written into the repo.</p>
+              </div>
+            </li>
+            <li class="flow__gap flow__gap--kept" aria-label="Between chats, with quest-system">
+              <span>lessons land in <code>.ai-context/</code> &mdash; committed with your code</span>
+            </li>
+            <li class="flow__node">
+              <span class="flow__chip">Wednesday &mdash; chat 2</span>
+              <div class="flow__card">
+                <p><code>/embark</code> briefs the new chat before any code:</p>
+                <p class="contrast__quote">&ldquo;Danger: HEIC decodes blank on Safari
+                &rarr; resize client-side to 512px JPEG. Decision on record:
+                resize before upload.&rdquo;</p>
+                <p>Cropping gets built <em>on top of</em> the fix. Nothing
+                re-explained, nothing regressed, your rule still the rule.</p>
+              </div>
+            </li>
+          </ol>
+          <p class="flow__verdict flow__verdict--kept">every chat starts ahead</p>
+        </section>
       </div>
       <p class="section-note">
         And when the feature ships, those lessons distill into a project-wide
         registry &mdash; so the <em>next</em> feature's first briefing starts smarter too.
+      </p>
+    </section>
+
+    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
+      <h2 class="ph__heading" id="workflow-heading">The normal path</h2>
+      <p class="section-lead">
+        One week, three acts: the hero breaks the work down, solves it guided
+        by what's already known, and distills what it learned for whoever comes
+        next (usually: itself). You're building user avatars &mdash; and on day
+        two, a bug bites. Watch where that lesson goes.
       </p>
       <dl class="legend">
         <div><dt>quest</dt><dd>a feature or epic you're building</dd></div>
@@ -91,15 +143,12 @@
         <div><dt>XP</dt><dd>a score computed from what you actually recorded</dd></div>
         <div><dt>realm</dt><dd>the app target a quest is scoped to (for mono-repos)</dd></div>
       </dl>
-    </section>
-
-    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
-      <h2 class="ph__heading" id="workflow-heading">How it works</h2>
-      <p class="section-lead">
-        Five commands, one loop &mdash; here's a real week. You're building user
-        avatars, and on day two you hit a bug: HEIC photos decode blank on
-        Safari. Watch where that lesson goes.
-      </p>
+      <div class="act">
+        <h3 class="act__title">Act I &mdash; Break it down</h3>
+        <p class="act__thesis">Before any code: the work gets split, scoped, and
+        decided &mdash; and the plan is checked by a second AI until the gaps
+        are gone.</p>
+      </div>
       <ol class="journey" role="list">
         <li class="journey__node">
           <span class="journey__day">Day 1</span>
@@ -113,10 +162,19 @@
           <span class="journey__day">Day 1</span>
           <div class="journey__card">
             <p class="journey__cmd">/counsel-quest</p>
-            <p class="journey__desc">Scout agents explore the codebase; the plan
-            is locked before any code is written.</p>
+            <p class="journey__desc">Scout agents explore the codebase and draft
+            the battle plan; a plan-reviewer AI loops on it until the gaps are
+            gone. Decisions lock before any code is written.</p>
           </div>
         </li>
+      </ol>
+      <div class="act">
+        <h3 class="act__title">Act II &mdash; Solve, guided</h3>
+        <p class="act__thesis">Every session opens already-briefed and closes
+        already-recorded. Discoveries are written down the moment they happen
+        &mdash; nothing depends on the chat surviving.</p>
+      </div>
+      <ol class="journey" role="list">
         <li class="journey__node journey__node--cycle">
           <span class="journey__day">Day 2&ndash;3</span>
           <div class="journey__cycle" aria-label="The session loop — these two commands repeat every work session">
@@ -149,6 +207,13 @@
             briefing already warns about HEIC <em>before you ask</em>. No re-explaining.</p>
           </div>
         </li>
+      </ol>
+      <div class="act">
+        <h3 class="act__title">Act III &mdash; Distill</h3>
+        <p class="act__thesis">Lessons don't stay locked in one feature &mdash;
+        they fold down into project-wide memory. The hero comes back stronger.</p>
+      </div>
+      <ol class="journey" role="list">
         <li class="journey__node">
           <span class="journey__day">Day 4</span>
           <div class="journey__card">
@@ -171,104 +236,51 @@
       </div>
     </section>
 
-    <section class="ph" id="side-quests" aria-labelledby="side-quests-heading">
-      <h2 class="ph__heading" id="side-quests-heading">Side quests</h2>
-      <p class="section-lead">
-        Mid-work you spot a one-line bug that has nothing to do with today's focus.
-        Fixing it now derails the session; ignoring it loses it forever. Side-quests
-        are the third option.
-      </p>
-      <ol class="loop-steps" role="list">
-        <li>
-          <span class="loop-steps__cmd">/side-quest "avatar border clips"</span>
-          <span class="loop-steps__why">Captured in one scroll. Your active quest does not change.</span>
-        </li>
-        <li>
-          <span class="loop-steps__cmd">(another chat) open the NOTE</span>
-          <span class="loop-steps__why">Another chat &mdash; even another day &mdash; picks it up by name; one scroll holds everything it needs.</span>
-        </li>
-        <li>
-          <span class="loop-steps__cmd">/close-side-quest</span>
-          <span class="loop-steps__why">What was learned distills UP into the parent quest's scrolls.</span>
-        </li>
-      </ol>
-    </section>
 
     <section class="ph" id="payoff" aria-labelledby="payoff-heading">
       <h2 class="ph__heading" id="payoff-heading">Watch it level</h2>
       <p class="section-lead">
         quest-system also ships a read-only VS Code sidebar dashboard &mdash; a
-        character sheet for your project. This is a faithful mock, opened on the
-        finished demo quest: press Back to rewind to the start and watch the
-        phase, the progress, and the badges react.
+        character sheet for your project. This is Monday-to-Friday as the
+        extension sees it: a faithful mock, opened on the finished quest. Press
+        Back and watch the phase, the progress, and the badges rewind.
       </p>
     </section>
 
-    <section class="ph" id="xp" aria-labelledby="xp-heading">
-      <h2 class="ph__heading" id="xp-heading">XP</h2>
+    <!-- ====================== BUILT FOR INTERRUPTION ====================== -->
+    <section class="ph" id="reality" aria-labelledby="reality-heading">
+      <h2 class="ph__heading" id="reality-heading">Built for interruption</h2>
       <p class="section-lead">
-        Discipline needs a reason. Every camp and every completed quest pays out
-        EXP &mdash; computed from what you actually recorded, not from vibes.
+        Real weeks aren't linear. Because the hero's state lives in files &mdash;
+        not in the chat &mdash; you can always walk away mid-quest and come back
+        to exactly where you stood. Three ways reality bends the plan:
       </p>
-      <div class="xp-grid">
-        <div class="xp-card">
-          <table class="xp-table">
-            <caption>Per expedition (at /make-camp)</caption>
-            <tbody>
-              <tr><th scope="row">Completing an expedition</th><td>5</td></tr>
-              <tr><th scope="row">New danger (pitfall) mapped</th><td>+10</td></tr>
-              <tr><th scope="row">New oath (locked decision) sworn</th><td>+10</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="xp-card">
-          <table class="xp-table">
-            <caption>Per quest (at /complete-quest)</caption>
-            <tbody>
-              <tr><th scope="row">Base reward</th><td>100</td></tr>
-              <tr><th scope="row">Per module (plan item) conquered</th><td>25</td></tr>
-              <tr><th scope="row">Per expedition logged</th><td>10</td></tr>
-              <tr><th scope="row">Per danger / per oath</th><td>15 / 20</td></tr>
-              <tr><th scope="row">Per scroll split (a file outgrew 500 lines and was divided)</th><td>50</td></tr>
-              <tr><th scope="row">Clean sweep (no open questions) / speed run (&le;3 sessions)</th><td>+75 / +50</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <p class="section-note">
-        Fifty levels from Apprentice Coder to Transcendent Engineer, fifteen badges
-        &mdash; and the numbers above are the real formula, straight from the system's
-        own ledger. The demo quest earns 405 EXP: two camps (25&nbsp;+&nbsp;15) plus
-        completion &mdash; 100 base + 2&nbsp;modules&times;25 + 2&nbsp;expeditions&times;10
-        + 2&nbsp;dangers&times;15 + 2&nbsp;oaths&times;20 + 75 clean sweep + 50 speed
-        run = 365. Check the math &mdash; it closes.
-      </p>
-      <div class="xpcard" role="group" aria-label="Example adventurer profile after the demo quest">
-        <div class="xpcard__head">
-          <span class="xpcard__name">Adventurer</span>
-          <span class="xpcard__title">Level 2 &mdash; Apprentice Coder II</span>
-        </div>
-        <div class="xpcard__exp">
-          <span class="xpcard__expnum">EXP: 405</span>
-          <div class="xpcard__track"><div class="xpcard__fill" style="width: 17.5%"></div></div>
-          <span class="xpcard__tonext">105 / 600 to Level 3</span>
-        </div>
-        <dl class="xpcard__stats">
-          <div><dt>Quests completed</dt><dd>1</dd></div>
-          <div><dt>Total expeditions</dt><dd>2</dd></div>
-          <div><dt>Dangers mapped</dt><dd>2</dd></div>
-          <div><dt>Oaths sworn</dt><dd>2</dd></div>
-          <div><dt>Scroll splits</dt><dd>0</dd></div>
-        </dl>
-        <ul class="xpcard__badges" role="list">
-          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">🗡️</span> First Blood &mdash; completed your first quest</li>
-          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">🚀</span> Speed Runner &mdash; quest in 3 expeditions or fewer</li>
-          <li class="xpcard__badge xpcard__badge--unlocked"><span aria-hidden="true">✨</span> Clean Sweep &mdash; zero open riddles at completion</li>
-          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">📜</span> Scroll Keeper &mdash; complete 5 quests (1/5)</li>
-          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">🕵️</span> Danger Mapper &mdash; map 10 dangers (2/10)</li>
-          <li class="xpcard__badge xpcard__badge--locked"><span aria-hidden="true">🤝</span> Oath Keeper &mdash; swear 10 oaths (2/10)</li>
-        </ul>
-        <p class="xpcard__foot">The profile <code>/quest-xp</code> prints after the demo quest. Yours is local, gitignored, and grows with every camp.</p>
+      <div class="reality">
+        <article class="reality__card">
+          <h3 class="reality__title">The plan was wrong</h3>
+          <p class="reality__cmd">/counsel-quest --pivot</p>
+          <p class="reality__desc">Halfway through, you learn the cropping
+          library you planned around is abandoned. Pivot replans from scratch
+          &mdash; and records the dead end as a <em>fallen strategy</em>, so no
+          future session ever proposes it again. Even failures become memory.</p>
+        </article>
+        <article class="reality__card">
+          <h3 class="reality__title">An urgent hotfix lands</h3>
+          <p class="reality__cmd">/change-quest</p>
+          <p class="reality__desc">Production is on fire &mdash; the payment
+          webhook is returning 500s. Park the avatar quest (its state is already
+          in files, not in your head), spin the hotfix up as its own quest, ship
+          it, switch back. The next <code>/embark</code> restores exactly where
+          you left off.</p>
+        </article>
+        <article class="reality__card">
+          <h3 class="reality__title">A small thing, spotted mid-work</h3>
+          <p class="reality__cmd">/side-quest "avatar border clips"</p>
+          <p class="reality__desc">A one-line bug that isn't today's focus. One
+          command captures it <em>without switching anything</em>; another chat
+          picks it up by name later; closing it distills the lesson up into the
+          parent quest. Nothing derailed, nothing lost.</p>
+        </article>
       </div>
     </section>
 
@@ -281,7 +293,8 @@
         <li>The RPG flavor lives in filenames and banners. Your code and commits stay normal.</li>
       </ul>
       <p class="section-lead">
-        Two commands in Claude Code, then restart and start your first quest.
+        One plugin, no server &mdash; Claude managing Claude. Two commands, then
+        restart and start your first quest.
       </p>
       <pre class="install__code" tabindex="0" role="region" aria-label="Install commands"><code>/plugin marketplace add findexu/finpack-claude
 /plugin install quest-system@finpack-claude</code></pre>

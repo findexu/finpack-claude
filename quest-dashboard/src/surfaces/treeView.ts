@@ -11,7 +11,7 @@ type GroupKind = "battle-plan" | "side-quests" | "scrolls";
 type QuestNode =
   | { kind: "quest"; questName: string; realm: string }
   | { kind: "group"; group: GroupKind; label: string; description: string }
-  | { kind: "expedition"; row: BattlePlanRow }
+  | { kind: "expedition"; row: BattlePlanRow; openPath: string | null }
   | { kind: "side-quest"; sideQuest: SideQuest }
   | { kind: "scroll"; scroll: ScrollFile };
 
@@ -61,6 +61,13 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
         item.description = node.row.detail ?? "";
         item.iconPath = EXPEDITION_ICON[node.row.status];
         item.contextValue = `expedition-${node.row.status}`;
+        if (node.openPath !== null) {
+          item.command = {
+            command: "vscode.open",
+            title: "Open Plan",
+            arguments: [vscode.Uri.file(node.openPath)],
+          };
+        }
         return item;
       }
       case "side-quest": {
@@ -140,8 +147,17 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
 
   private groupChildren(state: QuestState, group: GroupKind): QuestNode[] {
     switch (group) {
-      case "battle-plan":
-        return (this.battlePlan(state)?.rows ?? []).map((row) => ({ kind: "expedition", row }));
+      case "battle-plan": {
+        // Active/planned rows live in the strategy checklist; done rows are
+        // journaled expedition results.
+        const strategy = scrollPath(state, "STRATEGY_SCROLL.md");
+        const journal = scrollPath(state, "ADVENTURE_JOURNAL.md");
+        return (this.battlePlan(state)?.rows ?? []).map((row) => ({
+          kind: "expedition",
+          row,
+          openPath: row.status === "done" ? journal : strategy,
+        }));
+      }
       case "side-quests":
         return state.openSideQuests.map((sideQuest) => ({ kind: "side-quest", sideQuest }));
       case "scrolls":
@@ -160,4 +176,8 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
       activeLeaf: leafName(state.activeQuest.questFolderPath),
     });
   }
+}
+
+function scrollPath(state: QuestState, filename: string): string | null {
+  return state.scrolls.find((s) => s.filename === filename)?.fsPath ?? null;
 }
