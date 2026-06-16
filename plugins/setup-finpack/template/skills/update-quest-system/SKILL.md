@@ -95,7 +95,7 @@ Available: {source-version}
 Source:    {source}
 
 Will update:
-  16 command files  → .claude/commands/
+  17 command files  → .claude/commands/
   update-quest-system skill
   fp- agent suite  → .claude/agents/  (if source found)
   quest-system-verify.sh hook  (if found)
@@ -124,6 +124,7 @@ Read from `{source}`, write to `.claude/commands/`:
 - `complete-quest.md`
 - `summon-witch-doctor.md`
 - `quest-xp.md`
+- `quest-help.md`
 - `ask-sages.md`
 - `init-xp.md`
 - `counsel-prompt.md`

@@ -6,9 +6,9 @@ description: >
   and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
-  /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
+  /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.17.0
+version: 1.18.0
 ---
 
 # Quest System — Skill Definition
@@ -62,6 +62,7 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 | `/summon-witch-doctor` | Diagnose scroll health: missing files, missing sections, split issues, and legacy terminology migration needs |
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
+| `/quest-help` | Cheat-sheet of every command and its `--` flags (the VS Code arg-hint is not reliable); pass a command name to show just one |
 | `/side-quest` | Capture a small thing found mid-quest (UI bug, font tweak) in one step — does NOT switch your active quest |
 | `/close-side-quest` | Close a side-quest, distilling its dangers/decisions up to its parent (or `--promote` it to a full quest) |
 

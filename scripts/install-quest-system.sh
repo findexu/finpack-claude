@@ -38,6 +38,7 @@ REMOTE_COMMANDS=(
   make-camp.md
   quest-log.md
   quest-xp.md
+  quest-help.md
   side-quest.md
   close-side-quest.md
   start-quest.md

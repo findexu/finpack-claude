@@ -53,7 +53,7 @@ fi
 lint_miss=""
 for f in "$SRC"/commands/*.md; do
   b=$(basename "$f")
-  case "$b" in new-quest.md|start-quest.md|change-quest.md|quest-xp.md|init-xp.md|side-quest.md|close-side-quest.md) continue ;; esac
+  case "$b" in new-quest.md|start-quest.md|change-quest.md|quest-xp.md|init-xp.md|quest-help.md|side-quest.md|close-side-quest.md) continue ;; esac
   grep -qF 'Active-quest selection' "$f" || lint_miss="$lint_miss\n  $b missing 'Active-quest selection' reference"
 done
 [ -z "$lint_miss" ] && ok "spec lint: quest-context readers reference the resolution rule" \

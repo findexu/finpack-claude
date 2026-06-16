@@ -61,6 +61,7 @@ Read each of the following files from `{source}` and write to `.claude/commands/
 - `complete-quest.md`
 - `summon-witch-doctor.md`
 - `quest-xp.md`
+- `quest-help.md`
 - `ask-sages.md`
 - `init-xp.md`
 - `counsel-prompt.md`
