@@ -37,17 +37,30 @@ If `--promote` was passed:
 
 Determine the distill destination:
 - If `parent != none` AND `.ai-context/quests/{parent-name}/` still exists ->
-  distill to the PARENT quest's scrolls:
-  - APPEND each `## Dangers` row to the parent's `TOME_OF_DANGERS.md`
-    `## Known Dangers` table (append, not section-rewrite).
-  - APPEND each `## Decisions` entry to the parent's `STRATEGY_SCROLL.md`
-    `## Oaths Sworn (Resolved Decisions)`.
-  - Tag each appended item `[from side-quest {slug}]`.
-  - NOTE: the parent's scrolls are single-owner; if another chat is actively on
-    the parent this is the documented best-effort append (per-quest scrolls are
-    not lock-guarded — SKILL.md "Concurrency"). Keep it to appends only.
-  - Append one closing line to the parent journal:
-    `- Side-quest closed: {slug} ({YYYY-MM-DD})`.
+  distill to the PARENT quest's scrolls UNDER THE PER-QUEST LOCK (SKILL.md ->
+  "Concurrency" -> cross-tool-call quest lock). A concurrent sibling close OR the
+  parent's own `/make-camp` writes these same sections, so guard them:
+  1. **ACQUIRE** the lock keyed by the PARENT basename (`{parent-name}` = basename
+     of the NOTE `parent` path). If it cannot be acquired within the budget,
+     report "parent {parent-name} busy — try again shortly", leave the side-quest
+     `status: open`, and STOP. Do NOT half-distill.
+  2. **RE-CHECK** that `.ai-context/quests/{parent-name}/` still exists (a
+     `/complete-quest` may have archived it between Step 1 and now). If it
+     vanished: RELEASE the lock and fall through to the project-registry path
+     below (treat as orphan).
+  3. **MUTATE** (split-aware — write to the subfile if the split subfolder exists,
+     else the index section; append only, never section-rewrite):
+     - APPEND each `## Dangers` row to the parent's `TOME_OF_DANGERS.md`
+       `## Known Dangers` table (or the matching `dangers/` category subfile).
+     - APPEND each `## Decisions` entry to the parent's `STRATEGY_SCROLL.md`
+       `## Oaths Sworn (Resolved Decisions)` (or the relevant `strategy/` subfile).
+     - Tag each appended item `[from side-quest {slug}]`.
+     - APPEND one closing line to the parent journal (`ADVENTURE_JOURNAL.md`, or
+       `journal/{current-month}.md` if split):
+       `- Side-quest closed: {slug} ({YYYY-MM-DD})`.
+  4. **RELEASE** the lock (explicit `rmdir`) on EVERY exit path. If any Edit in
+     MUTATE fails, RELEASE immediately, leave the side-quest `status: open`, and
+     STOP — never a stranded lock or a half-distill.
 - Else (`parent = none`, OR the parent folder is missing/archived) -> distill to
   the PROJECT registries under the advisory lock (SKILL.md "Concurrency"):
   append `## Dangers` -> `.ai-context/DANGER_REGISTRY.md`, `## Decisions` ->

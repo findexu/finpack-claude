@@ -49,6 +49,26 @@ Summarize CONFIRMED findings (ignore style nitpicks). Then ask:
 - If proceeding: inscribe any unresolved real issues into TOME_OF_DANGERS so they
   carry into DANGER_REGISTRY during Step 3 distillation.
 
+## Step 2.9: Acquire the per-quest scroll lock
+
+Steps 3–6 read this quest's scrolls and then ARCHIVE (move) the folder. A
+`/close-side-quest` running in another chat may be distilling a child side-quest
+INTO this same quest's scrolls at that moment. ACQUIRE the per-quest lock (SKILL.md
+-> "Concurrency" -> cross-tool-call quest lock), keyed by this quest's BASENAME, so
+the archive cannot move the folder out from under an in-flight child distill (the
+child re-checks parent existence after IT acquires the lock, so once you hold it the
+child will see the archived parent and safely fall back to the orphan path).
+
+If the lock cannot be acquired within the budget, report "quest {quest-name} busy —
+a side-quest is distilling into it; retry shortly" and STOP.
+
+LOCK ORDER (avoids deadlock): this per-quest lock is the OUTER lock. The registry
+locks in Steps 3–4 (`DANGER_REGISTRY.md` / `DECISIONS_LOG.md`) are acquired and
+released INSIDE their single-bash invocations — always after this one, never around
+it. A command holds at most one per-quest lock; the registry lock only ever nests
+within it, so no lock-ordering cycle exists. RELEASE this lock in Step 6.5 on every
+exit path.
+
 ## Step 3: Distill TOME_OF_DANGERS → DANGER_REGISTRY.md
 
 CONCURRENCY: the project registries are shared across chats. Perform the
@@ -149,6 +169,13 @@ Move `{quest-folder}/` → `.ai-context/archived/{quest-name}/`
 Create `.ai-context/archived/` if it does not exist.
 
 If an archive with the same name already exists, rename to `{quest-name}-{date}`.
+
+## Step 6.5: Release the per-quest scroll lock
+
+RELEASE the per-quest lock acquired in Step 2.9 (explicit `rmdir`, key recomputed
+from the ORIGINAL quest basename — never from the moved/archived path). Runs on
+every exit path: if any step 3–6 operation failed, release here and STOP. Steps
+7–10 (clear pointer, clear context.md, XP, confirm) run after release.
 
 ## Step 7: Clear active quest
 

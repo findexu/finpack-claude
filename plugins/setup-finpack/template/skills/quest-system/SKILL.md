@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.18.1
+version: 1.19.0
 ---
 
 # Quest System — Skill Definition
@@ -160,6 +160,41 @@ Races only exist when multiple chats share one folder. The rules:
   `[ -e ] && touch` is a TOCTOU race — never use it. The lock is **advisory /
   best-effort** (LLM-executed); a stale lock is reported and offered for manual
   `rmdir`, never silently broken.
+- **Per-quest scroll writes use the cross-tool-call quest lock.** "Single-writer-
+  per-quest" holds for the OWNING chat, but a `/close-side-quest` in another chat
+  distills UP into its parent's `TOME_OF_DANGERS.md`, `STRATEGY_SCROLL.md`, and
+  `ADVENTURE_JOURNAL.md` — a second writer to the same scrolls. Any command that
+  mutates a quest's scrolls from a possibly-concurrent context wraps those writes
+  in a per-quest lock. This differs from the registry lock above: the mutation is
+  done by the LLM via `Edit` (a mid-file table/section insert), which CANNOT live
+  inside one `printf >>`, so the lock spans separate tool calls in THREE phases:
+
+  1. **ACQUIRE** — one bash invocation, mkdir retry loop, **no `trap` release**
+     (a trap fires when this bash process exits — i.e. before the Edits run —
+     and would release the lock immediately). Budget longer than the registry
+     lock's, to outlast a 500-line split rewrite:
+     ```bash
+     L=".claude/locks/quest-$(printf '%s' "{quest-basename}" | tr ' /' '--').lock"
+     mkdir -p .claude/locks
+     for i in $(seq 1 150); do mkdir "$L" 2>/dev/null && break || sleep 0.2; done
+     [ -d "$L" ] || { echo "quest {quest-basename} busy (lock held)"; exit 1; }
+     ```
+     If not acquired within the budget (~30s): report the quest is busy and STOP —
+     never force-break (stale-lock policy as above: report, offer manual `rmdir`).
+  2. **MUTATE** — the LLM performs the scroll Edits (split-aware: write to the
+     `dangers/` / `strategy/` / `journal/` subfile if the split subfolder exists,
+     else the index section).
+  3. **RELEASE** — an explicit bash `rmdir "$L"` (recompute `$L` from the SAME
+     basename, never from a moved/archived path). RULE: release runs on **every**
+     exit path — normal completion AND any failed/aborted Edit. If any Edit in
+     MUTATE fails, immediately RELEASE and STOP (do not leave a half-write).
+
+  `{quest-basename}` is the quest folder's BASENAME (last path segment), never the
+  full path. All writers to the same quest compute the identical key. **Invariant:**
+  a command holds AT MOST ONE per-quest lock at a time → no lock-ordering cycle →
+  no deadlock. A waiter that times out STOPs safely (e.g. a side-quest stays OPEN),
+  it never proceeds unguarded. (LLM-executed: the release-on-failure protocol is
+  verified by review, not by an automated test.)
 - **XP is append-only.** Append XP events to `.claude/quest-xp/events.log` with a
   shell append (`printf '%s\n' >> events.log`) ONLY — never via Edit/Write (a
   whole-file rewrite reintroduces the lost-update race). See the XP section.
