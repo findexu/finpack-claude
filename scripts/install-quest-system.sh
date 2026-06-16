@@ -45,6 +45,14 @@ REMOTE_COMMANDS=(
   summon-witch-doctor.md
 )
 
+# Commands shipped by older versions that have since been renamed or removed.
+# These are pruned from .claude/commands/ on every install/update so a stale
+# command file can never linger. SAFE: only these exact, quest-system-owned
+# names are deleted — never a user's own custom slash commands. Add a name here
+# whenever a command file is removed or renamed in skills/quest-system/commands/.
+RETIRED_COMMANDS=(
+)
+
 HOOKS=(
   session-start.sh
   quest-system-verify.sh
@@ -303,6 +311,19 @@ path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"
   fi
+fi
+
+# Prune retired commands from older installs (renamed/removed upstream). Scoped
+# to the explicit RETIRED_COMMANDS list — never touches a user's own commands.
+# Guard the expansion: an empty array under `set -u` is unbound in bash 3.2 (macOS).
+if [ ${#RETIRED_COMMANDS[@]} -gt 0 ]; then
+  for old in "${RETIRED_COMMANDS[@]}"; do
+    if [ -f "$COMMANDS_DEST/$old" ]; then
+      rm -f "$COMMANDS_DEST/$old"
+      echo "  pruned retired command: $old"
+      UPDATED=$((UPDATED + 1))
+    fi
+  done
 fi
 
 # Optional: auto-connect Serena MCP if its runtime is already installed.

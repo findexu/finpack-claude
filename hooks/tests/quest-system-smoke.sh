@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Static integrity checks for the quest-system plugin (no LLM runtime needed):
 #   1. sync drift  — skills/ source matches the generated plugins/ copy
-#   2. registration parity — every command is in all THREE hardcoded lists
-#      (install REMOTE_COMMANDS, verify required_commands, update-quest-system list)
+#   2. registration parity — every command is in all FIVE hardcoded registries
+#      (install REMOTE_COMMANDS, install-quest-system SKILL list, verify
+#       required_commands, update-quest-system list, quest-system SKILL.md table)
 #   3. spec lint  — quest-context commands resolve via SKILL.md; NOTE dates quoted
 # Exit 0 on all pass, 1 on any fail.
 
@@ -27,16 +28,21 @@ fi
 
 # 2. Registration parity --------------------------------------------------------
 INSTALL="scripts/install-quest-system.sh"
+INSTALL_SKILL="skills/install-quest-system/SKILL.md"
 VERIFY="hooks/quest-system-verify.sh"
 UPDATE="skills/update-quest-system/SKILL.md"
+SKILL="$SRC/SKILL.md"
 missing=""
 for f in "$SRC"/commands/*.md; do
   cmd=$(basename "$f")
-  grep -qF -- "$cmd" "$INSTALL" || missing="$missing\n  $cmd absent from install REMOTE_COMMANDS"
-  grep -qF -- "$cmd" "$VERIFY"  || missing="$missing\n  $cmd absent from verify required_commands"
-  grep -qF -- "$cmd" "$UPDATE"  || missing="$missing\n  $cmd absent from update-quest-system list"
+  slash="/${cmd%.md}"   # e.g. /start-quest — the form used in the SKILL.md commands table
+  grep -qF -- "$cmd" "$INSTALL"       || missing="$missing\n  $cmd absent from install REMOTE_COMMANDS"
+  grep -qF -- "$cmd" "$INSTALL_SKILL" || missing="$missing\n  $cmd absent from install-quest-system SKILL list"
+  grep -qF -- "$cmd" "$VERIFY"        || missing="$missing\n  $cmd absent from verify required_commands"
+  grep -qF -- "$cmd" "$UPDATE"        || missing="$missing\n  $cmd absent from update-quest-system list"
+  grep -qF -- "\`$slash\`" "$SKILL"   || missing="$missing\n  $slash absent from quest-system SKILL.md commands table"
 done
-[ -z "$missing" ] && ok "registration parity: every command in install+verify+update lists" \
+[ -z "$missing" ] && ok "registration parity: every command in install(script+skill)+verify+update+SKILL-table" \
   || bad "registration parity" "$(printf "$missing")"
 
 # update-quest-system command count matches the actual command count

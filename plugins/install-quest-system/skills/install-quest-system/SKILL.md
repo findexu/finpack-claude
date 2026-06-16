@@ -50,9 +50,16 @@ Check if `.claude/commands/` exists. Create it if not.
 
 ## Step 4: Copy all command files
 
-Read each of the following files from `{source}` and write to `.claude/commands/`:
+Copy EVERY `*.md` file from `{source}/commands/` to `.claude/commands/` — enumerate the
+source directory, do not work from a memorized list (a hand-maintained list drifts and is
+exactly how commands like `/start-quest` went missing for new installs). If you cannot
+list the directory (remote install), fall back to the canonical set below.
+
+Canonical command set (also the fallback list — keep in sync with
+`skills/quest-system/commands/`; `hooks/tests/quest-system-smoke.sh` enforces parity):
 
 - `new-quest.md`
+- `start-quest.md`
 - `counsel-quest.md`
 - `embark.md`
 - `make-camp.md`
@@ -66,6 +73,8 @@ Read each of the following files from `{source}` and write to `.claude/commands/
 - `init-xp.md`
 - `counsel-prompt.md`
 - `counsel-plan.md`
+- `side-quest.md`
+- `close-side-quest.md`
 
 For each file: read content from source path, write to `.claude/commands/{filename}`.
 Report each file as it is written.

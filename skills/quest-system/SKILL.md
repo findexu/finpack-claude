@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.18.0
+version: 1.18.1
 ---
 
 # Quest System — Skill Definition
@@ -65,6 +65,10 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 | `/quest-help` | Cheat-sheet of every command and its `--` flags (the VS Code arg-hint is not reliable); pass a command name to show just one |
 | `/side-quest` | Capture a small thing found mid-quest (UI bug, font tweak) in one step — does NOT switch your active quest |
 | `/close-side-quest` | Close a side-quest, distilling its dangers/decisions up to its parent (or `--promote` it to a full quest) |
+| `/ask-sages` | Summon three sages (codebase, web, reason) to counsel a decision; `--critique` adds a cross-examination round |
+| `/counsel-plan` | Review a `plan.md` against quest context — paste-back feedback ending in a READY/REVISE verdict; `--critique` runs a lens panel |
+| `/counsel-prompt` | Rewrite a rough prompt into a sharp, well-contextualized one |
+| `/init-xp` | Bootstrap the adventurer XP profile for an existing project, without starting a new quest |
 
 ## Key concepts
 

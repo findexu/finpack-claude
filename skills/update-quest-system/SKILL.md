@@ -163,6 +163,19 @@ note it for the confirm output. This step runs AFTER the verifier-hook refresh
 (Step 9) on purpose: the old hook still checks for the tutorial, so deleting
 first would fail verification if the update aborted between the two steps.
 
+## Step 9.6: Prune retired commands
+
+Older versions shipped command files that have since been renamed or removed.
+Delete each of these from `.claude/commands/` if present, and note any that were
+removed for the confirm output:
+
+- (none retired yet)
+
+SAFE: delete ONLY these exact, quest-system-owned names — never a user's own
+custom slash commands. Keep this list in sync with `RETIRED_COMMANDS` in
+`scripts/install-quest-system.sh`. When a command is removed or renamed in
+`skills/quest-system/commands/`, add its old filename to BOTH lists.
+
 ## Step 10: Update agents
 
 Resolve `{agents-source}` — the first directory that exists:
