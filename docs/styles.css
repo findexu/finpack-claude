@@ -491,53 +491,6 @@ html {
   color: var(--ink-soft);
 }
 
-.loop-steps {
-  list-style: none;
-  counter-reset: loop;
-  margin: 0 0 var(--s-6);
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-}
-.loop-steps li {
-  counter-increment: loop;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: baseline;
-  gap: var(--s-2) var(--s-4);
-  padding: var(--s-4);
-  background: var(--paper-2);
-  border: 1px solid var(--edge-warm);
-  border-radius: var(--radius);
-}
-.loop-steps li::before {
-  /* plain counter(), not the "/ alt" form — older Safari drops the whole
-     declaration on the alt syntax and the numbers vanish */
-  content: counter(loop);
-  grid-row: 1 / span 2;
-  align-self: start;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: var(--fs-meta);
-  line-height: 1.6;
-  color: var(--accent-deep);
-}
-.loop-steps__cmd {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: var(--fs-ui);
-  line-height: 1.6;
-  color: var(--accent-deep);
-  overflow-wrap: anywhere;
-}
-.loop-steps__why {
-  grid-column: 2;
-  font-size: var(--fs-copy);
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-
 /* ---- Why-it-sticks flow diagram: two parallel timelines, same story —
    the only variable is whether anything is remembered between chats. */
 .flow {
