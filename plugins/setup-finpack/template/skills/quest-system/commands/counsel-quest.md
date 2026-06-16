@@ -4,7 +4,7 @@ description: >
   flow with codebase exploration + architecture design), MID-expedition (resolve blockers
   and adjust plan), PIVOT (record fallen strategy and re-plan from scratch).
   Use --pivot flag for a full direction change mid-expedition.
-argument-hint: "[--quest <name>] [--realm <realm>] [--pivot] [--expedition-focus <name>]"
+argument-hint: "[--quest <name>] [--realm <realm>] [--pivot] [--expedition-focus <name>] [--critique]"
 ---
 
 # Counsel Quest
@@ -28,6 +28,11 @@ If `$ARGUMENTS` contains `--expedition-focus <name>`, record it as `{expedition-
 and use it to scope context loading and riddle filtering throughout.
 
 If `$ARGUMENTS` contains `--phase <name>`, treat as a legacy alias for `--expedition-focus`.
+
+If `$ARGUMENTS` contains the bare `--critique` flag, set `{critique} = true` (default
+`false`). It is order-independent with the other flags and only enables the architect
+cross-critique in PRE Step 6 (see SKILL.md -> "Council cross-critique (shared)"). With it
+absent, the architecture flow is unchanged.
 
 ---
 
@@ -156,8 +161,39 @@ Focus: "Design a pragmatic balance: achieves quality without over-engineering, f
 
 After all agents return:
 1. Review all three blueprints
-2. Form a recommendation based on: quest complexity, codebase maturity, time constraints
-3. Present comparison:
+2. **Cross-critique (only if `--critique`)** — skip entirely unless `{critique}` is true;
+   when skipped, the comparison below is unchanged from the default flow. When set, run
+   the shared round (see SKILL.md -> "Council cross-critique (shared)"): launch ONE critic
+   with the Agent tool, `subagent_type: general-purpose`, passing all three blueprints
+   verbatim. The critic does not design — it cross-examines:
+   ```
+   You are the Council's critic. Three architects independently designed an approach to
+   the same feature. Do NOT propose your own design. Cross-examine theirs against each
+   other and expose what the comparison table would otherwise hide.
+
+   Feature: {quest-overview}
+
+   Architect 1 (Minimal Changes):
+   {Agent 1 blueprint}
+
+   Architect 2 (Clean Architecture):
+   {Agent 2 blueprint}
+
+   Architect 3 (Pragmatic Balance):
+   {Agent 3 blueprint}
+
+   Report, terse, under 250 words:
+   1. Conflicts — where two architects make incompatible structural choices, and which is right.
+   2. Hidden coupling / cost — a risk an approach hides that its own author understated.
+   3. Cross-refutation — where one blueprint's design quietly invalidates another's premise.
+   4. What all three missed — an option or risk absent from every blueprint.
+   ```
+   Hold the critic's report for the comparison and recommendation.
+3. Form a recommendation based on: quest complexity, codebase maturity, time constraints.
+   If the critic ran, weigh its findings — do not recommend an approach the critic showed
+   to be structurally unsound without saying why.
+4. Present comparison (if the critic ran, add a "Critic's cross-examination" block of its
+   findings immediately ABOVE the table; omit the block entirely otherwise):
 
 ```
 ### Approach Comparison
