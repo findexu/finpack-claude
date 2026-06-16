@@ -663,57 +663,6 @@ p.contrast__quote {
   color: var(--ink);
 }
 
-.xp-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--s-4);
-}
-@media (min-width: 820px) {
-  .xp-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-}
-/* Panel chrome lives on a wrapper div: a table's background/border box excludes
-   its <caption>, and border-collapse drops border-radius entirely. */
-.xp-card {
-  background: var(--paper-2);
-  border: 1px solid var(--edge-warm);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.xp-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
-}
-.xp-table caption {
-  caption-side: top;
-  text-align: left;
-  padding: var(--s-3) var(--s-4);
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: var(--fs-meta);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1.6;
-  color: var(--ink-warm);
-}
-.xp-table th,
-.xp-table td {
-  padding: var(--s-2) var(--s-4);
-  border-top: 1px solid var(--edge-warm);
-  font-size: var(--fs-copy);
-  line-height: 1.5;
-  text-align: left;
-}
-.xp-table th { font-weight: 400; color: var(--ink-soft); }
-.xp-table td {
-  font-family: var(--font-mono);
-  font-weight: 600;
-  font-size: var(--fs-meta);
-  color: var(--xp-deep);
-  text-align: right;
-  white-space: nowrap;
-}
-
 /* ---- IDE-simulation engine (expedition 3) ---------------------------- */
 .ide {
   display: flex;
@@ -1113,101 +1062,7 @@ p.contrast__quote {
 }
 
 /* ---- XP profile card + install section (expedition 5) ----------------- */
-.xpcard {
-  max-width: 520px;
-  margin-top: var(--s-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-  padding: var(--s-5);
-  background: var(--paper-2);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--ink-warm) 10%, transparent);
-}
-.xpcard__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s-2) var(--s-4);
-  padding-bottom: var(--s-3);
-  border-bottom: 1px solid var(--edge-warm);
-}
-.xpcard__name {
-  font-family: var(--font-serif);
-  font-weight: 600;
-  font-size: var(--fs-base);
-  line-height: 1.5;
-  color: var(--ink-warm);
-}
-.xpcard__title {
-  font-size: var(--fs-copy);
-  color: var(--ink-warm);
-}
-.xpcard__exp {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s-3);
-}
-.xpcard__expnum, .xpcard__tonext {
-  font-family: var(--font-mono);
-  font-size: var(--fs-meta);
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-.xpcard__track {
-  flex: 1;
-  min-width: 120px;
-  height: var(--s-3);
-  border-radius: var(--radius-sm);
-  background: var(--paper);
-  border: 1px solid var(--edge-warm);
-  overflow: hidden;
-}
-.xpcard__fill {
-  height: 100%;
-  background: var(--xp-deep);
-  animation: qd-shimmer 2s ease-in-out infinite;
-}
-.xpcard__stats {
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--s-2) var(--s-4);
-}
-.xpcard__stats div { display: flex; justify-content: space-between; gap: var(--s-3); }
-.xpcard__stats dt { font-size: var(--fs-meta); color: var(--ink-soft); }
-.xpcard__stats dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--fs-meta);
-  color: var(--ink-warm);
-}
-.xpcard__badges {
-  list-style: none;
-  margin: 0;
-  padding: var(--s-3) 0 0;
-  border-top: 1px solid var(--edge-warm);
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-}
-.xpcard__badge {
-  font-size: var(--fs-meta);
-  line-height: 1.6;
-  color: var(--ink-warm);
-  overflow-wrap: anywhere;
-}
-/* no opacity: --ink-soft alone is ~5.5:1 on paper-2; dimming composites below
-   AA at this size. The "(1/5)" counters already signal the locked state. */
-.xpcard__badge--locked { color: var(--ink-soft); }
-.xpcard__foot {
-  margin: 0;
-  font-size: var(--fs-meta);
-  color: var(--ink-soft);
-}
-.xpcard__foot code, .section-note code {
+.section-note code {
   font-family: var(--font-mono);
   color: var(--accent-deep);
 }
@@ -1351,6 +1206,66 @@ p.contrast__quote {
   .journey::before { display: none; }
   .journey__node { grid-template-columns: minmax(0, 1fr); }
   .journey__day { justify-self: start; margin-top: 0; }
+}
+
+/* ---- Acts (the normal path) + reality cards (skeleton pass — design TBD) */
+.act { margin: var(--s-8) 0 var(--s-4); }
+.act__title {
+  margin: 0 0 var(--s-2);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: clamp(18px, 2vw, 21px);
+  color: var(--ink-warm);
+}
+.act__thesis {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--fs-copy);
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.journey { margin-bottom: 0; }
+
+.reality {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-4);
+}
+@media (min-width: 820px) {
+  .reality { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.reality__card {
+  padding: var(--s-5);
+  background: var(--paper-2);
+  border: 1px solid var(--edge-warm);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.reality__title {
+  margin: 0 0 var(--s-2);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--fs-lead);
+  color: var(--ink-warm);
+}
+.reality__cmd {
+  margin: 0 0 var(--s-3);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--fs-ui);
+  color: var(--accent-deep);
+  overflow-wrap: anywhere;
+}
+.reality__desc {
+  margin: 0;
+  font-size: var(--fs-copy);
+  line-height: 1.65;
+  color: var(--ink-warm);
+}
+.reality__desc code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-ui);
+  color: var(--accent-deep);
 }
 
 /* ---- Footer ---------------------------------------------------------- */
