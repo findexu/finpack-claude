@@ -153,35 +153,61 @@ Run /install-quest-system (or /update-quest-system) to enable.
 Proceeding to manual approval.
 ```
 
-**Review loop.** Otherwise run:
+**Review loop.** The reviewer's LENS rotates each round so the loop escapes local
+minima — a single fixed lens is gradient descent on one rubric and only deepens a
+basin (see SKILL.md -> "Council cross-critique (shared)" -> lens-rotation sub-pattern).
+Otherwise run:
 
 ```
+LENSES = [base, contrarian, executor]    # rotates per round; cycle length 3
 round = 0
-prev_blocking = +infinity
+prev_blocking_by_lens = {}               # empty -> a lens's FIRST appearance can't trip the guard
 loop:
   round += 1
+  lens = LENSES[(round - 1) mod 3]       # round 1 base, 2 contrarian, 3 executor, 4 base, ...
   Spawn fp-plan-reviewer with: the current proposed steps, the loaded quest
-    context (dangers, locked decisions, battle status), and --strict if set.
+    context (dangers, locked decisions, battle status), --strict if set, and the
+    round's LENS emphasis:
+      - base       = the reviewer's standard rubric (unchanged)
+      - contrarian = "what fails / what breaks / where is this wrong?"
+      - executor   = "Monday-morning gaps — is this actually doable as written?"
+    Only the emphasis rotates; the reviewer's underlying rubric is the same each round.
   Read the returned verdict line: "READY | REVISE (blocking: B, minor: M)".
+    If the line is missing or unparseable, treat it as REVISE with B >= 1 — never
+    silently pass a round.
 
   if B == 0:                  -> READY. Present the plan for approval. Break.
-  if not --counsel (menu, N=1 done) or round >= N:
-                              -> STOP (cap reached). Present the latest plan plus
+  if round >= N:              -> STOP (cap reached). Present the latest plan plus
                                  the outstanding blocking issues; let the commander
                                  decide (adjust / approve anyway / abort). Break.
-  if B >= prev_blocking:      -> STOP (not converging). Present the latest plan plus
-                                 the outstanding blockers; hand the decision to the
-                                 commander. Break.
-  prev_blocking = B
+  if lens in prev_blocking_by_lens and B >= prev_blocking_by_lens[lens]:
+                              -> STOP (this lens stopped converging). Present the latest
+                                 plan plus the outstanding blockers; hand the decision to
+                                 the commander. Break.
+  prev_blocking_by_lens[lens] = B
   Apply the agent's BLOCKING fixes to the proposed steps (you, the embark
     context, are the author here — the agent only judges, never edits).
   Re-present the revised steps and continue the loop.
 ```
 
-The `B >= prev_blocking` guard stops a run that stalls or thrashes: it bails as
-soon as a round fails to reduce the blocking count, rather than churning to the
-cap. This is intentional — surfacing a stuck plan to the commander beats burning
-rounds on it.
+The per-lens guard stops a run only when the SAME lens twice fails to reduce its own
+blocking count — it is INERT until a lens recurs (round > 3), so a different lens that
+legitimately surfaces a new class of blocker (raising B) does not false-trip an early
+stop. `round >= N` is the absolute backstop that still terminates a persistently
+rising-B run.
+
+**N and rotation.** Rotation is a MULTI-ROUND feature. The bare `--counsel` / menu pick
+is N=1: only the base lens runs and round 1 hits the `round >= N` cap immediately — a
+single review, identical to the pre-rotation behavior (one pass has no iteration, hence
+no local minimum to escape). Rotation engages at N>=2 (round 2 adds the contrarian lens)
+and a full cycle needs N>=3. N is NOT auto-floored — the commander's explicit cap is
+respected. For plans where a local minimum is a real risk, use `--counsel 3` (or more) to
+get the full lens cycle.
+
+Note this is a deliberate behavior change for existing `--counsel N>=2` callers: rounds
+2+ now rotate the lens, and the old scalar `B >= prev_blocking` early-bail is replaced by
+the per-lens guard (so a thrashing plan now runs to at least its first lens recurrence or
+the cap, rather than bailing at round 2).
 
 After the loop ends for any reason, the approval gate below still applies. Counsel
 informs the decision; it never auto-executes.

@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.16.1
+version: 1.17.0
 ---
 
 # Quest System — Skill Definition
@@ -201,6 +201,26 @@ cycle. A single fixed lens is gradient descent on one rubric — it deepens a ba
 leaves it; rotating the lens perturbs the loss axis so a different class of flaw surfaces
 each round. The reviewer's underlying rubric is unchanged — only the emphasis passed in
 the prompt rotates.
+
+Two consequences a loop consumer MUST handle:
+- **Per-lens convergence guard.** A non-convergence guard that bails when the blocking
+  count fails to drop assumes a fixed lens. Under rotation a new lens legitimately raises
+  the count, so track the prior blocking count PER LENS and trip the guard only when the
+  SAME lens twice fails to reduce its own count (it is inert until a lens recurs). Keep an
+  absolute round cap as the backstop.
+- **Rotation is multi-round.** At N=1 only the base lens runs — a single pass has no
+  iteration and no minimum to escape, so this is identical to an unrotated single review.
+  The benefit needs N>=2 (and a full cycle N>=3); recommend `--counsel 3` when a local
+  minimum is a real risk. Do not silently floor N — respect the caller's explicit cap.
+
+**Panel variant (for one-shot consumers).** A command that does NOT loop (e.g.
+`/counsel-plan --critique`) gets the same diversity in one shot: run the SAME reviewer
+under each lens IN PARALLEL (base / contrarian / executor), then fold with a single
+`general-purpose` critic. Unlike the prose-synthesis critic above, this fold critic MUST
+emit a verdict line. Fold rule: `READY` iff every lens returned zero blockers; folded
+blocking/minor = the count of the DEDUP'D UNION across lenses (an issue raised by two
+lenses counts once); a lens whose verdict is missing or unparseable is treated as REVISE
+(blocking >= 1), never silently dropped.
 
 ## Sacred laws (enforced by all commands)
 
