@@ -10,6 +10,9 @@
 set -euo pipefail
 
 REPO="https://raw.githubusercontent.com/findexu/finpack-claude/main"
+# Retry transient network failures (timeouts, 5xx) so a flaky connection does not
+# half-install. --retry-delay grows with backoff; portable to macOS's bundled curl.
+CURL=(curl -fsSL --retry 3 --retry-delay 2)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-install-quest-system.sh}")" 2>/dev/null && pwd || echo "")"
 LOCAL_COMMANDS="$SCRIPT_DIR/../skills/quest-system/commands"
 LOCAL_HOOKS="$SCRIPT_DIR/../hooks"
@@ -23,6 +26,12 @@ AGENTS_DEST=".claude/agents"
 UPDATE_SKILL_DEST=".claude/skills/update-quest-system/SKILL.md"
 VERSION_DEST=".claude/commands/.quest-system-version"
 SETTINGS_LOCAL_DEST=".claude/settings.local.json"
+# Manifests record exactly which command/agent files THIS script installed last
+# run. On update we delete files listed in the old manifest but absent from the
+# new ship list (renamed/removed upstream) — and only those, so a user's own
+# custom commands or agents are never touched.
+CMD_MANIFEST=".claude/commands/.quest-system-manifest"
+AGENT_MANIFEST=".claude/agents/.quest-system-manifest"
 
 # Fallback list used for remote installs where directory listing is unavailable.
 REMOTE_COMMANDS=(
@@ -51,6 +60,22 @@ REMOTE_COMMANDS=(
 # names are deleted — never a user's own custom slash commands. Add a name here
 # whenever a command file is removed or renamed in skills/quest-system/commands/.
 RETIRED_COMMANDS=(
+)
+
+# Legacy file names used before the manifest existed, seeded into a MISSING
+# manifest so the first update of a pre-manifest install still self-heals (the
+# manifest-diff prune below then removes any that are no longer shipped). The
+# agents gained an `fp-` prefix; commands were never renamed or removed.
+LEGACY_COMMANDS=(
+)
+LEGACY_AGENTS=(
+  code-architect.md
+  code-explorer.md
+  code-reviewer.md
+  doc-reviewer.md
+  frontend-designer.md
+  performance-reviewer.md
+  security-reviewer.md
 )
 
 HOOKS=(
@@ -208,7 +233,7 @@ else
   fi
   for cmd in "${COMMANDS[@]}"; do
     url="$REPO/skills/quest-system/commands/$cmd"
-    if curl -fsSL "$url" -o "$COMMANDS_DEST/$cmd"; then
+    if "${CURL[@]}" "$url" -o "$COMMANDS_DEST/$cmd"; then
       echo "  $cmd"
       UPDATED=$((UPDATED + 1))
     else
@@ -217,7 +242,7 @@ else
   done
   for hook in "${HOOKS[@]}"; do
     url="$REPO/hooks/$hook"
-    if curl -fsSL "$url" -o "$HOOKS_DEST/$hook"; then
+    if "${CURL[@]}" "$url" -o "$HOOKS_DEST/$hook"; then
       chmod +x "$HOOKS_DEST/$hook"
       echo "  hooks/$hook"
       UPDATED=$((UPDATED + 1))
@@ -227,7 +252,7 @@ else
   done
   for agent in "${AGENTS[@]}"; do
     url="$REPO/agents/$agent"
-    if curl -fsSL "$url" -o "$AGENTS_DEST/$agent"; then
+    if "${CURL[@]}" "$url" -o "$AGENTS_DEST/$agent"; then
       echo "  agents/$agent"
       UPDATED=$((UPDATED + 1))
     else
@@ -236,7 +261,7 @@ else
   done
 
   update_url="$REPO/skills/update-quest-system/SKILL.md"
-  if curl -fsSL "$update_url" -o "$UPDATE_SKILL_DEST"; then
+  if "${CURL[@]}" "$update_url" -o "$UPDATE_SKILL_DEST"; then
     echo "  skills/update-quest-system/SKILL.md"
     UPDATED=$((UPDATED + 1))
   else
@@ -245,7 +270,7 @@ else
 
   # Cache-Control/Pragma force raw.githubusercontent to revalidate; its CDN
   # otherwise serves a stale VERSION for ~5 min after a release.
-  if curl -fsSL -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
+  if "${CURL[@]}" -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$REPO/skills/quest-system/VERSION" -o "$VERSION_DEST"; then
     echo "  .quest-system-version ($(tr -d '[:space:]' < "$VERSION_DEST"))"
     UPDATED=$((UPDATED + 1))
   else
@@ -253,7 +278,7 @@ else
   fi
 
   if [ ! -f "$SETTINGS_LOCAL_DEST" ]; then
-    if curl -fsSL "$REPO/settings.local.json.example" -o "$SETTINGS_LOCAL_DEST"; then
+    if "${CURL[@]}" "$REPO/settings.local.json.example" -o "$SETTINGS_LOCAL_DEST"; then
       UPDATED=$((UPDATED + 1))
     fi
   fi
@@ -315,6 +340,7 @@ fi
 
 # Prune retired commands from older installs (renamed/removed upstream). Scoped
 # to the explicit RETIRED_COMMANDS list — never touches a user's own commands.
+# Belt-and-suspenders for installs that predate the manifest below.
 # Guard the expansion: an empty array under `set -u` is unbound in bash 3.2 (macOS).
 if [ ${#RETIRED_COMMANDS[@]} -gt 0 ]; then
   for old in "${RETIRED_COMMANDS[@]}"; do
@@ -325,6 +351,42 @@ if [ ${#RETIRED_COMMANDS[@]} -gt 0 ]; then
     fi
   done
 fi
+
+# Manifest-diff orphan prune. Removes only files THIS script recorded installing
+# on a previous run that are no longer in the current ship list — so renamed or
+# removed commands/agents self-clean, while a user's own files (never in the
+# manifest) are left untouched. Then rewrite the manifest with the current set.
+prune_orphans() {
+  local manifest="$1" dest="$2"; shift 2
+  if [ -f "$manifest" ]; then
+    while IFS= read -r old; do
+      [ -z "$old" ] && continue
+      local keep=0 cur
+      for cur in "$@"; do
+        [ "$cur" = "$old" ] && { keep=1; break; }
+      done
+      if [ "$keep" -eq 0 ] && [ -f "$dest/$old" ]; then
+        rm -f "$dest/$old"
+        echo "  pruned orphan: $dest/$old"
+        UPDATED=$((UPDATED + 1))
+      fi
+    done < "$manifest"
+  fi
+  printf '%s\n' "$@" > "$manifest"
+}
+
+# Seed a MISSING manifest with the legacy names so a pre-manifest install's first
+# update can still prune renamed files. Guard empty arrays for bash 3.2 + set -u.
+seed_manifest() {
+  local manifest="$1"; shift
+  [ -f "$manifest" ] && return 0   # real manifest already present — leave it
+  [ "$#" -gt 0 ] && printf '%s\n' "$@" > "$manifest"
+}
+if [ ${#LEGACY_COMMANDS[@]} -gt 0 ]; then seed_manifest "$CMD_MANIFEST" "${LEGACY_COMMANDS[@]}"; fi
+if [ ${#LEGACY_AGENTS[@]} -gt 0 ]; then seed_manifest "$AGENT_MANIFEST" "${LEGACY_AGENTS[@]}"; fi
+
+prune_orphans "$CMD_MANIFEST" "$COMMANDS_DEST" "${COMMANDS[@]}"
+prune_orphans "$AGENT_MANIFEST" "$AGENTS_DEST" "${AGENTS[@]}"
 
 # Optional: auto-connect Serena MCP if its runtime is already installed.
 # Only registers when a real serena binary is on PATH — never triggers a uvx

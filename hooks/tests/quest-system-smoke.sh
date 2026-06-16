@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Static integrity checks for the quest-system plugin (no LLM runtime needed):
 #   1. sync drift  — skills/ source matches the generated plugins/ copy
-#   2. registration parity — every command is in all FIVE hardcoded registries
+#   2. registration parity — every command is in all FOUR hardcoded registries
 #      (install REMOTE_COMMANDS, install-quest-system SKILL list, verify
-#       required_commands, update-quest-system list, quest-system SKILL.md table)
+#       required_commands, quest-system SKILL.md table). The update-quest-system
+#       skill is NOT a registry — it delegates to the install script — so it is
+#       intentionally excluded here.
 #   3. spec lint  — quest-context commands resolve via SKILL.md; NOTE dates quoted
 # Exit 0 on all pass, 1 on any fail.
 
@@ -30,7 +32,6 @@ fi
 INSTALL="scripts/install-quest-system.sh"
 INSTALL_SKILL="skills/install-quest-system/SKILL.md"
 VERIFY="hooks/quest-system-verify.sh"
-UPDATE="skills/update-quest-system/SKILL.md"
 SKILL="$SRC/SKILL.md"
 missing=""
 for f in "$SRC"/commands/*.md; do
@@ -39,19 +40,10 @@ for f in "$SRC"/commands/*.md; do
   grep -qF -- "$cmd" "$INSTALL"       || missing="$missing\n  $cmd absent from install REMOTE_COMMANDS"
   grep -qF -- "$cmd" "$INSTALL_SKILL" || missing="$missing\n  $cmd absent from install-quest-system SKILL list"
   grep -qF -- "$cmd" "$VERIFY"        || missing="$missing\n  $cmd absent from verify required_commands"
-  grep -qF -- "$cmd" "$UPDATE"        || missing="$missing\n  $cmd absent from update-quest-system list"
   grep -qF -- "\`$slash\`" "$SKILL"   || missing="$missing\n  $slash absent from quest-system SKILL.md commands table"
 done
-[ -z "$missing" ] && ok "registration parity: every command in install(script+skill)+verify+update+SKILL-table" \
+[ -z "$missing" ] && ok "registration parity: every command in install(script+skill)+verify+SKILL-table" \
   || bad "registration parity" "$(printf "$missing")"
-
-# update-quest-system command count matches the actual command count
-cmd_count=$(ls "$SRC"/commands/*.md | wc -l | tr -d ' ')
-if grep -qF "$cmd_count command files" "$UPDATE"; then
-  ok "update-quest-system count says $cmd_count command files"
-else
-  bad "update-quest-system count mismatch (expected '$cmd_count command files')"
-fi
 
 # 3. Spec lint ------------------------------------------------------------------
 # Every command that READS the active quest must reference the canonical rule.
@@ -76,16 +68,12 @@ fi
 AGENT="agents/fp-plan-reviewer.md"
 RUBRIC_SENTINEL="The verdict is a pure function of"
 
-# SHIP GUARD: the agent must reach both new installs and updaters.
+# SHIP GUARD: the agent must reach both new installs and updaters. Both paths
+# now run install-quest-system.sh, so guarding its AGENTS array covers both.
 if grep -qF "fp-plan-reviewer.md" "$INSTALL"; then
   ok "ship: fp-plan-reviewer in install AGENTS array"
 else
   bad "ship: fp-plan-reviewer.md absent from install AGENTS array"
-fi
-if grep -qF "fp-plan-reviewer.md" "$UPDATE"; then
-  ok "ship: fp-plan-reviewer in update-quest-system agent list"
-else
-  bad "ship: fp-plan-reviewer.md absent from update-quest-system agent list"
 fi
 
 # DRIFT GUARD: the rubric is single-source — it lives in the agent and must NOT
