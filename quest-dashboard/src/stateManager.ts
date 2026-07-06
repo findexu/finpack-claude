@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import { leafName } from "./leafName";
 import { parseActiveQuest } from "./parsers/activeQuestParser";
+import { parseAgentsLog } from "./parsers/agentsLogParser";
 import { parseEventsLog } from "./parsers/eventsLogParser";
 import { latestPhaseForQuest } from "./parsers/lifecycleLogParser";
 import { parseHistory } from "./parsers/historyParser";
@@ -11,12 +12,14 @@ import { parseScroll } from "./parsers/scrollParser";
 import { detectPhase } from "./phaseDetector";
 import { checkSchemaVersion } from "./schema";
 import { LoadingState, QuestPhase } from "./types";
-import type { ActiveQuest, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, ScrollFile, SideQuest } from "./types";
+import type { ActiveQuest, AgentActivity, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, ScrollFile, SideQuest } from "./types";
 
 const PROFILE_PATH = [".claude", "quest-xp", "profile.md"];
 const HISTORY_PATH = [".claude", "quest-xp", "quest-history.md"];
 const EVENTS_PATH = [".claude", "quest-xp", "events.log"];
 const LIFECYCLE_PATH = [".claude", "quest-xp", "lifecycle.log"];
+const AGENTS_PATH = [".claude", "quest-xp", "agents.log"];
+const RECENT_AGENTS_LIMIT = 20;
 const ACTIVE_QUEST_PATH = [".claude", "active-quest.txt"];
 const VERSION_PATH = [".claude", "commands", ".quest-system-version"];
 const SIDE_QUESTS_PATH = [".ai-context", "side-quests"];
@@ -109,8 +112,9 @@ export class StateManager implements vscode.Disposable {
     const plannedExpeditions = await this.readPlannedExpeditions(activeQuest);
     const phase = await this.detectPhase(activeQuest);
     const openSideQuests = await this.readSideQuests();
+    const recentAgents = await this.readAgents();
 
-    const base = { phase, expHistory, expFold, plannedExpeditions, activeQuest, scrolls, openSideQuests, schemaVersion };
+    const base = { phase, expHistory, expFold, plannedExpeditions, activeQuest, scrolls, openSideQuests, recentAgents, schemaVersion };
 
     if (profileText === null) {
       return { loadingState: LoadingState.NoAdventurer, profile: null, error: null, ...base };
@@ -178,6 +182,15 @@ export class StateManager implements vscode.Disposable {
         fsPath: vscode.Uri.joinPath(dir, name, "NOTE.md").fsPath,
       }))
       .sort((a, b) => a.slug.localeCompare(b.slug));
+  }
+
+  // Recent sub-agent launches from agents.log (written by the trace hook). The
+  // log is append-only chronological; return the last N newest-first for the
+  // "recent sub-agents" tree group. Absent log -> [].
+  private async readAgents(): Promise<AgentActivity[]> {
+    const text = await this.readText(this.uri(AGENTS_PATH));
+    const all = parseAgentsLog(text);
+    return all.slice(-RECENT_AGENTS_LIMIT).reverse();
   }
 
   private async readActiveQuest(): Promise<ActiveQuest | null> {

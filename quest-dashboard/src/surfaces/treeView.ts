@@ -3,21 +3,23 @@ import * as vscode from "vscode";
 import { deriveBattlePlan } from "../battlePlan";
 import type { BattlePlanRow } from "../battlePlan";
 import { leafName } from "../leafName";
-import type { QuestState, ScrollFile, SideQuest } from "../types";
+import type { AgentActivity, QuestState, ScrollFile, SideQuest } from "../types";
 import type { SurfaceUpdate } from "../stateManager";
 
-type GroupKind = "battle-plan" | "side-quests" | "scrolls";
+type GroupKind = "battle-plan" | "side-quests" | "war-party" | "scrolls";
 
 type QuestNode =
   | { kind: "quest"; questName: string; realm: string }
   | { kind: "group"; group: GroupKind; label: string; description: string }
   | { kind: "expedition"; row: BattlePlanRow; openPath: string | null }
   | { kind: "side-quest"; sideQuest: SideQuest }
+  | { kind: "agent"; activity: AgentActivity }
   | { kind: "scroll"; scroll: ScrollFile };
 
 const GROUP_ICON: Record<GroupKind, string> = {
   "battle-plan": "tasklist",
   "side-quests": "git-branch",
+  "war-party": "organization",
   scrolls: "library",
 };
 
@@ -81,6 +83,15 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
         };
         return item;
       }
+      case "agent": {
+        const item = new vscode.TreeItem(node.activity.type, vscode.TreeItemCollapsibleState.None);
+        item.description = node.activity.desc;
+        item.tooltip = `${node.activity.date} · ${node.activity.type}\n${node.activity.desc}`;
+        item.iconPath = new vscode.ThemeIcon("person");
+        item.contextValue = "agent";
+        // No command: agents.log carries no file to open.
+        return item;
+      }
       case "scroll": {
         const label = node.scroll.filename.replace(/\.md$/, "");
         const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.None);
@@ -139,6 +150,10 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
         description: `${state.openSideQuests.length}`,
       });
     }
+    const agents = state.recentAgents ?? [];
+    if (agents.length > 0) {
+      groups.push({ kind: "group", group: "war-party", label: "War Party", description: `${agents.length} recent` });
+    }
     if (state.scrolls.length > 0) {
       groups.push({ kind: "group", group: "scrolls", label: "Scrolls", description: `${state.scrolls.length}` });
     }
@@ -160,6 +175,8 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
       }
       case "side-quests":
         return state.openSideQuests.map((sideQuest) => ({ kind: "side-quest", sideQuest }));
+      case "war-party":
+        return (state.recentAgents ?? []).map((activity) => ({ kind: "agent", activity }));
       case "scrolls":
         return state.scrolls.map((scroll) => ({ kind: "scroll", scroll }));
     }

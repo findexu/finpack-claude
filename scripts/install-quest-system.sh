@@ -52,6 +52,9 @@ REMOTE_COMMANDS=(
   close-side-quest.md
   start-quest.md
   summon-witch-doctor.md
+  hunt-bugs.md
+  setup-obsidian.md
+  open-obsidian.md
 )
 
 # Commands shipped by older versions that have since been renamed or removed.
@@ -82,6 +85,7 @@ HOOKS=(
   session-start.sh
   quest-system-verify.sh
   quest-lifecycle-bump.sh
+  quest-agent-trace.sh
 )
 
 # The full fp- agent suite quest-system can summon: counsel-quest spawns
@@ -218,6 +222,27 @@ if not already:
         "statusMessage": "Updating quest phase...",
     })
 
+# Wire the sub-agent trace as a PostToolUse(Agent|Task) hook so the dashboard can
+# surface recent sub-agent activity. Task was renamed Agent in CC v2.1.63; match
+# both. Idempotent: only added when no group already runs the command.
+TRACE_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-agent-trace.sh"
+trace_already = any(
+    h.get("command") == TRACE_CMD
+    for group in post
+    for h in group.get("hooks", [])
+)
+if not trace_already:
+    tgt = next((g for g in post if g.get("matcher") == "Agent|Task"), None)
+    if tgt is None:
+        tgt = {"matcher": "Agent|Task", "hooks": []}
+        post.append(tgt)
+    tgt.setdefault("hooks", []).append({
+        "type": "command",
+        "command": TRACE_CMD,
+        "timeout": 5000,
+        "statusMessage": "Recording sub-agent...",
+    })
+
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
     echo "  settings.local.json"
@@ -330,6 +355,27 @@ if not already:
         "command": BUMP_CMD,
         "timeout": 5000,
         "statusMessage": "Updating quest phase...",
+    })
+
+# Wire the sub-agent trace as a PostToolUse(Agent|Task) hook so the dashboard can
+# surface recent sub-agent activity. Task was renamed Agent in CC v2.1.63; match
+# both. Idempotent: only added when no group already runs the command.
+TRACE_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-agent-trace.sh"
+trace_already = any(
+    h.get("command") == TRACE_CMD
+    for group in post
+    for h in group.get("hooks", [])
+)
+if not trace_already:
+    tgt = next((g for g in post if g.get("matcher") == "Agent|Task"), None)
+    if tgt is None:
+        tgt = {"matcher": "Agent|Task", "hooks": []}
+        post.append(tgt)
+    tgt.setdefault("hooks", []).append({
+        "type": "command",
+        "command": TRACE_CMD,
+        "timeout": 5000,
+        "statusMessage": "Recording sub-agent...",
     })
 
 path.write_text(json.dumps(data, indent=2) + "\n")

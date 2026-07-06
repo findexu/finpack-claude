@@ -118,6 +118,16 @@ export interface SideQuest {
   fsPath: string; // the side-quest's NOTE.md, for click-to-open
 }
 
+// One sub-agent launch recorded in `.claude/quest-xp/agents.log` by the
+// PostToolUse(Agent|Task) hook: `{date}|agent|{quest-or--}|type={t};desc={d}`.
+// The hook fires at agent COMPLETION, so timing reflects finish, not start.
+export interface AgentActivity {
+  date: string; // YYYY-MM-DD, raw from the log (display only)
+  quest: string; // quest-name leaf, or "-" when none was active
+  type: string; // subagent_type (e.g. fp-code-reviewer)
+  desc: string; // one-line description, sanitized by the hook
+}
+
 // Single source of truth consumed by every surface. Assembled by the state
 // manager (next expedition); defined here so surfaces type against one shape.
 export interface QuestState {
@@ -133,6 +143,10 @@ export interface QuestState {
   activeQuest: ActiveQuest | null;
   scrolls: ScrollFile[];
   openSideQuests: SideQuest[];
+  // Recent sub-agent launches (newest first), from agents.log. Optional so
+  // existing QuestState literals (initialState, tests) need no change; absent
+  // is treated as [] by surfaces.
+  recentAgents?: AgentActivity[];
   schemaVersion: string | null;
   error: string | null;
 }

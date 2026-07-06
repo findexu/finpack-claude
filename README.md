@@ -104,6 +104,16 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 | `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all quest-system command files to `.claude/commands/`. Run once per project before using `/new-quest`. Safe to re-run. Restart Claude Code after running it. Want to see the workflow before installing? Interactive tutorial: https://findexu.github.io/finpack-claude/ |
 | `/quest-xp` | *(manual only)* | Show your adventurer profile: level, EXP progress bar, total stats, and badge wall (unlocked and locked with counters). Profile is local and gitignored. |
 
+### Obsidian integration (quest-system, opt-in)
+
+View `.ai-context/` as an Obsidian vault. `/setup-obsidian` writes Bases dashboards **and**
+`related:` graph links over your existing scroll frontmatter (portable — the wikilinks live
+in YAML, no `[[brackets]]` in prose), and `/open-obsidian` opens it from the CLI. For live
+read/write, pair it with the "Local REST API with MCP" Obsidian plugin — `/setup-obsidian`
+detects and guides that setup, after which Claude keeps the graph current and can
+read/search/patch scrolls directly. Fully opt-in (a `.ai-context/.obsidian-enabled` marker);
+decliners' scrolls stay byte-for-byte identical. Requires Obsidian 1.9+ for Bases.
+
 ## Agents (subagents)
 
 Agents are specialized Claude instances that run in their own isolated context. Auto-delegated based on the task, or you can invoke any of them explicitly with `@agent-name` in your prompt.

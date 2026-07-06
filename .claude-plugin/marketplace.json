@@ -96,6 +96,12 @@
       "license": "MIT"
     },
     {
+      "name": "session-audit",
+      "source": "./plugins/session-audit",
+      "description": "Audit recent Claude Code sessions for recurring friction, then propose new skills, automations, and CLAUDE.md fixes. Report-only unless --fix.",
+      "license": "MIT"
+    },
+    {
       "name": "refactor",
       "source": "./plugins/refactor",
       "description": "Safely refactor with tests as a safety net. Writes tests first if none exist.",

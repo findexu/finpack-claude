@@ -1,6 +1,7 @@
 ---
 name: fp-doc-reviewer
 description: Reviews documentation for accuracy, completeness, and clarity. Cross-references docs against the actual source code.
+model: sonnet
 tools:
   - Read
   - Grep

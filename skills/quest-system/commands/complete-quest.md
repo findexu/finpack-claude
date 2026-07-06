@@ -145,6 +145,14 @@ Append to `.ai-context/DECISIONS_LOG.md`:
 Do not duplicate decisions already in the log. Hold the same advisory lock as
 Step 3 for this read-append-write (SKILL.md -> "Concurrency").
 
+## Step 4.5: Maintain Obsidian graph links (if opted in)
+
+If `.ai-context/.obsidian-enabled` exists, ensure the two project registries link to each
+other: `DECISIONS_LOG.md` carries `related: ["[[DANGER_REGISTRY]]"]` and `DANGER_REGISTRY.md`
+carries `related: ["[[DECISIONS_LOG]]"]` (quoted wikilinks in frontmatter). Add the key only
+if missing (idempotent). The archived quest's own scrolls keep the `related:` links make-camp
+already wrote. If the marker is absent, do nothing. Hold the same advisory lock as Steps 3–4.
+
 ## Step 5: Write final journal entry
 
 Append to `{quest-folder}/ADVENTURE_JOURNAL.md`

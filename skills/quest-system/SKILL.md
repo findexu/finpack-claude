@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.20.0
+version: 1.26.0
 ---
 
 # Quest System — Skill Definition
@@ -69,6 +69,9 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 | `/counsel-plan` | Review a `plan.md` against quest context — paste-back feedback ending in a READY/REVISE verdict; `--critique` runs a lens panel |
 | `/counsel-prompt` | Rewrite a rough prompt into a sharp, well-contextualized one |
 | `/init-xp` | Bootstrap the adventurer XP profile for an existing project, without starting a new quest |
+| `/hunt-bugs` | Hunt real bugs: Haiku scouts fan out, Sonnet reviewers adversarially verify each finding, ranked by severity with a fix plan; `--fix` gates applying them |
+| `/setup-obsidian` | Opt in to viewing `.ai-context/` as an Obsidian vault: writes `.obsidian/` config + Bases/Dataview dashboards + `related:` graph links over existing frontmatter; gated by an opt-in marker, decliners unchanged |
+| `/open-obsidian` | Open this project's `.ai-context/` vault in Obsidian from the CLI (registers it headlessly first if needed); `--graph` hints the graph view |
 
 ## Key concepts
 
@@ -261,6 +264,76 @@ emit a verdict line. Fold rule: `READY` iff every lens returned zero blockers; f
 blocking/minor = the count of the DEDUP'D UNION across lenses (an issue raised by two
 lenses counts once); a lens whose verdict is missing or unparseable is treated as REVISE
 (blocking >= 1), never silently dropped.
+
+## Loop architecture doctrine (shared)
+
+Design narrative for how commands orchestrate work. The strong model runs in the main
+session as the ORCHESTRATOR; it decomposes, delegates to cheaper WORKER subagents, and
+synthesizes. Grounded in the measured tradeoffs: token usage explains ~80% of agent
+performance variance and a multi-agent run burns ~15x a plain chat's tokens, so an
+Opus/Fable orchestrator with cheaper workers cuts cost 5-10x versus running the strong
+model everywhere. This section is dev-facing; the RUNTIME tiers are set in agent
+frontmatter (see the table note), because the install-script distribution does not ship
+this file.
+
+**The 8 rules.**
+1. **Orchestrate, don't execute.** The main session does the judgment and the writing;
+   workers do bounded, parallelizable legwork and return summaries/references, not raw dumps.
+2. **Tier by task, not by habit.** Reserve the strong model for judgment/synthesis; push
+   volume work to cheaper tiers.
+3. **Scale effort to complexity.** Trivial → 1 worker; comparison → 2-4; broad → more. Fan
+   out only when work is parallel and the value is high; otherwise stay single-agent.
+4. **Isolate context.** Each worker gets its own window; the orchestrator holds only distilled
+   returns. This is the token-budget mechanism, not an accident.
+5. **Autonomous on reversible, gate on irreversible.** Only ~0.8% of real agent actions are
+   irreversible — proceed silently on reversible steps (reads, searches, scroll edits, worker
+   fan-out), stop only at high-blast-radius points.
+6. **One crisp go/no-go, with pros/cons — never babysit.** A gate is a decision request, not a
+   status update (format below).
+7. **Every loop declares its exit before it starts.** Three termination conditions always:
+   success (verdict/tests pass), failure (retry limit), budget (max iterations + token ceiling).
+8. **Converge on a verdict token.** Reviewer/evaluator workers return a machine-checkable
+   verdict (`READY|REVISE`, `PASS|FAIL`) so the orchestrator loop terminates deterministically.
+
+**Model-tier table (dev-facing mirror — runtime source of truth is each agent's `model:`
+frontmatter key; keep this table in sync with `agents/fp-*.md`).**
+
+| Worker | Tier | Why |
+|---|---|---|
+| fp-code-explorer, fp-code-architect | sonnet | High-volume comprehension / divergent design; the decisive pick stays with the orchestrator |
+| fp-code-reviewer, fp-performance-reviewer, fp-doc-reviewer | sonnet | Correctness/impact reasoning; cheaper tiers miss subtle issues |
+| fp-security-reviewer | sonnet FLOOR | Never below sonnet — security false-negatives are costly |
+| fp-plan-reviewer | sonnet | Returns a `READY\|REVISE` verdict — loop-terminating judgment |
+| fp-frontend-designer, fp-swiftui-designer | sonnet | Production UI generation |
+| bug-hunt scouts, session-audit, danger/doc extraction (command-spawned general-purpose) | haiku | Cheap fan-out to grep/trace/extract candidates; the orchestrator curates |
+| goal-evaluator (command-spawned) | strong | This IS the gate reasoning — must not be cheap |
+
+Orchestrator is always the session model (Opus 4.8 / Fable 5). Workers set their tier in
+their own frontmatter via model aliases (`sonnet`/`haiku`), never dated model IDs, so they
+auto-track the latest release without drift. Command-spawned general-purpose workers pass
+`model` on the `Agent` tool call at the launch site.
+
+**The escalation contract (replaces babysitting).**
+```
+PROCEED autonomously when ALL hold:
+  - reversible (git-recoverable, or a scroll edit)
+  - inside the approved plan / budget
+  - no destructive fs / network / external side effect
+STOP and gate when ANY holds:
+  - irreversible or high-blast-radius (delete, archive, branch/direction lock, external effect)
+  - a CONFIRMED high-severity finding
+  - budget/iteration ceiling hit without convergence
+  - genuine ambiguity a wrong guess would make expensive to undo
+
+GATE FORMAT (required):
+  DECISION: <one line>
+  RECOMMENDATION: <Option N> — <one-sentence why>
+  ┌ Option A  PRO: … | CON: … | reversible? Y/N
+  └ Option B  PRO: … | CON: … | reversible? Y/N
+  ASK: "Proceed with <rec>? (y / pick other / abort)"
+```
+Orchestration lives in the command (main session) — fp-* workers are leaves and cannot spawn,
+exactly as the Council cross-critique contract above.
 
 ## Sacred laws (enforced by all commands)
 
@@ -710,6 +783,30 @@ derived-from-events: 0
 ```
 
 `.claude/quest-xp/quest-history.md`: append-only log, one entry per completed quest.
+
+## Obsidian integration (opt-in)
+
+`.ai-context/` can be opened as an Obsidian vault for dashboards + a knowledge graph over
+your scrolls. Fully opt-in: nothing changes until you run `/setup-obsidian`, and no other
+command reads the marker, so declining leaves scrolls byte-for-byte identical.
+
+- **`/setup-obsidian`** — writes `.ai-context/.obsidian/` config (Bases enabled), three
+  Bases dashboards (Quest Status / Dangers / Decisions) over the existing frontmatter, and
+  injects `related:` quoted-wikilink frontmatter so the graph connects. Quoted frontmatter
+  links create native graph edges since Obsidian 1.4 and live in YAML — no `[[brackets]]`
+  in prose, so the scrolls stay GitHub-portable. Drops the opt-in marker
+  `.ai-context/.obsidian-enabled`. Idempotent; `--force` regenerates.
+- **`/open-obsidian`** — opens the vault from the CLI (registers it headlessly if needed).
+- **Living connectivity (MCP)** — install the "Local REST API with MCP" Obsidian plugin,
+  enable its non-encrypted loopback server, and `claude mcp add` it. Then Claude keeps the
+  graph current and can read/search/patch scrolls directly via `mcp__obsidian__*`.
+  `/setup-obsidian` detects this and guides the setup when it is missing.
+- **Self-maintaining** — once opted in, `make-camp` and `complete-quest` emit `related:`
+  on the scrolls they touch (gated on the marker), so new scrolls join the graph without
+  re-running setup.
+
+Requires Obsidian 1.9+ for Bases (older versions use the Dataview `Dashboards.md`
+fallback). One vault per project = one `.ai-context/`.
 
 ## Installation
 

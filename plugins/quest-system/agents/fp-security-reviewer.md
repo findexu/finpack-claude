@@ -1,6 +1,7 @@
 ---
 name: fp-security-reviewer
 description: Reviews code changes for security vulnerabilities. Use for PR review, pre-deploy verification, or audit of recently changed files.
+model: sonnet  # FLOOR — never downgrade below sonnet; security false-negatives are costly
 tools:
   - Read
   - Grep

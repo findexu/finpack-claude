@@ -1,6 +1,6 @@
 ---
 description: Start an expedition on the active quest. Scopes today's focus, loads only relevant subfiles, briefs the commander, proposes an expedition plan, and waits for approval before any work begins.
-argument-hint: "[--quest <name>] [--realm <realm>] [--counsel [N]] [--strict]"
+argument-hint: "[--quest <name>] [--realm <realm>] [--counsel [N]] [--strict] [--goal]"
 ---
 
 # Embark
@@ -224,6 +224,49 @@ scroll `/embark` writes — a STRATEGY_SCROLL body edit. NEVER touch `events.log
 `lifecycle.log` here (the lifecycle line is Step 8's job; a non-XP append to events.log
 would wipe a migrated profile). If the checklist is absent (quest never counselled),
 skip silently — do not create it (that is `/counsel-quest`'s job).
+
+## Step 6.95: Emit the /goal condition (opt-in `--goal`)
+
+Runs ONLY when `$ARGUMENTS` contains `--goal`, and only AFTER the plan is approved. With
+the flag absent, skip this step entirely — emit nothing, so default embark output is
+byte-for-byte unchanged.
+
+`/goal` is a built-in Claude Code command (v2.1.139+) that sets a session completion
+condition; after every turn a cheap, transcript-only evaluator (Haiku by default, not
+settable from here) judges whether the condition holds and re-drives another turn until it
+does. Two facts shape what we generate:
+- The evaluator reads ONLY the conversation transcript — it cannot run tools or read files.
+  A condition is checkable only if Claude SURFACES the evidence in a turn (runs the command,
+  shows the output). So we derive conditions from the quest's machine-provable criteria.
+- `/goal` is client-side — this command cannot invoke it. We PRESENT a ready-to-run line
+  for the commander to paste.
+
+Steps:
+1. Read `## Acceptance Criteria` from STRATEGY_SCROLL. Select the machine-provable criteria:
+   exactly the lines carrying a `Check:` clause (shared contract
+   `- {outcome} — Check: {command} surfaces "{expected}"`).
+2. FALLBACK — if the section is the new-quest placeholder, empty, or has ZERO `Check:` lines,
+   emit no `/goal` block; print one line instead and go to Step 7:
+   `/goal: Acceptance Criteria not machine-provable yet — run /counsel-quest to sharpen them.`
+3. Otherwise build ONE condition by joining each selected criterion's check with ` AND `,
+   phrased so the transcript shows the proof, e.g.
+   `bash hooks/tests/run-all.sh surfaces "0 failed" AND git status --short is empty`.
+   Do NOT put a turn or give-up bound INSIDE the condition — a disjunction like
+   `(criteria) OR (N turns)` makes the evaluator report FALSE completion once the turns
+   elapse with the criteria still failing.
+4. Version-guard: run `claude --version` (the running session's CLI is on PATH) and parse the
+   semver. If >= 2.1.139, present it as runnable:
+   ```
+   Optional goal-driven loop — paste to run until acceptance holds:
+     /goal {condition}
+   The evaluator reads the transcript only, so actually RUN each check in a turn.
+   If still unmet after ~10 turns, stop and reassess (this cap is NOT part of the condition).
+   ```
+   If the version is < 2.1.139 or `claude --version` cannot be parsed, present the SAME
+   `{condition}` as a manual done-checklist plus one line:
+   `(/goal needs Claude Code >= v2.1.139; yours is older or undetected — use the above as a manual checklist.)`
+
+This block is emitted ONLY under `--goal`; never fold it into Step 7's context.md.
 
 ## Step 7: Refresh context.md
 

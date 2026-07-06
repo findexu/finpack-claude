@@ -1,6 +1,7 @@
 ---
 name: fp-swiftui-designer
 description: Designs and builds polished SwiftUI UI/UX for iPhone and iPad apps. Use when building or refining native Apple app screens, components, navigation, or adaptive iPad layouts. Follows Apple Human Interface Guidelines, builds adaptive (size-class aware) layouts, and produces production-ready SwiftUI code.
+model: sonnet
 tools:
   - Read
   - Write

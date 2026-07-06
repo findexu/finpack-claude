@@ -1,6 +1,7 @@
 ---
 name: fp-frontend-designer
 description: Creates distinctive, production-grade frontend UI. Use when building any web UI, landing page, dashboard, or component. Generates creative, polished code that avoids generic AI aesthetics.
+model: sonnet
 tools:
   - Read
   - Write

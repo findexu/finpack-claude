@@ -75,6 +75,9 @@ Canonical command set (also the fallback list — keep in sync with
 - `counsel-plan.md`
 - `side-quest.md`
 - `close-side-quest.md`
+- `hunt-bugs.md`
+- `setup-obsidian.md`
+- `open-obsidian.md`
 
 For each file: read content from source path, write to `.claude/commands/{filename}`.
 Report each file as it is written.
