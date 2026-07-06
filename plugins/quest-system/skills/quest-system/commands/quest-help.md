@@ -27,7 +27,7 @@ Lifecycle
   /start-quest <name>                                activate a quest, route to next step
   /counsel-quest [--pivot] [--expedition-focus <n>] [--critique]
                                                      plan / replan / pivot the active quest
-  /embark [--counsel [N]] [--strict]                 start an expedition (scope + brief + approve)
+  /embark [--counsel [N]] [--strict] [--goal]        start an expedition (scope + brief + approve)
   /make-camp                                         end an expedition, update all scrolls
   /complete-quest                                    distill to project files, archive, clear
 
@@ -46,10 +46,15 @@ Counsel & reference
   /counsel-prompt <rough prompt>                     sharpen a rough prompt into a tight one
   /quest-help [command]                              this card (or one command's flags)
 
+Code quality
+  /hunt-bugs [path] [--diff|--all] [--fix]           hunt real bugs: scout fan-out -> adversarial verify -> ranked fix plan
+
 Switch & setup
   /change-quest <name> [realm]                       save state, switch quest/realm
   /init-xp                                           bootstrap the XP profile (no new quest)
   /install-quest-system  /update-quest-system        install / update the system
+  /setup-obsidian [--force]                          opt-in: view .ai-context/ as an Obsidian vault (dashboards + graph)
+  /open-obsidian [--graph]                           open this project's .ai-context/ vault in Obsidian (CLI)
 
 Flag glossary
   --quest <name>            target a specific quest by name (multi-chat safe). Most commands.
@@ -60,9 +65,14 @@ Flag glossary
                             reviewer lens (base -> contrarian -> executor) to escape local
                             minima. Bare = N=1 (single pass). Use 3+ for the rotation benefit.
   --strict                  /embark — only BLOCKING issues drive the counsel loop.
+  --goal                    /embark — after approval, generate a machine-checkable /goal
+                            condition from the quest's Acceptance Criteria (Claude Code v2.1.139+).
   --pivot                   /counsel-quest — full direction change; records the fallen strategy.
   --expedition-focus <n>    /counsel-quest — scope the counsel to one focus area.
-  --all                     /quest-log — multi-quest board across every quest + side-quest.
+  --all                     /quest-log — multi-quest board across every quest + side-quest;
+                            /hunt-bugs — sweep the whole codebase instead of just the diff.
+  --diff                    /hunt-bugs — scope the hunt to changed files vs main (default).
+  --fix                     /hunt-bugs — gate applying the confirmed fixes (default: report only).
   --promote                 /close-side-quest — grow the side-quest into a full 5-scroll quest.
   --standalone              /side-quest — a side-quest with no parent quest.
 

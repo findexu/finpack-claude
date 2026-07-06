@@ -131,6 +131,16 @@ If `map/` subfolder exists, write to the relevant area file
 
 Update `last-updated: {date}` in YAML frontmatter.
 
+## Step 6.6: Maintain Obsidian graph links (if opted in)
+
+If `.ai-context/.obsidian-enabled` exists, ensure every scroll in this quest folder carries
+a `related:` frontmatter list — the peer scrolls in the same quest folder plus
+`"[[DECISIONS_LOG]]"` and `"[[DANGER_REGISTRY]]"` as quoted, vault-root-relative wikilinks
+(e.g. `"[[quests/{quest-name}/TOME_OF_DANGERS]]"`). Add the key to any scroll missing it;
+SKIP scrolls that already have `related:` (idempotent). If the marker is absent, do nothing.
+This keeps the Obsidian graph connected as scrolls are added (see /setup-obsidian). It is a
+scroll-frontmatter edit under the lock — never touches events.log/lifecycle.log.
+
 ## Step 7: Split check
 
 After every write, count lines in each modified scroll file (index files only for split scrolls).

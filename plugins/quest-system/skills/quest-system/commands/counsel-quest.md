@@ -142,6 +142,20 @@ Provide your recommendation for each question and ask for explicit confirmation.
 
 Record confirmed answers as candidate oaths.
 
+Also capture the quest's **Acceptance Criteria** — the observable outcomes that mean
+this quest is done. Where an outcome can be proven from what Claude surfaces in a
+turn, phrase it in the shared machine-provable contract so it is `/goal`-ready
+(`/embark --goal` reads these lines verbatim):
+
+```
+- {outcome} — Check: {command} surfaces "{expected string}"
+```
+
+Example: `- Suite green — Check: `bash hooks/tests/run-all.sh` surfaces "0 failed"`.
+An outcome that cannot be reduced to a transcript-visible check may be written as a
+plain `- {outcome}` line (still valid, just not `/goal`-eligible). These are
+finalized and written to the scroll in Step 7.
+
 ### PRE Step 6: Architecture Design
 
 Announce: "🏗️ Designing the architecture..."
@@ -215,15 +229,21 @@ After all agents return:
 1. Move resolved riddles from **Open Riddles** → **Oaths Sworn** in STRATEGY_SCROLL
    Format: `- {decision}: {rationale in one sentence}`
 2. Write the chosen architecture as **The Battle Plan** (numbered, specific, bounded steps)
-3. Seed a `## Planned Expeditions` checklist in STRATEGY_SCROLL — one `- [ ]` per
+3. **Write/replace the `## Acceptance Criteria` section** of STRATEGY_SCROLL with the
+   criteria captured in Step 5 — replacing the `(run /counsel-quest to define …)`
+   placeholder new-quest scaffolds. Use the shared contract line for every provable
+   outcome (`- {outcome} — Check: {command} surfaces "{expected}"`); write plain
+   `- {outcome}` lines for the rest. This section is what `/embark --goal` reads to
+   derive a machine-checkable `/goal` condition, so keep the `Check:` phrasing exact.
+4. Seed a `## Planned Expeditions` checklist in STRATEGY_SCROLL — one `- [ ]` per
    battle-plan phase, each labeled with a short focus phrase (e.g. `- [ ] data layer`,
    `- [ ] surface layer`). This is the upcoming-work tracker the dashboard reads;
    `/embark` flips an item to `- [>]` (active) and `/make-camp` to `- [x]` (done).
    Keep the block in the top-level scroll (it must survive a later split).
-4. Update `WORLD_MAP.md` with structural insights from architect agents
-5. Update `last-updated` frontmatter in all modified scrolls
-6. Refresh `.ai-context/` if it exists
-7. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
+5. Update `WORLD_MAP.md` with structural insights from architect agents
+6. Update `last-updated` frontmatter in all modified scrolls
+7. Refresh `.ai-context/` if it exists
+8. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
    dashboard reflects planning progress in real time. Use `phase=ready` when no open
    riddles remain (plan is locked and ready to embark), else `phase=planning`:
    ```bash

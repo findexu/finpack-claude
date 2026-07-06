@@ -96,6 +96,17 @@
             "statusMessage": "Updating quest phase..."
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-agent-trace.sh",
+            "timeout": 5000,
+            "statusMessage": "Recording sub-agent..."
+          }
+        ]
       }
     ],
     "SessionStart": [

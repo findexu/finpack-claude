@@ -1,6 +1,7 @@
 ---
 name: fp-code-reviewer
 description: Reviews code for quality, correctness, and maintainability. Use for diff review, PR review, or post-change verification.
+model: sonnet
 tools:
   - Read
   - Grep

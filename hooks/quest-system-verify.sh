@@ -24,6 +24,9 @@ required_commands=(
   close-side-quest.md
   start-quest.md
   summon-witch-doctor.md
+  hunt-bugs.md
+  setup-obsidian.md
+  open-obsidian.md
 )
 
 missing=0
