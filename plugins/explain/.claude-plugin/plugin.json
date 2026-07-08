@@ -1,7 +1,7 @@
 {
   "name": "explain",
-  "version": "0.1.0",
-  "description": "Explain code with one-sentence summary, mental model, ASCII diagram, and modification guide.",
+  "version": "0.2.0",
+  "description": "Explain code: one-sentence summary + mental model, an ASCII verbose mode, or a self-contained interactive HTML explainer.",
   "author": {
     "name": "findexu"
   },

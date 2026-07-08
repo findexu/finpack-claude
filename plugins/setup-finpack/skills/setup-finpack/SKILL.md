@@ -272,8 +272,6 @@ Files left as defaults (universal, no project-specific changes needed):
 - [list]
 
 Review pass: [any issues found and fixed, or "all clean"]
-
-Tip: run `/context-budget` to see the per-turn token cost of the resulting configuration, broken down by always-loaded vs path-scoped vs invoked-only.
 ```
 
 ## Rules

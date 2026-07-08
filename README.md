@@ -30,11 +30,11 @@ If you only want one or two pieces instead of the full kit, install them individ
 
 ```
 /plugin install fp-code-reviewer@finpack-claude
-/plugin install pr-review@finpack-claude
-/plugin install ship@finpack-claude
+/plugin install explain@finpack-claude
+/plugin install quest-system@finpack-claude
 ```
 
-Full plugin list (22): `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `fp-code-architect`, `fp-code-explorer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `session-audit`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `install-quest-system`, `update-quest-system`.
+Full plugin list (18): `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `fp-code-architect`, `fp-code-explorer`, `setup-finpack`, `debug-fix`, `tdd`, `explain`, `session-audit`, `test-writer`, `quest-system`, `install-quest-system`, `update-quest-system`.
 
 Curious what quest-system does before installing? The interactive tutorial runs the full quest loop in your browser: https://findexu.github.io/finpack-claude/
 
@@ -93,13 +93,9 @@ Skills are invoked with `/name` in your Claude Code session. All except `/test-w
 |---------|-----------|-------------|
 | `/setup-finpack` | `[focus area]` | Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
 | `/debug-fix` | `[issue #, error, or description] [--fast]` | Find and fix a bug. Default is the careful path: reproduce, investigate, write a regression test, fix, commit. Add `--fast` for emergency production mode (`hotfix/` branch from production, minimal change, critical tests only, ships a `[HOTFIX]` PR). Warns if a fast fix turns out to be complex. |
-| `/ship` | `[commit message or PR title]` | Full shipping workflow. Scans changes, stages files (skipping secrets, locks, and build output), drafts a commit message in the repo's style, pushes, and creates a PR. Every step requires confirmation. |
-| `/pr-review` | `[PR #, "staged", file path, or omit]` | Delegates review to specialist agents: `@fp-code-reviewer`, `@fp-security-reviewer` (if security-related code changed), `@fp-performance-reviewer` (if perf-sensitive), `@fp-doc-reviewer` (if docs changed). Synthesizes a unified report with severity-ranked findings. |
 | `/tdd` | `[feature description or function signature]` | Strict red-green-refactor TDD loop. One failing test, then minimum code to pass, then refactor. Commits after each green-plus-refactor cycle. Works simple to complex: degenerate cases, happy path, variations, edge cases, errors. |
 | `/explain` | `[file, function, or concept]` | Explains code with a one-sentence summary, a mental model analogy, an ASCII diagram, key non-obvious details, and a modification guide. Focuses on the why and the landmines, not the obvious. |
-| `/refactor` | `[file, function, or pattern]` | Safe refactoring with tests as a safety net. Writes tests first if none exist, plans transformations, makes small testable steps, and verifies after each one. Never mixes refactoring with behavior changes. |
 | `/test-writer` | *(auto-triggers)* | Writes comprehensive tests for new or changed code. Discovers changes via `git diff`, maps all code paths (happy, edge, error, concurrency), writes one test per scenario with Arrange-Act-Assert. The only skill that can auto-trigger. Claude may invoke it after you add new features. |
-| `/context-budget` | `[--api]` | Estimates per-turn token cost of this project's `.claude/` and `CLAUDE.md`. Reports always-loaded vs path-scoped vs invoked-only, ranks top contributors, flags entries over budget. Default heuristic is `chars/4`. Add `--api` for Anthropic-tokenizer exact counts (requires `$ANTHROPIC_API_KEY`). |
 | `/quest-system` | *(manual only)* | RPG-themed expedition and epic management. Tracks quests (features/epics), expeditions (work loops), and realms (app targets) across expeditions using five persistent scrolls. Maintains `.ai-context/` (committed to git) for Copilot/Gemini compatibility — paste `quest.md` at chat start for instant context. Commands: `/new-quest`, `/counsel-quest`, `/embark`, `/make-camp`, `/quest-log`, `/change-quest`, `/summon-witch-doctor` (scroll health diagnostics and repair). Run `/install-quest-system` once per project. |
 | `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all quest-system command files to `.claude/commands/`. Run once per project before using `/new-quest`. Safe to re-run. Restart Claude Code after running it. Want to see the workflow before installing? Interactive tutorial: https://findexu.github.io/finpack-claude/ |
 | `/quest-xp` | *(manual only)* | Show your adventurer profile: level, EXP progress bar, total stats, and badge wall (unlocked and locked with counters). Profile is local and gitignored. |
@@ -122,15 +118,15 @@ Model column shows the tier each agent runs at (override in the agent's frontmat
 
 | Agent | Model | When it's used | What it does |
 |-------|-------|----------------|--------------|
-| `@fp-code-reviewer` | `opus` | Auto-delegated by `/pr-review`, or invoke directly | Reviews code for correctness and maintainability. Catches off-by-one errors, null dereferences, logic bugs, race conditions, error handling gaps, excessive complexity, and missing tests. Focuses on real issues with evidence, not style nitpicks. |
-| `@fp-security-reviewer` | `opus` | Auto-delegated by `/pr-review` when security-related code changes | Senior security engineer doing static analysis. Covers injection (SQL, command, XSS, template, path traversal), auth and authorization flaws, data exposure, cryptography issues, dependency vulnerabilities, and input validation gaps. Reports severity, attack vector, and concrete fix for each finding. |
+| `@fp-code-reviewer` | `opus` | Invoke directly, or via the quest-system review habit | Reviews code for correctness and maintainability. Catches off-by-one errors, null dereferences, logic bugs, race conditions, error handling gaps, excessive complexity, and missing tests. Focuses on real issues with evidence, not style nitpicks. |
+| `@fp-security-reviewer` | `opus` | Invoke directly on security-sensitive changes, or via the review habit | Senior security engineer doing static analysis. Covers injection (SQL, command, XSS, template, path traversal), auth and authorization flaws, data exposure, cryptography issues, dependency vulnerabilities, and input validation gaps. Reports severity, attack vector, and concrete fix for each finding. |
 | `@fp-code-architect` | `opus` | Spawned by `/counsel-quest` during design, or invoke directly | Read-only architecture designer. Turns codebase findings into an implementation blueprint: specific files to create/modify, build sequence, and data flow. Prefers Serena MCP tools for surveying structure and blast radius. |
-| `@fp-performance-reviewer` | `sonnet` | Auto-delegated by `/pr-review` when performance-sensitive code changes | Finds real bottlenecks, not theoretical micro-optimizations. Checks for N+1 queries, missing indexes, unbounded queries, memory leaks, repeated computation, blocking I/O on hot paths, unnecessary re-renders, bundle size issues, and lock contention. Only flags issues with measurable impact. |
+| `@fp-performance-reviewer` | `sonnet` | Invoke directly on perf-sensitive changes, or via the review habit | Finds real bottlenecks, not theoretical micro-optimizations. Checks for N+1 queries, missing indexes, unbounded queries, memory leaks, repeated computation, blocking I/O on hot paths, unnecessary re-renders, bundle size issues, and lock contention. Only flags issues with measurable impact. |
 | `@fp-code-explorer` | `sonnet` | Spawned by `/counsel-quest` during exploration, or invoke directly | Read-only codebase analyst. Traces execution paths, maps architecture layers, and documents dependencies for a feature before it is built. Prefers Serena MCP tools for symbol navigation. |
 | `@fp-plan-reviewer` | `sonnet` | Used by `/counsel-plan` and `/embark` | Judges whether a plan or expedition steps are ready to execute. Flags gaps, risk, and scope drift, and returns a `READY`/`REVISE` verdict so a planning loop can terminate. Not a code reviewer. |
 | `@fp-frontend-designer` | `sonnet` | Auto-delegated when building web UI, or invoke directly | Creates distinctive, production-grade frontend UI that avoids generic AI aesthetics. Enforces design tokens, picks an appropriate design principle (glassmorphism, brutalism, editorial, and so on), ensures accessibility (WCAG), and prevents common anti-patterns like purple gradients, centered-everything layouts, and overused fonts. |
 | `@fp-swiftui-designer` | `sonnet` | Auto-delegated when building SwiftUI screens, or invoke directly | Builds polished SwiftUI UI/UX for iPhone and iPad. Follows Apple HIG, adapts across size classes (`NavigationSplitView` on iPad, not a stretched-phone layout), enforces Dynamic Type and VoiceOver, uses system materials and SF Symbols, and delivers compiling views with `#Preview` blocks. |
-| `@fp-doc-reviewer` | `haiku` | Auto-delegated by `/pr-review` when documentation changes | Reviews docs for accuracy by cross-referencing actual source code. Verifies function signatures, code examples, config options, and file paths. Identifies stale references, missing prerequisites, undocumented error cases, and unclear instructions. |
+| `@fp-doc-reviewer` | `haiku` | Invoke directly on doc changes, or via the review habit | Reviews docs for accuracy by cross-referencing actual source code. Verifies function signatures, code examples, config options, and file paths. Identifies stale references, missing prerequisites, undocumented error cases, and unclear instructions. |
 
 ### Using agents directly
 
@@ -190,7 +186,7 @@ finpack-claude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
 ├── .gitignore                          # Gitignore for the finpack-claude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
-│   └── marketplace.json                #   22 plugin entries pointing at ./plugins/<name>
+│   └── marketplace.json                #   18 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/
 │   ├── code-quality.md                 #   Principles, naming, comments, markers, file organization
 │   ├── testing.md                      #   Testing conventions (always loaded)
@@ -201,13 +197,9 @@ finpack-claude/
 ├── skills/                             # Slash commands, copy to .claude/skills/   (also published as plugins)
 │   ├── setup-finpack/SKILL.md         #   /setup-finpack. Bootstrap and customize all config files.
 │   ├── debug-fix/SKILL.md              #   /debug-fix [--fast]. Bug fix, careful by default, hotfix mode opt-in.
-│   ├── ship/SKILL.md                   #   /ship. Commit, push, PR with confirmations.
-│   ├── pr-review/SKILL.md              #   /pr-review. Review PR or staged changes via specialist agents.
 │   ├── tdd/SKILL.md                    #   /tdd. Strict red-green-refactor TDD loop.
 │   ├── explain/SKILL.md                #   /explain <file or function>.
-│   ├── refactor/SKILL.md               #   /refactor <target>.
 │   ├── test-writer/SKILL.md            #   Auto-triggers on new features. Comprehensive tests.
-│   ├── context-budget/SKILL.md         #   /context-budget [--api]. Estimates per-turn token cost of .claude/ + CLAUDE.md.
 │   ├── quest-system/                   #   /quest-system. RPG-themed session and epic management.
 │   │   ├── SKILL.md                    #     Skill definition, split rules, scroll templates.
 │   │   └── commands/                   #     Individual command files (installed to .claude/commands/)
@@ -233,7 +225,7 @@ finpack-claude/
 │   ├── format-on-save.sh               #   Auto-format after edits. Detects Prettier, Black, Ruff, Biome, rustfmt, gofmt.
 │   └── session-start.sh                #   Inject branch, commit, stash, and PR context at session start.
 ├── plugins/                            # Per-plugin self-contained copies (only used by the plugin install path)
-│   └── <22 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
+│   └── <18 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
 └── scripts/
     └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setup-finpack
 ```
