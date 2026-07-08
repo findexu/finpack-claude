@@ -1,6 +1,6 @@
 # finpack-claude
 
-A lean `.claude/` setup for daily development. Five reviewer agents, nine workflow skills, six modular rules, and a few safety hooks. No bloat, no model assignments, no opinions you can't override.
+A lean `.claude/` setup for daily development. Nine specialist agents, a stack of workflow skills, seven modular rules, and a few safety hooks. No bloat, no opinions you can't override. Agent models are tiered by reasoning need — `opus` for deep reasoning (architecture, code + security review), `sonnet` as the default, `haiku` for mechanical work (doc cross-referencing) — and every tier is overridable in the agent's frontmatter.
 NOTE: This plagiarised work is hugely copied from https://github.com/poshan0126/dotclaude.git. Big clap and please go check it out for the original work.
 
 ## Get started
@@ -34,7 +34,7 @@ If you only want one or two pieces instead of the full kit, install them individ
 /plugin install ship@finpack-claude
 ```
 
-Full plugin list: `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `install-quest-system`.
+Full plugin list (22): `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `fp-code-architect`, `fp-code-explorer`, `setup-finpack`, `debug-fix`, `ship`, `pr-review`, `tdd`, `explain`, `session-audit`, `refactor`, `test-writer`, `context-budget`, `quest-system`, `install-quest-system`, `update-quest-system`.
 
 Curious what quest-system does before installing? The interactive tutorial runs the full quest loop in your browser: https://findexu.github.io/finpack-claude/
 
@@ -118,14 +118,19 @@ decliners' scrolls stay byte-for-byte identical. Requires Obsidian 1.9+ for Base
 
 Agents are specialized Claude instances that run in their own isolated context. Auto-delegated based on the task, or you can invoke any of them explicitly with `@agent-name` in your prompt.
 
-| Agent | When it's used | What it does |
-|-------|----------------|--------------|
-| `@fp-code-reviewer` | Auto-delegated by `/pr-review`, or invoke directly | Reviews code for correctness and maintainability. Catches off-by-one errors, null dereferences, logic bugs, race conditions, error handling gaps, excessive complexity, and missing tests. Focuses on real issues with evidence, not style nitpicks. |
-| `@fp-security-reviewer` | Auto-delegated by `/pr-review` when security-related code changes | Senior security engineer doing static analysis. Covers injection (SQL, command, XSS, template, path traversal), auth and authorization flaws, data exposure, cryptography issues, dependency vulnerabilities, and input validation gaps. Reports severity, attack vector, and concrete fix for each finding. |
-| `@fp-performance-reviewer` | Auto-delegated by `/pr-review` when performance-sensitive code changes | Finds real bottlenecks, not theoretical micro-optimizations. Checks for N+1 queries, missing indexes, unbounded queries, memory leaks, repeated computation, blocking I/O on hot paths, unnecessary re-renders, bundle size issues, and lock contention. Only flags issues with measurable impact. |
-| `@fp-frontend-designer` | Auto-delegated when building web UI, or invoke directly | Creates distinctive, production-grade frontend UI that avoids generic AI aesthetics. Enforces design tokens, picks an appropriate design principle (glassmorphism, brutalism, editorial, and so on), ensures accessibility (WCAG), and prevents common anti-patterns like purple gradients, centered-everything layouts, and overused fonts. |
-| `@fp-swiftui-designer` | Auto-delegated when building SwiftUI screens, or invoke directly | Builds polished SwiftUI UI/UX for iPhone and iPad. Follows Apple HIG, adapts across size classes (`NavigationSplitView` on iPad, not a stretched-phone layout), enforces Dynamic Type and VoiceOver, uses system materials and SF Symbols, and delivers compiling views with `#Preview` blocks. |
-| `@fp-doc-reviewer` | Auto-delegated by `/pr-review` when documentation changes | Reviews docs for accuracy by cross-referencing actual source code. Verifies function signatures, code examples, config options, and file paths. Identifies stale references, missing prerequisites, undocumented error cases, and unclear instructions. |
+Model column shows the tier each agent runs at (override in the agent's frontmatter). `opus` is reserved for reasoning-bound, cascade-heavy work where a miss is costly; `haiku` for mechanical cross-referencing; `sonnet` for everything else.
+
+| Agent | Model | When it's used | What it does |
+|-------|-------|----------------|--------------|
+| `@fp-code-reviewer` | `opus` | Auto-delegated by `/pr-review`, or invoke directly | Reviews code for correctness and maintainability. Catches off-by-one errors, null dereferences, logic bugs, race conditions, error handling gaps, excessive complexity, and missing tests. Focuses on real issues with evidence, not style nitpicks. |
+| `@fp-security-reviewer` | `opus` | Auto-delegated by `/pr-review` when security-related code changes | Senior security engineer doing static analysis. Covers injection (SQL, command, XSS, template, path traversal), auth and authorization flaws, data exposure, cryptography issues, dependency vulnerabilities, and input validation gaps. Reports severity, attack vector, and concrete fix for each finding. |
+| `@fp-code-architect` | `opus` | Spawned by `/counsel-quest` during design, or invoke directly | Read-only architecture designer. Turns codebase findings into an implementation blueprint: specific files to create/modify, build sequence, and data flow. Prefers Serena MCP tools for surveying structure and blast radius. |
+| `@fp-performance-reviewer` | `sonnet` | Auto-delegated by `/pr-review` when performance-sensitive code changes | Finds real bottlenecks, not theoretical micro-optimizations. Checks for N+1 queries, missing indexes, unbounded queries, memory leaks, repeated computation, blocking I/O on hot paths, unnecessary re-renders, bundle size issues, and lock contention. Only flags issues with measurable impact. |
+| `@fp-code-explorer` | `sonnet` | Spawned by `/counsel-quest` during exploration, or invoke directly | Read-only codebase analyst. Traces execution paths, maps architecture layers, and documents dependencies for a feature before it is built. Prefers Serena MCP tools for symbol navigation. |
+| `@fp-plan-reviewer` | `sonnet` | Used by `/counsel-plan` and `/embark` | Judges whether a plan or expedition steps are ready to execute. Flags gaps, risk, and scope drift, and returns a `READY`/`REVISE` verdict so a planning loop can terminate. Not a code reviewer. |
+| `@fp-frontend-designer` | `sonnet` | Auto-delegated when building web UI, or invoke directly | Creates distinctive, production-grade frontend UI that avoids generic AI aesthetics. Enforces design tokens, picks an appropriate design principle (glassmorphism, brutalism, editorial, and so on), ensures accessibility (WCAG), and prevents common anti-patterns like purple gradients, centered-everything layouts, and overused fonts. |
+| `@fp-swiftui-designer` | `sonnet` | Auto-delegated when building SwiftUI screens, or invoke directly | Builds polished SwiftUI UI/UX for iPhone and iPad. Follows Apple HIG, adapts across size classes (`NavigationSplitView` on iPad, not a stretched-phone layout), enforces Dynamic Type and VoiceOver, uses system materials and SF Symbols, and delivers compiling views with `#Preview` blocks. |
+| `@fp-doc-reviewer` | `haiku` | Auto-delegated by `/pr-review` when documentation changes | Reviews docs for accuracy by cross-referencing actual source code. Verifies function signatures, code examples, config options, and file paths. Identifies stale references, missing prerequisites, undocumented error cases, and unclear instructions. |
 
 ### Using agents directly
 
@@ -185,7 +190,7 @@ finpack-claude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
 ├── .gitignore                          # Gitignore for the finpack-claude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
-│   └── marketplace.json                #   17 plugin entries pointing at ./plugins/<name>
+│   └── marketplace.json                #   22 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/
 │   ├── code-quality.md                 #   Principles, naming, comments, markers, file organization
 │   ├── testing.md                      #   Testing conventions (always loaded)
@@ -228,7 +233,7 @@ finpack-claude/
 │   ├── format-on-save.sh               #   Auto-format after edits. Detects Prettier, Black, Ruff, Biome, rustfmt, gofmt.
 │   └── session-start.sh                #   Inject branch, commit, stash, and PR context at session start.
 ├── plugins/                            # Per-plugin self-contained copies (only used by the plugin install path)
-│   └── <15 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
+│   └── <22 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
 └── scripts/
     └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setup-finpack
 ```
