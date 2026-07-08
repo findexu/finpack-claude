@@ -89,7 +89,17 @@ em { font-style: normal; color: var(--amber); }
 @media (max-width: 620px) { .nav a:not(.nav__ext) { display: none; } }
 
 /* ----------------------------- hero ------------------------------ */
-.hero { padding-top: clamp(2.6rem, 6vw, 5rem); padding-bottom: clamp(2.2rem, 5vw, 4rem); max-width: 920px; }
+.hero { position: relative; padding-top: clamp(2.6rem, 6vw, 5rem); padding-bottom: clamp(2.2rem, 5vw, 4rem); max-width: 920px; }
+/* brand emblem sits in the right gutter on desktop; hidden on phones to keep the hero clean */
+.hero__emblem { display: none; }
+@media (min-width: 900px) {
+  .hero { padding-right: 290px; }
+  .hero__emblem {
+    display: block; position: absolute; right: var(--step);
+    top: clamp(3rem, 6vw, 5.5rem); width: 230px; height: 230px; opacity: .92;
+    filter: drop-shadow(0 8px 30px rgba(227,168,87,.25));
+  }
+}
 .eyebrow, .kicker {
   font-family: var(--f-mono); font-size: .78rem; font-weight: 500;
   letter-spacing: .18em; text-transform: uppercase; color: var(--amber);
@@ -152,6 +162,7 @@ em { font-style: normal; color: var(--amber); }
   border: 1px solid var(--paper-2);
   box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -28px rgba(0,0,0,.9);
 }
+.log__icon { width: 52px; height: 52px; margin-bottom: .5rem; opacity: .95; }
 .log__h { font-family: var(--f-display); font-size: 1.3rem; font-weight: 600; padding-right: 5.5rem; }
 .log__body { margin-top: .7rem; color: #423C2F; }
 .log code { background: rgba(44,40,32,.09); color: #6A3B1E; padding: .08em .35em; border-radius: 4px; }
