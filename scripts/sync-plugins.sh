@@ -24,9 +24,13 @@ for f in agents/*.md; do
   cp "$f" "plugins/$name/agents/$name.md"
   # Pull the first `description:` value from the agent frontmatter; JSON-escape it.
   desc="$(sed -n 's/^description:[[:space:]]*//p' "$f" | head -1 | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  # Version from the agent frontmatter (default 0.1.0). Stamped into plugin.json so
+  # `claude plugin update` can detect changes; bump the frontmatter `version:` to ship.
+  ver="$(sed -n 's/^version:[[:space:]]*//p' "$f" | head -1)"; ver="${ver:-0.1.0}"
   cat > "plugins/$name/.claude-plugin/plugin.json" <<JSON
 {
   "name": "$name",
+  "version": "$ver",
   "description": "$desc",
   "author": { "name": "findexu" },
   "license": "MIT",

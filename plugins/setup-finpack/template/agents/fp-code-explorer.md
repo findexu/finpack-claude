@@ -1,5 +1,6 @@
 ---
 name: fp-code-explorer
+version: 0.1.0
 description: Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, understanding patterns and abstractions, and documenting dependencies. Used by /counsel-quest during codebase exploration phase.
 model: sonnet
 tools:

@@ -1,5 +1,6 @@
 ---
 name: fp-performance-reviewer
+version: 0.1.0
 description: Reviews code for performance issues like memory leaks, slow queries, unnecessary computation, bundle size, and runtime bottlenecks. Use proactively after changes to hot paths, data processing, or API endpoints.
 model: sonnet
 tools:

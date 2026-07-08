@@ -1,7 +1,10 @@
 {
   "name": "setup-finpack",
+  "version": "0.1.0",
   "description": "Bootstrap and customize finpack-claude in any project. Copies the full template into .claude/ if missing, then tunes every config file to match your stack.",
-  "author": { "name": "findexu" },
+  "author": {
+    "name": "findexu"
+  },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"
