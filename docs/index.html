@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>quest-system — leveling memory for Claude Code</title>
-  <meta name="description" content="quest-system gives Claude Code persistent, RPG-themed memory: quests, expeditions, scrolls, XP. Every lesson learned is loaded into the next session." />
+  <title>quest-system — persistent memory for Claude Code</title>
+  <meta name="description" content="quest-system gives Claude Code memory that survives between chats: features are quests, work sessions are expeditions, and every lesson is written to plain markdown in your repo. Drive it yourself, or post a bounty and let an autonomous party run the whole quest." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <script src="data.js" defer></script>
   <script src="app.js" defer></script>
@@ -12,288 +15,196 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
-    <div class="site-header__inner">
-      <a class="site-brand" href="#top">quest-system</a>
-      <nav class="site-nav" aria-label="Site sections">
-        <a href="#why">Why it sticks</a>
-        <a href="#workflow">The normal path</a>
-        <a href="#reality">Built for interruption</a>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="#top">quest<span class="brand__mark">·</span>system</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#why">The problem</a>
+        <a href="#ways">Two ways</a>
+        <a href="#run">See it run</a>
         <a href="#install">Install</a>
-        <a class="site-nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.5 7.5 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-          GitHub
-        </a>
+        <a class="nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">GitHub</a>
       </nav>
     </div>
   </header>
 
   <main id="main">
-    <!-- ============================== HERO ============================== -->
-    <section class="hero" id="top" aria-labelledby="hero-heading">
-      <div class="hero__copy">
-        <p class="hero__eyebrow">A Claude Code plugin</p>
-        <h1 id="hero-heading">
-          <span class="hero__punch">Claude forgets between chats.</span>
-          <span class="hero__promise">quest-system gives it a world to remember
-          &mdash; and a journal it never loses.</span>
-        </h1>
-        <p class="hero__sub">
-          Your repo becomes the realm. Features are quests; each work session is
-          an expedition; and everything the hero learns is written down in plain
-          markdown &mdash; so the next session starts stronger, not from zero.
-        </p>
-        <div class="hero__ctas">
-          <a class="btn btn--primary" href="#install">Install quest-system</a>
-          <a class="btn btn--ghost" href="#workflow">Watch the loop</a>
-        </div>
+    <!-- =============================== HERO =============================== -->
+    <section class="hero wrap" id="top" aria-labelledby="hero-h">
+      <p class="eyebrow">A Claude Code plugin</p>
+      <h1 id="hero-h" class="hero__title">
+        Claude Code forgets between chats.<br />
+        <span class="hero__accent">quest-system remembers.</span>
+      </h1>
+      <p class="hero__sub">
+        Your repo becomes the world. Features are <strong>quests</strong>, work
+        sessions are <strong>expeditions</strong>, and everything learned is written
+        to plain markdown in your repo &mdash; so the next chat starts ahead, not from
+        zero. Drive it yourself, or post a bounty and let an autonomous party run the
+        whole quest.
+      </p>
+
+      <div class="term term--hero" aria-hidden="true">
+        <span class="term__prompt">&#10095;</span>
+        <span class="term__type" id="hero-type"></span><span class="term__caret"></span>
       </div>
 
-      <div class="hero__stage">
-        <img class="hero__sprite" src="assets/sprites/hero.png" width="244" height="256"
-             alt="Pixel-art wizard holding a glowing rune staff and a spellbook — the quest-system mascot" />
-        <span class="stage__glow" aria-hidden="true"></span>
+      <div class="ctas">
+        <a class="btn btn--primary" href="#install">Install</a>
+        <a class="btn btn--ghost" href="#run">See it run</a>
       </div>
+
+      <p class="hero__foot">
+        Plain markdown and slash commands. No server, no database, no build step.
+      </p>
     </section>
 
-    <!-- ============================ WHY ============================ -->
-    <section class="ph" id="why" aria-labelledby="why-heading">
-      <h2 class="ph__heading" id="why-heading">Why it sticks</h2>
-      <p class="section-lead">
-        Same project, same two chats &mdash; you're adding avatar upload to your
-        web app. The only difference between these two timelines is whether
-        anything is <em>remembered</em>.
+    <!-- ============================= THE PROBLEM ============================= -->
+    <section class="band wrap" id="why" aria-labelledby="why-h">
+      <p class="kicker">The problem</p>
+      <h2 class="band__h" id="why-h">A chat ends. The lesson dies with it.</h2>
+      <p class="lead">
+        Same project, same two chats &mdash; you're adding avatar upload. The only
+        difference between these timelines is whether anything gets <em>remembered</em>.
       </p>
-      <div class="flow">
-        <section class="flow__col" aria-labelledby="flow-without">
-          <h3 class="flow__label" id="flow-without">Without quest-system</h3>
-          <ol class="flow__track" role="list">
-            <li class="flow__node">
-              <span class="flow__chip">Monday &mdash; chat 1</span>
-              <div class="flow__card">
-                <p>You build the upload form. Mid-way, a surprise: HEIC photos
-                from iPhones decode <em>blank</em> on Safari. Twenty minutes of
-                debugging later you fix it &mdash; resize client-side to 512px
-                JPEG &mdash; and you decide that's the rule from now on.</p>
-              </div>
-            </li>
-            <li class="flow__gap flow__gap--lost" aria-label="Between chats, without quest-system">
-              <span>chat ends &mdash; the bug, the fix, the decision: all gone</span>
-            </li>
-            <li class="flow__node">
-              <span class="flow__chip">Wednesday &mdash; chat 2</span>
-              <div class="flow__card">
-                <p>&ldquo;Now add avatar cropping.&rdquo; Claude happily suggests
-                server-side resizing &mdash; the decision you already made, unmade.
-                The new code path skips the HEIC fix, the bug ships a second
-                time, and you're typing the same explanation again.</p>
-              </div>
-            </li>
+
+      <div class="pair">
+        <article class="log log--lost" aria-labelledby="lost-h">
+          <span class="log__stamp log__stamp--lost">Lost</span>
+          <h3 class="log__h" id="lost-h">Without quest-system</h3>
+          <ol class="log__steps">
+            <li><span class="log__when">Mon</span> You fix a real trap: HEIC photos from iPhones decode blank on Safari. You resize to 512px JPEG and decide that's the rule.</li>
+            <li class="log__break">the chat ends &mdash; bug, fix, and decision all gone</li>
+            <li><span class="log__when">Wed</span> New chat. "Add avatar cropping." Claude suggests server-side resizing &mdash; the decision, unmade. The HEIC bug ships again.</li>
           </ol>
-          <p class="flow__verdict flow__verdict--lost">every chat starts at zero</p>
-        </section>
-        <section class="flow__col flow__col--with" aria-labelledby="flow-with">
-          <h3 class="flow__label flow__label--with" id="flow-with">With quest-system</h3>
-          <ol class="flow__track" role="list">
-            <li class="flow__node">
-              <span class="flow__chip">Monday &mdash; chat 1</span>
-              <div class="flow__card">
-                <p>Same build, same HEIC surprise, same fix. One difference: the
-                session ends with <code>/make-camp</code>, and the trap plus your
-                resize decision are written into the repo.</p>
-              </div>
-            </li>
-            <li class="flow__gap flow__gap--kept" aria-label="Between chats, with quest-system">
-              <span>lessons land in <code>.ai-context/</code> &mdash; committed with your code</span>
-            </li>
-            <li class="flow__node">
-              <span class="flow__chip">Wednesday &mdash; chat 2</span>
-              <div class="flow__card">
-                <p><code>/embark</code> briefs the new chat before any code:</p>
-                <p class="contrast__quote">&ldquo;Danger: HEIC decodes blank on Safari
-                &rarr; resize client-side to 512px JPEG. Decision on record:
-                resize before upload.&rdquo;</p>
-                <p>Cropping gets built <em>on top of</em> the fix. Nothing
-                re-explained, nothing regressed, your rule still the rule.</p>
-              </div>
-            </li>
-          </ol>
-          <p class="flow__verdict flow__verdict--kept">every chat starts ahead</p>
-        </section>
-      </div>
-      <p class="section-note">
-        And when the feature ships, those lessons distill into a project-wide
-        registry &mdash; so the <em>next</em> feature's first briefing starts smarter too.
-      </p>
-    </section>
-
-    <section class="ph" id="workflow" aria-labelledby="workflow-heading">
-      <h2 class="ph__heading" id="workflow-heading">The normal path</h2>
-      <p class="section-lead">
-        One week, three acts: the hero breaks the work down, solves it guided
-        by what's already known, and distills what it learned for whoever comes
-        next (usually: itself). You're building user avatars &mdash; and on day
-        two, a bug bites. Watch where that lesson goes.
-      </p>
-      <dl class="legend">
-        <div><dt>quest</dt><dd>a feature or epic you're building</dd></div>
-        <div><dt>expedition</dt><dd>one work session on it</dd></div>
-        <div><dt>scrolls</dt><dd>markdown files in your repo that Claude reads and writes</dd></div>
-        <div><dt>XP</dt><dd>a score computed from what you actually recorded</dd></div>
-        <div><dt>realm</dt><dd>the app target a quest is scoped to (for mono-repos)</dd></div>
-      </dl>
-      <div class="act">
-        <h3 class="act__title">Act I &mdash; Break it down</h3>
-        <p class="act__thesis">Before any code: the work gets split, scoped, and
-        decided &mdash; and the plan is checked by a second AI until the gaps
-        are gone.</p>
-      </div>
-      <ol class="journey" role="list">
-        <li class="journey__node">
-          <span class="journey__day">Day 1</span>
-          <div class="journey__card">
-            <p class="journey__cmd">/new-quest user-avatars</p>
-            <p class="journey__desc">The feature becomes a quest: five markdown
-            files appear in your repo, ready to hold everything Claude learns.</p>
-          </div>
-        </li>
-        <li class="journey__node">
-          <span class="journey__day">Day 1</span>
-          <div class="journey__card">
-            <p class="journey__cmd">/counsel-quest</p>
-            <p class="journey__desc">Scout agents explore the codebase and draft
-            the battle plan; a plan-reviewer AI loops on it until the gaps are
-            gone. Decisions lock before any code is written.</p>
-          </div>
-        </li>
-      </ol>
-      <div class="act">
-        <h3 class="act__title">Act II &mdash; Solve, guided</h3>
-        <p class="act__thesis">Every session opens already-briefed and closes
-        already-recorded. Discoveries are written down the moment they happen
-        &mdash; nothing depends on the chat surviving.</p>
-      </div>
-      <ol class="journey" role="list">
-        <li class="journey__node journey__node--cycle">
-          <span class="journey__day">Day 2&ndash;3</span>
-          <div class="journey__cycle" aria-label="The session loop — these two commands repeat every work session">
-            <p class="journey__cycle-label"><span aria-hidden="true">&#8635;</span> the session loop &mdash; repeat until built</p>
-            <ol class="journey__inner" role="list">
-              <li>
-                <div class="journey__card">
-                  <p class="journey__cmd">/embark</p>
-                  <p class="journey__desc">The session opens with a briefing built
-                  from the files: status, known pitfalls, decisions on record.</p>
-                </div>
-              </li>
-              <li>
-                <div class="journey__card journey__card--incident">
-                  <p class="journey__desc"><strong>Mid-session, the real world bites:</strong>
-                  HEIC photos decode blank on Safari. The fix &mdash; resize
-                  client-side before upload &mdash; is written down the moment
-                  it's found.</p>
-                </div>
-              </li>
-              <li>
-                <div class="journey__card">
-                  <p class="journey__cmd">/make-camp</p>
-                  <p class="journey__desc">The session ends by writing everything
-                  back: journal entry, the HEIC lesson, XP.</p>
-                </div>
-              </li>
-            </ol>
-            <p class="journey__cycle-note">Day 3, a brand-new chat: <code>/embark</code>'s
-            briefing already warns about HEIC <em>before you ask</em>. No re-explaining.</p>
-          </div>
-        </li>
-      </ol>
-      <div class="act">
-        <h3 class="act__title">Act III &mdash; Distill</h3>
-        <p class="act__thesis">Lessons don't stay locked in one feature &mdash;
-        they fold down into project-wide memory. The hero comes back stronger.</p>
-      </div>
-      <ol class="journey" role="list">
-        <li class="journey__node">
-          <span class="journey__day">Day 4</span>
-          <div class="journey__card">
-            <p class="journey__cmd">/complete-quest</p>
-            <p class="journey__desc">The feature ships. Its lessons distill into
-            project-wide memory &mdash; the <em>next</em> feature's first briefing
-            starts smarter.</p>
-          </div>
-        </li>
-      </ol>
-      <div class="ph__panel" id="demo-caption">
-        <p>Below is a <strong>simulated Claude Code session</strong> for a
-        fictional avatar feature &mdash; 5 commands across 8 steps. Press
-        <strong>Play</strong> to watch it run (about a minute), or
-        <strong>Step</strong> through at your own pace.</p>
-        <p class="ph__note">Where to look: commands and output stream in the
-        chat (right), the file being written shows in the editor (middle), and
-        new files appear in the explorer (left). Each step's one-line
-        &ldquo;why&rdquo; sits above the window.</p>
-      </div>
-    </section>
-
-    <!-- ====================== BUILT FOR INTERRUPTION ====================== -->
-    <section class="ph" id="reality" aria-labelledby="reality-heading">
-      <h2 class="ph__heading" id="reality-heading">Built for interruption</h2>
-      <p class="section-lead">
-        Real weeks aren't linear. Because the hero's state lives in files &mdash;
-        not in the chat &mdash; you can always walk away mid-quest and come back
-        to exactly where you stood. Two ways reality bends the plan:
-      </p>
-      <div class="reality">
-        <article class="reality__card">
-          <h3 class="reality__title">The plan was wrong</h3>
-          <p class="reality__cmd">/counsel-quest --pivot</p>
-          <p class="reality__desc">Halfway through, you learn the cropping
-          library you planned around is abandoned. Pivot replans from scratch
-          &mdash; and records the dead end as a <em>fallen strategy</em>, so no
-          future session ever proposes it again. Even failures become memory.</p>
+          <p class="log__verdict">every chat starts at zero</p>
         </article>
-        <article class="reality__card">
-          <h3 class="reality__title">An urgent hotfix lands</h3>
-          <p class="reality__cmd">/change-quest</p>
-          <p class="reality__desc">Production is on fire &mdash; the payment
-          webhook is returning 500s. Park the avatar quest (its state is already
-          in files, not in your head), spin the hotfix up as its own quest, ship
-          it, switch back. The next <code>/embark</code> restores exactly where
-          you left off.</p>
+
+        <article class="log log--kept" aria-labelledby="kept-h">
+          <span class="log__stamp log__stamp--kept">Kept</span>
+          <h3 class="log__h" id="kept-h">With quest-system</h3>
+          <ol class="log__steps">
+            <li><span class="log__when">Mon</span> Same fix &mdash; but the session ends with <code>/make-camp</code>, writing the trap and your decision into the repo.</li>
+            <li class="log__break log__break--kept">lessons land in <code>.ai-context/</code>, committed with your code</li>
+            <li><span class="log__when">Wed</span> <code>/embark</code> briefs the new chat first: <em>"HEIC decodes blank on Safari &rarr; resize to 512px. Decision on record."</em> Cropping builds on top. Nothing regresses.</li>
+          </ol>
+          <p class="log__verdict log__verdict--kept">every chat starts ahead</p>
         </article>
       </div>
     </section>
 
-    <section class="ph" id="install" aria-labelledby="install-heading">
-      <h2 class="ph__heading" id="install-heading">Install</h2>
-      <ul class="facts" aria-label="What it actually is">
-        <li>Plain markdown files + slash commands. No server, no database, no build.</li>
-        <li>Everything lives in <code>.ai-context/</code> in your repo &mdash; committed, reviewable, greppable.</li>
-        <li>vs CLAUDE.md: that's static always-on instructions. Quests are per-feature working memory with a lifecycle &mdash; plan, work, record, distill.</li>
-        <li>The RPG flavor lives in filenames and banners. Your code and commits stay normal.</li>
+    <!-- ============================= TWO WAYS ============================= -->
+    <section class="band wrap" id="ways" aria-labelledby="ways-h">
+      <p class="kicker">Two ways to play</p>
+      <h2 class="band__h" id="ways-h">Be the adventurer, or the quest-giver.</h2>
+      <p class="lead">
+        Same memory underneath. The difference is who swings the sword.
+      </p>
+
+      <div class="pair">
+        <article class="log" aria-labelledby="drive-h">
+          <span class="log__stamp">You drive</span>
+          <h3 class="log__h" id="drive-h">Drive it yourself</h3>
+          <p class="log__body">You are the adventurer. You call each command; counsel
+          and review help, but every decision is yours. Full control, step by step.</p>
+          <ol class="chain" aria-label="The manual loop">
+            <li><code>/new-quest</code> <span>scaffold the feature</span></li>
+            <li><code>/counsel-quest</code> <span>plan, checked by a review AI</span></li>
+            <li><code>/embark</code> <span>open a session, briefed from the repo</span></li>
+            <li><code>/make-camp</code> <span>record what you learned</span></li>
+            <li><code>/complete-quest</code> <span>distill into project memory</span></li>
+          </ol>
+        </article>
+
+        <article class="log log--bounty" aria-labelledby="bounty-h">
+          <span class="log__stamp log__stamp--bounty">New</span>
+          <h3 class="log__h" id="bounty-h">Post a bounty</h3>
+          <p class="log__body">You are the quest-giver. State the goal; an autonomous
+          party takes the contract and works on your behalf. You answer only the real
+          judgment calls, then sign off.</p>
+          <div class="term term--inline">
+            <span class="term__prompt">&#10095;</span>
+            <span>/set-bounty <span class="term__arg">"add avatar upload + crop"</span></span>
+          </div>
+          <ol class="party" aria-label="What the party does">
+            <li>explores the codebase</li>
+            <li>plans and refines the approach</li>
+            <li>builds it, test-first</li>
+            <li>self-tests until green</li>
+            <li>reviews its own code and security</li>
+            <li>presents a near-done solution for sign-off</li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================= SEE IT RUN ============================= -->
+    <section class="band wrap" id="run" aria-labelledby="run-h">
+      <p class="kicker">See it run</p>
+      <h2 class="band__h" id="run-h">One week of the loop, in a minute.</h2>
+      <div class="caption" id="demo-caption">
+        <p>A <strong>simulated Claude Code session</strong> for a fictional avatar
+        feature &mdash; five commands across eight steps. Press <strong>Play</strong>
+        to watch it run, or <strong>Step</strong> at your own pace.</p>
+        <p class="caption__note">The command and its one-line reason sit above the
+        window. Files touched, the scroll being written, and the transcript update
+        together each step. The payoff: step 6 is a brand-new chat that already knows
+        the trap from step 4.</p>
+      </div>
+      <!-- The engine (app.js) mounts here. With JS off, this stays as the fallback note. -->
+      <div id="workflow" class="run__mount">
+        <p class="run__fallback">Enable JavaScript to run the interactive demo, or read
+        the full walkthrough in the <a href="https://github.com/findexu/finpack-claude" rel="noopener">README</a>.</p>
+      </div>
+    </section>
+
+    <!-- ============================= BUILT IN ============================= -->
+    <section class="band wrap" id="builtin" aria-labelledby="builtin-h">
+      <p class="kicker">What's built in</p>
+      <h2 class="band__h" id="builtin-h">Good habits, not extra commands.</h2>
+      <ul class="grid">
+        <li class="tile">
+          <h3 class="tile__h">Test-driven by default</h3>
+          <p>Test-first for new work, regression-first for bugs, real coverage after &mdash; disciplines the party follows inside every expedition.</p>
+        </li>
+        <li class="tile">
+          <h3 class="tile__h">Reviewed before it lands</h3>
+          <p>Code and security reviewers check the changes before a session is recorded. Confirmed issues become known dangers.</p>
+        </li>
+        <li class="tile">
+          <h3 class="tile__h">Right model for the job</h3>
+          <p>Agents are tiered &mdash; deep reasoning for architecture and review, cheaper models for mechanical work. You control the tier.</p>
+        </li>
+        <li class="tile">
+          <h3 class="tile__h">Memory you can read</h3>
+          <p>Everything lives in <code>.ai-context/</code> as plain markdown &mdash; committed, reviewable, greppable. The RPG flavor stays in filenames; your code stays normal.</p>
+        </li>
       </ul>
-      <p class="section-lead">
-        One plugin, no server &mdash; Claude managing Claude. Two commands, then
-        restart and start your first quest.
-      </p>
-      <pre class="install__code" tabindex="0" role="region" aria-label="Install commands"><code>/plugin marketplace add findexu/finpack-claude
+    </section>
+
+    <!-- ============================== INSTALL ============================== -->
+    <section class="band wrap" id="install" aria-labelledby="install-h">
+      <p class="kicker">Install</p>
+      <h2 class="band__h" id="install-h">Two commands to start.</h2>
+      <pre class="code" tabindex="0" role="region" aria-label="Install commands"><code>/plugin marketplace add findexu/finpack-claude
 /plugin install quest-system@finpack-claude</code></pre>
-      <p class="section-note">
-        Restart Claude Code, open your project, and run <code>/new-quest</code>.
-        Prefer owning the files? The repo can also be
-        <a href="https://github.com/findexu/finpack-claude#option-2-clone-the-repo" rel="noopener">cloned</a>
-        &mdash; <code>/install-quest-system</code> bootstraps any project; the
+      <p class="lead">
+        Restart Claude Code, then run <code>/install-quest-system</code> once in your
+        project. Start a quest with <code>/new-quest</code>, or hand one off with
+        <code>/set-bounty</code>.
+      </p>
+      <p class="fineprint">
+        Prefer owning the files? The repo can be
+        <a href="https://github.com/findexu/finpack-claude#install" rel="noopener">cloned</a>
+        instead &mdash; the
         <a href="https://github.com/findexu/finpack-claude" rel="noopener">README</a>
-        is the canonical install doc.
+        is the canonical install, update, and uninstall guide.
       </p>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>
-      Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>.
-    </p>
-    <p>MIT licensed.</p>
+  <footer class="footer wrap">
+    <p>Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>. MIT licensed.</p>
   </footer>
 </body>
 </html>

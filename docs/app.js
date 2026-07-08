@@ -302,6 +302,7 @@
   var workflowEngine = null;
   var workflow = document.getElementById("workflow");
   if (workflow) {
+    workflow.textContent = ""; /* drop the no-JS fallback before mounting */
     workflowEngine = Engine(workflow, QUEST_DEMO.steps, {
       playable: true,
       label: "Interactive quest loop demo",
@@ -312,13 +313,30 @@
   /* Hero CTA: "Watch the loop" scrolls to the demo AND starts it — the anchor
      alone landed on a section where nothing played (launch-review M6). Anchor
      href stays as the no-JS fallback. */
-  var ctaWatch = document.querySelector('.hero a[href="#workflow"]');
+  var ctaWatch = document.querySelector('.hero a[href="#run"]');
   if (ctaWatch && workflowEngine) {
     ctaWatch.addEventListener("click", function () {
-      if (workflow.scrollIntoView) {
-        workflow.scrollIntoView(REDUCED.matches ? { behavior: "auto" } : { behavior: "smooth" });
+      var run = document.getElementById("run");
+      if (run && run.scrollIntoView) {
+        run.scrollIntoView(REDUCED.matches ? { behavior: "auto" } : { behavior: "smooth" });
       }
       workflowEngine.startPlay();
     });
+  }
+
+  /* Hero: type the headline command once on load. Reduced motion → instant. */
+  var heroType = document.getElementById("hero-type");
+  if (heroType) {
+    var heroCmd = '/set-bounty "add avatar upload"';
+    if (REDUCED.matches) {
+      heroType.textContent = heroCmd;
+    } else {
+      var hp = 0;
+      var heroTimer = setInterval(function () {
+        hp++;
+        heroType.textContent = heroCmd.slice(0, hp);
+        if (hp >= heroCmd.length) clearInterval(heroTimer);
+      }, 55);
+    }
   }
 })();
