@@ -8,6 +8,7 @@ HOOKS_DEST=".claude/hooks"
 
 required_commands=(
   ask-sages.md
+  campaign.md
   change-quest.md
   complete-quest.md
   counsel-plan.md

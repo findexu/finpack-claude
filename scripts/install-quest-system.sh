@@ -36,6 +36,7 @@ AGENT_MANIFEST=".claude/agents/.quest-system-manifest"
 # Fallback list used for remote installs where directory listing is unavailable.
 REMOTE_COMMANDS=(
   ask-sages.md
+  campaign.md
   change-quest.md
   complete-quest.md
   counsel-plan.md

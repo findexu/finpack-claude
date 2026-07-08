@@ -22,6 +22,9 @@ Output verbatim:
 ```
 QUEST-SYSTEM COMMANDS
 
+Orchestration
+  /campaign <problem + goals>                        clarify -> route to a quest -> run the embark/make-camp loop to done
+
 Lifecycle
   /new-quest <name> [realm]                          scaffold a new quest (folder + 5 scrolls)
   /start-quest <name>                                activate a quest, route to next step
