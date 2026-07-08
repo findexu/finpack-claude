@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="styles.css" />
-  <script src="data.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=2" />
+  <script src="data.js?v=2" defer></script>
+  <script src="app.js?v=2" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -31,33 +31,35 @@
   <main id="main">
     <!-- =============================== HERO =============================== -->
     <section class="hero wrap" id="top" aria-labelledby="hero-h">
-      <img class="hero__emblem" src="assets/emblem.png" alt="" aria-hidden="true" width="514" height="520" onerror="this.style.display='none'" />
-      <p class="eyebrow">A Claude Code plugin</p>
-      <h1 id="hero-h" class="hero__title">
-        Claude Code forgets between chats.<br />
-        <span class="hero__accent">quest-system remembers.</span>
-      </h1>
-      <p class="hero__sub">
-        Your repo becomes the world. Features are <strong>quests</strong>, work
-        sessions are <strong>expeditions</strong>, and everything learned is written
-        to plain markdown in your repo &mdash; so the next chat starts ahead, not from
-        zero. Drive it yourself, or post a bounty and let an autonomous party run the
-        whole quest.
-      </p>
+      <img class="hero__emblem" src="assets/emblem.png" alt="" aria-hidden="true" width="560" height="531" onerror="this.style.display='none'" />
+      <div class="hero__copy">
+        <p class="eyebrow">A Claude Code plugin</p>
+        <h1 id="hero-h" class="hero__title">
+          Claude Code forgets between chats.<br />
+          <span class="hero__accent">quest-system remembers.</span>
+        </h1>
+        <p class="hero__sub">
+          Your repo becomes the world. Features are <strong>quests</strong>, work
+          sessions are <strong>expeditions</strong>, and everything learned is written
+          to plain markdown in your repo &mdash; so the next chat starts ahead, not from
+          zero. Drive it yourself, or post a bounty and let an autonomous party run the
+          whole quest.
+        </p>
 
-      <div class="term term--hero" aria-hidden="true">
-        <span class="term__prompt">&#10095;</span>
-        <span class="term__type" id="hero-type"></span><span class="term__caret"></span>
+        <div class="term term--hero" aria-hidden="true">
+          <span class="term__prompt">&#10095;</span>
+          <span class="term__type" id="hero-type">/set-bounty "add avatar upload"</span><span class="term__caret"></span>
+        </div>
+
+        <div class="ctas">
+          <a class="btn btn--primary" href="#install">Install</a>
+          <a class="btn btn--ghost" href="#run">See it run</a>
+        </div>
+
+        <p class="hero__foot">
+          Plain markdown and slash commands. No server, no database, no build step.
+        </p>
       </div>
-
-      <div class="ctas">
-        <a class="btn btn--primary" href="#install">Install</a>
-        <a class="btn btn--ghost" href="#run">See it run</a>
-      </div>
-
-      <p class="hero__foot">
-        Plain markdown and slash commands. No server, no database, no build step.
-      </p>
     </section>
 
     <!-- ============================= THE PROBLEM ============================= -->

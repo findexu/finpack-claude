@@ -52,6 +52,7 @@ body {
   font-size: clamp(1rem, 0.96rem + 0.2vw, 1.075rem);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* guard against any stray horizontal scroll on small screens */
 }
 
 a { color: var(--amber); text-underline-offset: 3px; text-decoration-thickness: 1px; }
@@ -89,16 +90,21 @@ em { font-style: normal; color: var(--amber); }
 @media (max-width: 620px) { .nav a:not(.nav__ext) { display: none; } }
 
 /* ----------------------------- hero ------------------------------ */
-.hero { position: relative; padding-top: clamp(2.6rem, 6vw, 5rem); padding-bottom: clamp(2.2rem, 5vw, 4rem); max-width: 920px; }
-/* brand emblem sits in the right gutter on desktop; hidden on phones to keep the hero clean */
-.hero__emblem { display: none; }
+.hero {
+  padding-top: clamp(2.2rem, 5vw, 3.6rem); padding-bottom: clamp(2.4rem, 5vw, 4rem);
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1.2rem, 4vw, 2.4rem);
+  align-items: center;
+}
+.hero__copy { min-width: 0; }
+/* emblem centered above the copy on phones, in the right column on desktop */
+.hero__emblem {
+  width: clamp(160px, 44vw, 220px); height: auto; justify-self: center;
+  filter: drop-shadow(0 12px 38px rgba(227,168,87,.3));
+}
 @media (min-width: 900px) {
-  .hero { padding-right: 330px; }
-  .hero__emblem {
-    display: block; position: absolute; right: var(--step);
-    top: clamp(2.5rem, 5vw, 4.5rem); width: 264px; height: auto; opacity: .96;
-    filter: drop-shadow(0 10px 34px rgba(227,168,87,.28));
-  }
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(300px, 400px); gap: 3rem; }
+  .hero__copy   { grid-column: 1; grid-row: 1; }
+  .hero__emblem { grid-column: 2; grid-row: 1; width: min(400px, 34vw); }
 }
 .eyebrow, .kicker {
   font-family: var(--f-mono); font-size: .78rem; font-weight: 500;
@@ -118,7 +124,7 @@ em { font-style: normal; color: var(--amber); }
   font-family: var(--f-mono); background: var(--panel-2);
   border: 1px solid var(--line-2); border-radius: var(--r);
   padding: .85rem 1rem; display: flex; align-items: baseline; gap: .6rem;
-  overflow-x: auto; white-space: nowrap;
+  overflow-x: auto; white-space: nowrap; max-width: 100%;
 }
 .term__prompt { color: var(--amber); font-weight: 700; flex: none; }
 .term__arg { color: var(--teal); }
@@ -158,11 +164,11 @@ em { font-style: normal; color: var(--amber); }
 .cite a { color: var(--teal); }
 
 /* --------------------- quest-log cards (signature) --------------- */
-.pair { display: grid; gap: 1.2rem; margin-top: 1.8rem; }
-@media (min-width: 780px) { .pair { grid-template-columns: 1fr 1fr; align-items: start; } }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; margin-top: 1.8rem; }
+@media (min-width: 780px) { .pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
 
 .log {
-  position: relative; background: var(--paper);
+  min-width: 0; position: relative; background: var(--paper);
   color: var(--paper-ink); border-radius: var(--r-lg);
   padding: 1.5rem 1.4rem 1.6rem;
   border: 1px solid var(--paper-2);
@@ -185,11 +191,11 @@ em { font-style: normal; color: var(--amber); }
 .log--bounty { box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 20px 46px -24px rgba(227,168,87,.6); }
 
 /* --------------- the problem: two threads, cut vs kept ----------- */
-.problem { display: grid; gap: 1.2rem; margin-top: 1.9rem; }
-@media (min-width: 820px) { .problem { grid-template-columns: 1fr 1fr; align-items: start; } }
+.problem { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.2rem; margin-top: 1.9rem; }
+@media (min-width: 820px) { .problem { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
 
 .track {
-  background: var(--panel); border: 1px solid var(--line);
+  min-width: 0; background: var(--panel); border: 1px solid var(--line);
   border-left: 3px solid var(--muted); border-radius: var(--r-lg);
   padding: 1.6rem 1.6rem 1.5rem;
 }
@@ -252,10 +258,10 @@ em { font-style: normal; color: var(--amber); }
 }
 
 /* ----------------------------- tiles ----------------------------- */
-.grid { list-style: none; display: grid; gap: 1rem; margin-top: 1.8rem; }
-@media (min-width: 680px) { .grid { grid-template-columns: 1fr 1fr; } }
+.grid { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-top: 1.8rem; }
+@media (min-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .tile {
-  background: var(--panel); border: 1px solid var(--line);
+  min-width: 0; background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--r-lg); padding: 1.3rem 1.35rem;
   border-left: 3px solid var(--amber);
 }
