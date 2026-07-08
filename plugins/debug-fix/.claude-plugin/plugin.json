@@ -1,7 +1,10 @@
 {
   "name": "debug-fix",
+  "version": "0.1.0",
   "description": "Find and fix a bug. Default is the careful path (reproduce, investigate, test). Add `--fast` for emergency hotfix mode.",
-  "author": { "name": "findexu" },
+  "author": {
+    "name": "findexu"
+  },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

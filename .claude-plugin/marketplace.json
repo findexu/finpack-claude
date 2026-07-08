@@ -130,6 +130,12 @@
       "source": "./plugins/install-quest-system",
       "description": "Bootstrap quest-system in any project. Copies all seven command files to .claude/commands/ in one step.",
       "license": "MIT"
+    },
+    {
+      "name": "update-quest-system",
+      "source": "./plugins/update-quest-system",
+      "description": "Update installed quest-system files to the latest version from source or GitHub. Overwrites command files, skills, the fp- agent suite, and the verifier hook.",
+      "license": "MIT"
     }
   ]
 }

@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.26.0
+version: 1.27.0
 ---
 
 # Quest System — Skill Definition

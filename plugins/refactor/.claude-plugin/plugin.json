@@ -1,7 +1,10 @@
 {
   "name": "refactor",
+  "version": "0.1.0",
   "description": "Safely refactor with tests as a safety net. Writes tests first if none exist.",
-  "author": { "name": "findexu" },
+  "author": {
+    "name": "findexu"
+  },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

@@ -149,6 +149,15 @@ else
 fi
 
 echo
+echo "== marketplace-parity =="
+if bash "$ROOT/tests/marketplace-parity.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("marketplace-parity")
+fi
+
+echo
 echo "RESULT: $PASS passed, $FAIL failed"
 if [[ $FAIL -gt 0 ]]; then
   printf 'Failed: %s\n' "${FAILED_NAMES[@]}"
