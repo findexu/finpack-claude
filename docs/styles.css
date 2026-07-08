@@ -32,13 +32,6 @@
   --line: #ff7ed0;
   --xp: var(--green);
 
-  /* ---- Phase hues. */
-  --p-none: #9c8cbb;
-  --p-plan: var(--gold);
-  --p-ready: var(--blue);
-  --p-embark: var(--green);
-  --p-camp: var(--purple);
-
   /* ---- Type scale (web-scaled: dashboard sidebar scale is too small for a page). */
   --fs-hero: 22px;
   --fs-section: 14px;
@@ -70,10 +63,9 @@
   --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Ubuntu, sans-serif;
   --font-serif: ui-serif, Georgia, 'Times New Roman', Times, serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  --p-complete: var(--gold-soft); /* the real dashboard has no Complete phase — mock-only hue */
 
   /* ---- Warm editorial shell (hybrid redesign). The dungeon tokens above stay
-     verbatim and scope the DARK ISLAND: .ide__frame, .sheet, .contrast__quote,
+     verbatim and scope the DARK ISLAND: .ide__frame, .contrast__quote,
      .install__code. Everything else renders on paper. AA: measured pairs —
      ink-warm/paper ~14:1, ink-soft/paper ~5.5:1, accent-deep/paper ~5.3:1,
      white/accent-deep ~6:1. Bare --accent is decorative/large-text only. */
@@ -780,21 +772,6 @@ p.contrast__quote {
   flex-direction: column;
   gap: var(--s-2);
 }
-.ide__why {
-  margin: 0;
-  font-size: var(--fs-copy);
-  line-height: 1.6;
-  color: var(--ink-warm);
-}
-.ide__why-label {
-  margin-right: var(--s-3);
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: var(--fs-meta);
-  color: var(--accent-deep);
-  letter-spacing: 0.12em;
-}
-
 /* ---- Step headline above the frame (clarity overhaul) ---------------- */
 .ide__step-head {
   display: flex;
@@ -885,133 +862,6 @@ p.contrast__quote {
 .ide__xp-detail {
   font-size: var(--fs-meta);
   color: var(--ink-soft);
-}
-
-/* ---- Mock character sheet + stepper (expedition 4) -------------------- */
-.sheet-demo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-4);
-  margin-top: var(--s-6);
-}
-
-.sheet {
-  max-width: 460px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-3);
-  padding: var(--s-4);
-  background: linear-gradient(180deg, var(--panel-2), var(--panel));
-  border: 1px solid var(--edge);
-  border-radius: var(--radius);
-  transition: box-shadow var(--t-med), border-color var(--t-med);
-}
-/* aha/levelup glows read against the PAPER shell, not the dark sheet inside */
-.sheet--aha {
-  border-color: var(--accent);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 35%, transparent);
-}
-.sheet--levelup {
-  border-color: var(--accent-deep);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 50%, transparent);
-}
-
-.sheet__banner {
-  --sheet-hue: var(--p-none);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s-2) var(--s-3);
-  padding: var(--s-2) var(--s-3);
-  border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--sheet-hue) 45%, transparent);
-  background: color-mix(in srgb, var(--sheet-hue) 12%, transparent);
-}
-.sheet__phase {
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: var(--fs-ui);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1.5;
-  color: var(--sheet-hue);
-}
-.sheet__cmd {
-  font-family: var(--font-mono);
-  font-size: var(--fs-meta);
-  color: var(--muted);
-  overflow-wrap: anywhere;
-}
-
-.sheet__id {
-  margin: 0;
-  font-size: var(--fs-copy);
-  color: var(--ink);
-}
-
-.sheet__exp {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-}
-.sheet__exp-track {
-  flex: 1;
-  height: var(--s-3);
-  border-radius: var(--radius-sm);
-  background: var(--inset);
-  border: 1px solid var(--edge-soft);
-  overflow: hidden;
-}
-.sheet__exp-fill {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, var(--teal-deep), var(--xp));
-  animation: qd-shimmer 2s ease-in-out infinite;
-  transition: width var(--t-med);
-}
-.sheet__exp-num {
-  font-family: var(--font-mono);
-  font-size: var(--fs-meta);
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.sheet__head {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: var(--fs-meta);
-  letter-spacing: 0.12em;
-  line-height: 1.6;
-  color: var(--muted);
-  margin-bottom: var(--s-1);
-}
-.sheet__rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
-}
-.sheet__row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--s-3);
-  align-items: baseline;
-  font-family: var(--font-mono);
-  font-size: var(--fs-meta);
-  color: var(--muted);
-}
-.sheet__row--active .sheet__mark, .sheet__row--active .sheet__label { color: var(--gold); }
-.sheet__row--done .sheet__mark, .sheet__row--done .sheet__label { color: var(--green); }
-.sheet__row--empty { font-style: italic; }
-.sheet__row--badge .sheet__label { color: var(--gold-soft); }
-.sheet__row--badge { animation: sheet-pop 360ms ease-out; }
-.sheet__row--locked { opacity: 0.55; }
-.sheet__label { overflow-wrap: anywhere; }
-@keyframes sheet-pop {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
 }
 
 /* ---- XP profile card + install section (expedition 5) ----------------- */
