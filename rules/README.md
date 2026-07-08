@@ -17,7 +17,7 @@ Anti-defaults that counter common Claude tendencies (no premature abstraction, n
 ### testing.md
 **Scope**: Always. ~10 lines.
 
-Six terse principles: verify behavior, run the specific test file, fix or delete flaky tests, prefer real implementations, one assertion per test, no empty assertions. Comprehensive test writing is handled by the `test-writer` skill.
+Six terse principles: verify behavior, run the specific test file, fix or delete flaky tests, prefer real implementations, one assertion per test, no empty assertions. Comprehensive test writing is a quest-system expedition habit (see the quest-system "Development habits" doctrine).
 
 ### serena.md
 **Scope**: Always (conditional). ~15 lines.

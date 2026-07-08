@@ -41,7 +41,7 @@ Each PR should do exactly one thing. Don't bundle a new skill with a rule fix an
 
 ### Naming
 
-- Skill directories: `kebab-case`. `debug-fix/`, `test-writer/`.
+- Skill directories: `kebab-case`. `explain/`, `session-audit/`.
 - Agent files: `kebab-case.md`. `fp-code-reviewer.md`, `fp-security-reviewer.md`.
 - Rule files: `kebab-case.md`. `code-quality.md`, `frontend.md`.
 - Hook scripts: `kebab-case.sh`. `protect-files.sh`, `block-dangerous-commands.sh`.

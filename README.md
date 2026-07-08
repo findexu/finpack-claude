@@ -34,7 +34,7 @@ If you only want one or two pieces instead of the full kit, install them individ
 /plugin install quest-system@finpack-claude
 ```
 
-Full plugin list (18): `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `fp-code-architect`, `fp-code-explorer`, `setup-finpack`, `debug-fix`, `tdd`, `explain`, `session-audit`, `test-writer`, `quest-system`, `install-quest-system`, `update-quest-system`.
+Full plugin list (15): `fp-code-reviewer`, `fp-security-reviewer`, `fp-performance-reviewer`, `fp-doc-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer`, `fp-code-architect`, `fp-code-explorer`, `setup-finpack`, `explain`, `session-audit`, `quest-system`, `install-quest-system`, `update-quest-system`.
 
 Curious what quest-system does before installing? The interactive tutorial runs the full quest loop in your browser: https://findexu.github.io/finpack-claude/
 
@@ -87,15 +87,12 @@ The defaults are foundations. Your edits on top are what make Claude effective f
 
 ## Skills (slash commands)
 
-Skills are invoked with `/name` in your Claude Code session. All except `/test-writer` are manual only.
+Skills are invoked with `/name` in your Claude Code session — all manual. Development habits (test-first / TDD, regression-first bug fixing, and comprehensive test coverage) now live inside quest-system as expedition habits rather than standalone skills — see the quest-system "Development habits" doctrine.
 
 | Command | Arguments | Description |
 |---------|-----------|-------------|
 | `/setup-finpack` | `[focus area]` | Bootstrap and customize finpack-claude in any project. If `.claude/` is missing, the skill copies the bundled template in (rules, hooks, settings, agents, skills, `CLAUDE.md`). Then it scans your codebase to detect language, framework, package manager, test runner, linter, and architecture, and customizes every config file to match. Confirms every change before applying. |
-| `/debug-fix` | `[issue #, error, or description] [--fast]` | Find and fix a bug. Default is the careful path: reproduce, investigate, write a regression test, fix, commit. Add `--fast` for emergency production mode (`hotfix/` branch from production, minimal change, critical tests only, ships a `[HOTFIX]` PR). Warns if a fast fix turns out to be complex. |
-| `/tdd` | `[feature description or function signature]` | Strict red-green-refactor TDD loop. One failing test, then minimum code to pass, then refactor. Commits after each green-plus-refactor cycle. Works simple to complex: degenerate cases, happy path, variations, edge cases, errors. |
 | `/explain` | `[file, function, or concept]` | Explains code with a one-sentence summary, a mental model analogy, an ASCII diagram, key non-obvious details, and a modification guide. Focuses on the why and the landmines, not the obvious. |
-| `/test-writer` | *(auto-triggers)* | Writes comprehensive tests for new or changed code. Discovers changes via `git diff`, maps all code paths (happy, edge, error, concurrency), writes one test per scenario with Arrange-Act-Assert. The only skill that can auto-trigger. Claude may invoke it after you add new features. |
 | `/quest-system` | *(manual only)* | RPG-themed expedition and epic management. Tracks quests (features/epics), expeditions (work loops), and realms (app targets) across expeditions using five persistent scrolls. Maintains `.ai-context/` (committed to git) for Copilot/Gemini compatibility — paste `quest.md` at chat start for instant context. Commands: `/new-quest`, `/counsel-quest`, `/embark`, `/make-camp`, `/quest-log`, `/change-quest`, `/summon-witch-doctor` (scroll health diagnostics and repair). Run `/install-quest-system` once per project. |
 | `/install-quest-system` | *(manual only)* | Bootstrap quest-system in the current project. Copies all quest-system command files to `.claude/commands/`. Run once per project before using `/new-quest`. Safe to re-run. Restart Claude Code after running it. Want to see the workflow before installing? Interactive tutorial: https://findexu.github.io/finpack-claude/ |
 | `/quest-xp` | *(manual only)* | Show your adventurer profile: level, EXP progress bar, total stats, and badge wall (unlocked and locked with counters). Profile is local and gitignored. |
@@ -186,7 +183,7 @@ finpack-claude/
 ├── settings.local.json.example         # Personal settings template, copy to .claude/settings.local.json
 ├── .gitignore                          # Gitignore for the finpack-claude repo (not for your project's .claude/)
 ├── .claude-plugin/                     # Marketplace catalog (only used by the plugin install path)
-│   └── marketplace.json                #   18 plugin entries pointing at ./plugins/<name>
+│   └── marketplace.json                #   15 plugin entries pointing at ./plugins/<name>
 ├── rules/                              # Modular instructions, copy to .claude/rules/
 │   ├── code-quality.md                 #   Principles, naming, comments, markers, file organization
 │   ├── testing.md                      #   Testing conventions (always loaded)
@@ -196,10 +193,7 @@ finpack-claude/
 │   └── frontend.md                     #   Design tokens, principles, accessibility (loads near UI files)
 ├── skills/                             # Slash commands, copy to .claude/skills/   (also published as plugins)
 │   ├── setup-finpack/SKILL.md         #   /setup-finpack. Bootstrap and customize all config files.
-│   ├── debug-fix/SKILL.md              #   /debug-fix [--fast]. Bug fix, careful by default, hotfix mode opt-in.
-│   ├── tdd/SKILL.md                    #   /tdd. Strict red-green-refactor TDD loop.
 │   ├── explain/SKILL.md                #   /explain <file or function>.
-│   ├── test-writer/SKILL.md            #   Auto-triggers on new features. Comprehensive tests.
 │   ├── quest-system/                   #   /quest-system. RPG-themed session and epic management.
 │   │   ├── SKILL.md                    #     Skill definition, split rules, scroll templates.
 │   │   └── commands/                   #     Individual command files (installed to .claude/commands/)
@@ -225,7 +219,7 @@ finpack-claude/
 │   ├── format-on-save.sh               #   Auto-format after edits. Detects Prettier, Black, Ruff, Biome, rustfmt, gofmt.
 │   └── session-start.sh                #   Inject branch, commit, stash, and PR context at session start.
 ├── plugins/                            # Per-plugin self-contained copies (only used by the plugin install path)
-│   └── <18 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
+│   └── <15 plugins>/                   #   Each: .claude-plugin/plugin.json + mirrored agents/<name>.md or skills/<name>/SKILL.md
 └── scripts/
     └── sync-plugins.sh                 # Mirrors agents/ + skills/ into plugins/<name>/ and bundles the template inside setup-finpack
 ```

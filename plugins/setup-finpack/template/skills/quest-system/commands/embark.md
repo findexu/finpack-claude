@@ -40,6 +40,11 @@ If the commander says something vague ("not sure", "continue from last time",
 Do not proceed until you have a concrete focus for this expedition.
 Record it as `{expedition-focus}`.
 
+Then name the **development habits** in scope for this expedition (see SKILL.md →
+"Development habits"): test-first for new contract-bearing behavior, regression-first
+for bug work, cover-new-code after a feature, and review-before-camp always. Fold the
+applicable ones into the expedition plan in Step 6 rather than treating them as afterthoughts.
+
 ## Step 2: Load project-level knowledge (if exists)
 
 Check for project-level files in `.ai-context/`:

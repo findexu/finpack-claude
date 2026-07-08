@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.27.1
+version: 1.28.0
 ---
 
 # Quest System — Skill Definition
@@ -300,9 +300,12 @@ frontmatter key; keep this table in sync with `agents/fp-*.md`).**
 
 | Worker | Tier | Why |
 |---|---|---|
-| fp-code-explorer, fp-code-architect | sonnet | High-volume comprehension / divergent design; the decisive pick stays with the orchestrator |
-| fp-code-reviewer, fp-performance-reviewer, fp-doc-reviewer | sonnet | Correctness/impact reasoning; cheaper tiers miss subtle issues |
-| fp-security-reviewer | sonnet FLOOR | Never below sonnet — security false-negatives are costly |
+| fp-code-explorer | sonnet | High-volume comprehension; the decisive pick stays with the orchestrator |
+| fp-code-architect | opus | Design blueprint cascades into all downstream code — reasoning-bound |
+| fp-code-reviewer | opus | Subtle correctness bugs are where opus beats sonnet |
+| fp-security-reviewer | opus | Vulnerability false-negatives are costly; **sonnet FLOOR** — never below |
+| fp-performance-reviewer | sonnet | Impact reasoning; bottlenecks are mostly pattern-matchable |
+| fp-doc-reviewer | haiku | Docs-vs-code cross-referencing is mechanical |
 | fp-plan-reviewer | sonnet | Returns a `READY\|REVISE` verdict — loop-terminating judgment |
 | fp-frontend-designer, fp-swiftui-designer | sonnet | Production UI generation |
 | bug-hunt scouts, session-audit, danger/doc extraction (command-spawned general-purpose) | haiku | Cheap fan-out to grep/trace/extract candidates; the orchestrator curates |
@@ -334,6 +337,29 @@ GATE FORMAT (required):
 ```
 Orchestration lives in the command (main session) — fp-* workers are leaves and cannot spawn,
 exactly as the Council cross-critique contract above.
+
+## Development habits (applied within expeditions)
+
+Disciplines the orchestrator applies DURING an expedition — behaviors, not separate commands.
+`/embark` names which habits are in scope for the expedition and folds them into the plan;
+`/make-camp` honors the review habit before recording. Each habit obeys the escalation
+contract above: tests and reviews are reversible, so run them autonomously; gate only on a
+CONFIRMED high-severity finding.
+
+- **Test-first (TDD).** For new behavior with a checkable contract: write a failing test →
+  minimum code to pass → refactor, committing per green cycle. Use when the change has a spec;
+  skip for exploratory spikes and pure config.
+- **Regression-first bug fixing.** For a bug: reproduce it with a FAILING test first, then fix
+  so the test locks it out — never fix blind. Emergency variant (production down): smallest
+  correct change on a `hotfix/` branch, critical tests only, ship a `[HOTFIX]` PR; escalate to
+  the full careful path the moment the fix turns out non-trivial.
+- **Cover new/changed code.** After a feature lands, add tests across happy / edge / error /
+  concurrency paths and verify they actually fail when the code breaks. Mock only at system
+  boundaries (network, fs, clock, randomness); prefer real implementations. One behavior per test.
+- **Review before camp.** Before `/make-camp` records the expedition, delegate the changed files
+  to `fp-code-reviewer` (+ `fp-security-reviewer` if auth/input/network/secret/fs changed,
+  `fp-performance-reviewer` on hot paths, `fp-doc-reviewer` if docs changed). CONFIRMED findings
+  are inscribed into `TOME_OF_DANGERS`. This IS make-camp's Council Review step.
 
 ## Sacred laws (enforced by all commands)
 

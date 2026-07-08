@@ -32,8 +32,9 @@ Ask the commander:
 5. Any new dangers discovered? (added to TOME_OF_DANGERS)
 6. Any structural changes to the codebase? (added to WORLD_MAP)
 
-## Step 2.5: Council Review (optional)
+## Step 2.5: Council Review (the review-before-camp habit)
 
+This step IS the **review-before-camp** development habit (SKILL.md → "Development habits").
 Ask: "Summon the review council on this expedition's changes? (y/n)"
 If n, skip to Step 3.
 

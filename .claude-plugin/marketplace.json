@@ -66,18 +66,6 @@
       "license": "MIT"
     },
     {
-      "name": "debug-fix",
-      "source": "./plugins/debug-fix",
-      "description": "Find and fix a bug. Default is the careful path (reproduce, investigate, test). Add `--fast` for emergency hotfix mode.",
-      "license": "MIT"
-    },
-    {
-      "name": "tdd",
-      "source": "./plugins/tdd",
-      "description": "Strict red-green-refactor TDD loop. Failing test, then minimum code, then refactor. Commits after each cycle.",
-      "license": "MIT"
-    },
-    {
       "name": "explain",
       "source": "./plugins/explain",
       "description": "Explain code with one-sentence summary, mental model, ASCII diagram, and modification guide.",
@@ -87,12 +75,6 @@
       "name": "session-audit",
       "source": "./plugins/session-audit",
       "description": "Audit recent Claude Code sessions for recurring friction, then propose new skills, automations, and CLAUDE.md fixes. Report-only unless --fix.",
-      "license": "MIT"
-    },
-    {
-      "name": "test-writer",
-      "source": "./plugins/test-writer",
-      "description": "Write comprehensive tests covering happy/edge/error/concurrency paths. Verifies tests actually catch bugs.",
       "license": "MIT"
     },
     {
