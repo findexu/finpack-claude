@@ -150,6 +150,12 @@ em { font-style: normal; color: var(--amber); }
   letter-spacing: -.01em; margin-top: .5rem;
 }
 .lead { max-width: var(--readw); margin-top: 1rem; color: #CDD4E1; font-size: 1.08rem; }
+.cite {
+  max-width: var(--readw); margin-top: 1.6rem; padding: .9rem 1.1rem;
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--teal);
+  border-radius: var(--r); color: var(--muted); font-size: .9rem; line-height: 1.6;
+}
+.cite a { color: var(--teal); }
 
 /* --------------------- quest-log cards (signature) --------------- */
 .pair { display: grid; gap: 1.2rem; margin-top: 1.8rem; }
@@ -204,13 +210,11 @@ em { font-style: normal; color: var(--amber); }
 }
 
 .thread { list-style: none; margin-top: 1.15rem; }
-.thread__node {
-  display: grid; grid-template-columns: 2.6rem 1fr; gap: .5rem;
-  padding: .55rem 0; align-items: baseline;
-}
+.thread__node { padding: .55rem 0; }
 .thread__day {
-  font-family: var(--f-mono); font-weight: 700; font-size: .7rem; letter-spacing: .09em;
-  text-transform: uppercase; color: var(--muted);
+  display: block; margin-bottom: .3rem;
+  font-family: var(--f-mono); font-weight: 700; font-size: .68rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--amber);
 }
 .thread__node p { color: #D6DCE8; }
 .thread__link {

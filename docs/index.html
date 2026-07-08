@@ -63,12 +63,13 @@
     <!-- ============================= THE PROBLEM ============================= -->
     <section class="band wrap" id="why" aria-labelledby="why-h">
       <p class="kicker">The problem</p>
-      <h2 class="band__h" id="why-h">New chat. Blank slate. Every time.</h2>
+      <h2 class="band__h" id="why-h">The decisions you make don't survive the chat.</h2>
       <p class="lead">
-        Claude starts every chat from zero &mdash; no memory of the bug you fixed, the
-        decision you locked, or the dead end you already ruled out. So you re-explain,
-        and the same mistakes ship twice. The fix isn't a longer prompt; it's memory
-        that outlives the chat.
+        Every call you talk through &mdash; an architecture choice, a naming rule, an
+        approach you deliberately ruled out &mdash; lives only in that chat's context.
+        And context is fragile: a new chat starts blank, and even <em>inside</em> one
+        chat, memory rots as the conversation grows. The decision fades, and Claude
+        quietly does the opposite.
       </p>
 
       <div class="problem">
@@ -78,9 +79,9 @@
             <span class="track__stamp track__stamp--lost">Forgotten</span>
           </div>
           <ol class="thread">
-            <li class="thread__node"><span class="thread__day">Mon</span><p>Fix the HEIC-blank-on-Safari bug. Lock the rule: resize to 512px before upload.</p></li>
-            <li class="thread__link thread__link--cut">chat ends &mdash; bug, fix and decision forgotten</li>
-            <li class="thread__node"><span class="thread__day">Wed</span><p>New chat: &ldquo;add cropping.&rdquo; Claude reverses the decision &mdash; the HEIC bug ships again.</p></li>
+            <li class="thread__node"><span class="thread__day">This chat</span><p>You make a real call &mdash; a rule, an architecture decision, an approach you rejected on purpose.</p></li>
+            <li class="thread__link thread__link--cut">chat ends, or just grows too long &mdash; the decision fades</li>
+            <li class="thread__node"><span class="thread__day">Next chat</span><p>Claude reverses it without a word. You catch it in review &mdash; or you don't, and it ships.</p></li>
           </ol>
           <p class="track__verdict track__verdict--lost">Starts at zero</p>
         </article>
@@ -91,13 +92,22 @@
             <span class="track__stamp track__stamp--kept">Kept</span>
           </div>
           <ol class="thread">
-            <li class="thread__node"><span class="thread__day">Mon</span><p>Same fix &mdash; and <code>/make-camp</code> writes the trap and the decision into the repo.</p></li>
-            <li class="thread__link thread__link--kept">saved to <code>.ai-context/</code>, committed with your code</li>
-            <li class="thread__node"><span class="thread__day">Wed</span><p><code>/embark</code> briefs the next chat first, so cropping builds on top. Nothing regresses.</p></li>
+            <li class="thread__node"><span class="thread__day">This chat</span><p>Same call &mdash; <code>/make-camp</code> writes it down as an oath in the repo, not just in the chat.</p></li>
+            <li class="thread__link thread__link--kept">saved to <code>.ai-context/</code>, in your git history</li>
+            <li class="thread__node"><span class="thread__day">Next chat</span><p><code>/embark</code> reloads just that decision into a small, fresh context. The call holds.</p></li>
           </ol>
           <p class="track__verdict track__verdict--kept">Starts ahead</p>
         </article>
       </div>
+      <p class="cite">
+        Straight from Claude's makers: Anthropic describes an
+        <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" rel="noopener">&ldquo;attention budget&rdquo;</a>
+        &mdash; as the context fills, &ldquo;the model's ability to accurately recall
+        information from that context decreases.&rdquo; Their own remedy is the shape of
+        ours: keep &ldquo;the smallest possible set of high-signal tokens.&rdquo;
+        quest-system parks decisions in durable files and reloads only what the next
+        chat needs.
+      </p>
     </section>
 
     <!-- ============================= TWO WAYS ============================= -->
