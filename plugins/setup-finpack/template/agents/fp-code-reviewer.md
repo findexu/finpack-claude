@@ -1,8 +1,8 @@
 ---
 name: fp-code-reviewer
-version: 0.1.0
+version: 0.2.0
 description: Reviews code for quality, correctness, and maintainability. Use for diff review, PR review, or post-change verification.
-model: sonnet
+model: opus  # subtle correctness bugs are where opus reasoning beats sonnet
 tools:
   - Read
   - Grep

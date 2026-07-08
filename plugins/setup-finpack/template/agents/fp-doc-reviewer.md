@@ -1,8 +1,8 @@
 ---
 name: fp-doc-reviewer
-version: 0.1.0
+version: 0.2.0
 description: Reviews documentation for accuracy, completeness, and clarity. Cross-references docs against the actual source code.
-model: sonnet
+model: haiku  # docs-vs-code cross-referencing is mechanical; no deep reasoning needed
 tools:
   - Read
   - Grep

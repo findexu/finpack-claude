@@ -1,8 +1,8 @@
 ---
 name: fp-security-reviewer
-version: 0.1.0
+version: 0.2.0
 description: Reviews code changes for security vulnerabilities. Use for PR review, pre-deploy verification, or audit of recently changed files.
-model: sonnet  # FLOOR — never downgrade below sonnet; security false-negatives are costly
+model: opus  # security false-negatives costly; max reasoning. FLOOR: never downgrade below sonnet
 tools:
   - Read
   - Grep
