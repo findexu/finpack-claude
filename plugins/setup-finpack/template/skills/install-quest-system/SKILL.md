@@ -74,8 +74,6 @@ Canonical command set (also the fallback list — keep in sync with
 - `init-xp.md`
 - `counsel-prompt.md`
 - `counsel-plan.md`
-- `side-quest.md`
-- `close-side-quest.md`
 - `hunt-bugs.md`
 - `setup-obsidian.md`
 - `open-obsidian.md`

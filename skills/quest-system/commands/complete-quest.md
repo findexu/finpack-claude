@@ -51,16 +51,14 @@ Summarize CONFIRMED findings (ignore style nitpicks). Then ask:
 
 ## Step 2.9: Acquire the per-quest scroll lock
 
-Steps 3–6 read this quest's scrolls and then ARCHIVE (move) the folder. A
-`/close-side-quest` running in another chat may be distilling a child side-quest
-INTO this same quest's scrolls at that moment. ACQUIRE the per-quest lock (SKILL.md
--> "Concurrency" -> cross-tool-call quest lock), keyed by this quest's BASENAME, so
-the archive cannot move the folder out from under an in-flight child distill (the
-child re-checks parent existence after IT acquires the lock, so once you hold it the
-child will see the archived parent and safely fall back to the orphan path).
+Steps 3–6 read this quest's scrolls and then ARCHIVE (move) the folder. Another
+chat can target the SAME quest concurrently (a parallel `/make-camp`). ACQUIRE the
+per-quest lock (SKILL.md -> "Concurrency" -> cross-tool-call quest lock), keyed by
+this quest's BASENAME, so the archive cannot move the folder out from under an
+in-flight write.
 
 If the lock cannot be acquired within the budget, report "quest {quest-name} busy —
-a side-quest is distilling into it; retry shortly" and STOP.
+another chat is writing to it; retry shortly" and STOP.
 
 LOCK ORDER (avoids deadlock): this per-quest lock is the OUTER lock. The registry
 locks in Steps 3–4 (`DANGER_REGISTRY.md` / `DECISIONS_LOG.md`) are acquired and

@@ -49,8 +49,6 @@ REMOTE_COMMANDS=(
   quest-log.md
   quest-xp.md
   quest-help.md
-  side-quest.md
-  close-side-quest.md
   start-quest.md
   summon-witch-doctor.md
   hunt-bugs.md
@@ -65,6 +63,8 @@ REMOTE_COMMANDS=(
 # whenever a command file is removed or renamed in skills/quest-system/commands/.
 RETIRED_COMMANDS=(
   campaign.md
+  side-quest.md
+  close-side-quest.md
 )
 
 # Legacy file names used before the manifest existed, seeded into a MISSING

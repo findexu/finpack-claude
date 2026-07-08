@@ -21,8 +21,6 @@ required_commands=(
   quest-log.md
   quest-xp.md
   quest-help.md
-  side-quest.md
-  close-side-quest.md
   start-quest.md
   summon-witch-doctor.md
   hunt-bugs.md

@@ -14,11 +14,6 @@ These are project-scoped, not tied to any one quest. Run them first so they work
 on a quest-less project too, then continue to Step 1 (skip the rest only if Step 1
 reports no active quest).
 
-- **Orphaned side-quests:** for each `.ai-context/side-quests/*/NOTE.md` with
-  `status: open`, verify `parent` is `none` or an existing
-  `.ai-context/quests/{parent}/`. If the parent is missing/archived, flag
-  `ORPHAN_SIDE_QUEST` (repair: close it via /close-side-quest, which falls back to
-  the project registries). Also flag a `status` that is not `open|done|promoted`.
 - **Stale locks:** if `.claude/locks/*.lock` exists, flag `STALE_LOCK` (repair:
   offer manual `rmdir` — never auto-break; another chat may hold it legitimately).
 - **XP cache drift:** if `.claude/quest-xp/events.log` exists and its line count ≠

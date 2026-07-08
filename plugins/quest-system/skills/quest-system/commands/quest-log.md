@@ -1,5 +1,5 @@
 ---
-description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition. Pass --all for the multi-tasking board across every quest and side-quest.
+description: Quick status check on the active quest. Reads YAML frontmatter and index summaries only — does not open a full expedition. Pass --all for the multi-tasking board across every quest.
 argument-hint: "[--all] [--quest <name>] [--realm <realm>]"
 ---
 
@@ -14,18 +14,14 @@ single-quest view, then stop:
 
 1. Scan `.ai-context/quests/*/` — for each, read `STRATEGY_SCROLL.md` frontmatter
    + `## Battle Status` and (if present) `context.md` `Expedition:` flag.
-2. Scan `.ai-context/side-quests/*/NOTE.md` with `status: open` (EXCLUDE
-   `.ai-context/side-quests/done/`). Group each under its `parent`.
-3. Read `.claude/active-quest.txt` and mark which quest the default pointer targets
+2. Read `.claude/active-quest.txt` and mark which quest the default pointer targets
    (`<- pointer`).
 
 ```
 📋 Quest Board
 Quests:
   {quest-name}  | realm {realm} | {expedition flag} {<- pointer if matched}
-    side-quests (open): {slug}, {slug}   (or "none")
   ...
-Standalone side-quests (open): {slug}, ...   (or "none")
 
 Note: in multi-chat use the pointer is only one chat's default; other chats
 carry their own quest via --quest.

@@ -60,10 +60,10 @@ Findings inscribed here count as "new dangers" for Steps 5 and 9.
 ## Step 2.9: Acquire the per-quest scroll lock
 
 Steps 3–7 write this quest's `ADVENTURE_JOURNAL.md`, `STRATEGY_SCROLL.md`, and
-`TOME_OF_DANGERS.md` — the same sections a `/close-side-quest` in another chat
-distills INTO from a child side-quest. ACQUIRE the per-quest lock now (SKILL.md ->
+`TOME_OF_DANGERS.md`. Another chat can target the SAME quest concurrently (a
+parallel `/make-camp` or `/complete-quest`). ACQUIRE the per-quest lock now (SKILL.md ->
 "Concurrency" -> cross-tool-call quest lock), keyed by this quest's BASENAME, so a
-concurrent child close cannot interleave a lost-update append between your write
+concurrent writer cannot interleave a lost-update append between your write
 and the Step 7 split rewrite.
 
 If the lock cannot be acquired within the budget, report "quest {quest-name} busy

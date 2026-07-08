@@ -51,18 +51,11 @@ done
 lint_miss=""
 for f in "$SRC"/commands/*.md; do
   b=$(basename "$f")
-  case "$b" in new-quest.md|start-quest.md|change-quest.md|quest-xp.md|init-xp.md|quest-help.md|side-quest.md|close-side-quest.md|setup-obsidian.md|open-obsidian.md) continue ;; esac
+  case "$b" in new-quest.md|start-quest.md|change-quest.md|quest-xp.md|init-xp.md|quest-help.md|setup-obsidian.md|open-obsidian.md) continue ;; esac
   grep -qF 'Active-quest selection' "$f" || lint_miss="$lint_miss\n  $b missing 'Active-quest selection' reference"
 done
 [ -z "$lint_miss" ] && ok "spec lint: quest-context readers reference the resolution rule" \
   || bad "spec lint: resolution reference" "$(printf "$lint_miss")"
-
-# NOTE template date must be quoted (YAML coerces unquoted ISO dates to Date).
-if grep -qF 'created: "{YYYY-MM-DD}"' "$SRC/commands/side-quest.md"; then
-  ok "spec lint: side-quest NOTE created date is quoted"
-else
-  bad "spec lint: side-quest NOTE created date must be quoted"
-fi
 
 # 4. Plan-reviewer wiring -------------------------------------------------------
 AGENT="agents/fp-plan-reviewer.md"

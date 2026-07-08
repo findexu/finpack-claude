@@ -1,5 +1,5 @@
 ---
-description: Activate a quest and get guided to the right next step. Reads scroll state and suggests /counsel-quest, /embark, or /quest-log based on where the quest stands. Also picks up a side-quest by slug as a lightweight one-scroll context.
+description: Activate a quest and get guided to the right next step. Reads scroll state and suggests /counsel-quest, /embark, or /quest-log based on where the quest stands.
 argument-hint: "[quest-name-or-path]"
 ---
 
@@ -10,10 +10,7 @@ Activate a quest and get guided to the right next step.
 ## Step 1: Find the target quest
 
 If $ARGUMENTS is provided: use it as the quest folder path or name.
-- If it starts with `.ai-context/side-quests/`, this is a side-quest pickup — skip
-  to "Side-quest pickup" below.
 - If it does not start with `.ai-context/quests/`, resolve to `.ai-context/quests/{argument}`.
-  A side-quest slug also works as a bare name — resolution falls through in Step 2.
 
 If $ARGUMENTS is empty:
 - Scan `.ai-context/quests/` for subdirectories containing `STRATEGY_SCROLL.md`.
@@ -34,15 +31,7 @@ If no quests are found: "No quests found. Run /new-quest to create one." Stop.
 
 Check that the quest folder exists on disk and contains `STRATEGY_SCROLL.md`.
 
-If not found (folder missing or no `STRATEGY_SCROLL.md`): check for a side-quest
-at `.ai-context/side-quests/{argument}/NOTE.md`.
-- If it exists: this is a side-quest pickup — skip to "Side-quest pickup" below
-  (Steps 3-6 do not apply).
-- If neither exists: "Quest not found at {path}. Run /new-quest to create it." Stop.
-
-If BOTH a quest and a side-quest match the name, the quest wins — continue with
-Step 3 and mention the ambiguity: "Note: a side-quest with the same name exists.
-Run /start-quest .ai-context/side-quests/{name} to pick that up instead."
+If not found (folder missing or no `STRATEGY_SCROLL.md`): "Quest not found at {path}. Run /new-quest to create it." Stop.
 
 ## Step 3: Set the default pointer
 
@@ -129,38 +118,3 @@ Options:
   /quest-log — full status overview
 ```
 
-## Side-quest pickup
-
-A side-quest is a one-scroll context: a single `NOTE.md` at
-`.ai-context/side-quests/{slug}/`. There are no five scrolls and no /embark
-machinery — work happens directly against the NOTE.
-
-Do NOT write `.claude/active-quest.txt`. Side-quests run alongside the active
-quest; the pointer keeps pointing at the main quest.
-
-1. Read `.ai-context/side-quests/{slug}/NOTE.md` (YAML frontmatter + all sections).
-2. Output the briefing:
-
-```
-🧭  Side-quest picked up: {slug}
-Parent: {parent or "standalone"}  |  Realm: {realm}  |  Status: {status}
-
-{title line from the NOTE}
-
-Findings so far:
-{summary of ## Findings, or "(none recorded yet)"}
-
-Proposed fix / decisions:
-{summary of ## Decisions, or "(none recorded yet)"}
-```
-
-3. Guide to next step:
-
-```
-📋  Work directly against the NOTE — record findings, dangers, and decisions
-in it as you go. Your active quest pointer is unchanged.
-
-When done:
-  /close-side-quest {slug}            — distill into the parent and archive
-  /close-side-quest {slug} --promote  — grow it into a full 5-scroll quest
-```

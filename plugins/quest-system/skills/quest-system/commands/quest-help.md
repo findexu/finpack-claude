@@ -39,10 +39,6 @@ Status
   /quest-xp                                          adventurer profile: level, EXP, badges
   /summon-witch-doctor                               diagnose scroll health, offer repair
 
-Side-quests
-  /side-quest <desc> [--standalone]                  capture a small thing (no active-quest switch)
-  /close-side-quest <slug> [--promote]               close up to parent (--promote = grow to full quest)
-
 Counsel & reference
   /ask-sages <matter> [--critique]                   3-sage council (codebase + web + reason)
   /counsel-plan <plan.md> [--critique] [opinion]     review a plan.md, paste-back verdict
@@ -72,12 +68,10 @@ Flag glossary
                             condition from the quest's Acceptance Criteria (Claude Code v2.1.139+).
   --pivot                   /counsel-quest — full direction change; records the fallen strategy.
   --expedition-focus <n>    /counsel-quest — scope the counsel to one focus area.
-  --all                     /quest-log — multi-quest board across every quest + side-quest;
+  --all                     /quest-log — multi-quest board across every quest;
                             /hunt-bugs — sweep the whole codebase instead of just the diff.
   --diff                    /hunt-bugs — scope the hunt to changed files vs main (default).
   --fix                     /hunt-bugs — gate applying the confirmed fixes (default: report only).
-  --promote                 /close-side-quest — grow the side-quest into a full 5-scroll quest.
-  --standalone              /side-quest — a side-quest with no parent quest.
 
 Tip: /quest-help <command>  shows just that command and its flags.
 ```

@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.30.0
+version: 1.31.0
 ---
 
 # Quest System — Skill Definition
@@ -64,8 +64,6 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 | `/complete-quest` | Distill key knowledge to project-level files, archive quest folder, clear active quest |
 | `/quest-xp` | Show adventurer profile: level, EXP, progress bar, badges unlocked and locked |
 | `/quest-help` | Cheat-sheet of every command and its `--` flags (the VS Code arg-hint is not reliable); pass a command name to show just one |
-| `/side-quest` | Capture a small thing found mid-quest (UI bug, font tweak) in one step — does NOT switch your active quest |
-| `/close-side-quest` | Close a side-quest, distilling its dangers/decisions up to its parent (or `--promote` it to a full quest) |
 | `/ask-sages` | Summon three sages (codebase, web, reason) to counsel a decision; `--critique` adds a cross-examination round |
 | `/counsel-plan` | Review a `plan.md` against quest context — paste-back feedback ending in a READY/REVISE verdict; `--critique` runs a lens panel |
 | `/counsel-prompt` | Rewrite a rough prompt into a sharp, well-contextualized one |
@@ -123,7 +121,7 @@ on quest X, it resolves every subsequent command against X (supplying it as
 
 ### Mutating commands confirm first
 
-`/make-camp`, `/complete-quest`, and `/close-side-quest` write scrolls and XP.
+`/make-camp` and `/complete-quest` write scrolls and XP.
 Before any write they MUST echo the resolved `quest + realm` and confirm (or
 require an explicit `--quest`). This is the backstop against a bare command
 acting on a pointer another chat has just repointed.
@@ -165,11 +163,11 @@ Races only exist when multiple chats share one folder. The rules:
   best-effort** (LLM-executed); a stale lock is reported and offered for manual
   `rmdir`, never silently broken.
 - **Per-quest scroll writes use the cross-tool-call quest lock.** "Single-writer-
-  per-quest" holds for the OWNING chat, but a `/close-side-quest` in another chat
-  distills UP into its parent's `TOME_OF_DANGERS.md`, `STRATEGY_SCROLL.md`, and
-  `ADVENTURE_JOURNAL.md` — a second writer to the same scrolls. Any command that
-  mutates a quest's scrolls from a possibly-concurrent context wraps those writes
-  in a per-quest lock. This differs from the registry lock above: the mutation is
+  per-quest" holds for one chat, but two chats in the same folder can both target
+  the SAME quest — e.g. concurrent `/make-camp` or `/complete-quest` runs writing
+  its `TOME_OF_DANGERS.md`, `STRATEGY_SCROLL.md`, and `ADVENTURE_JOURNAL.md` — a
+  second writer to the same scrolls. Any command that mutates a quest's scrolls
+  from a possibly-concurrent context wraps those writes in a per-quest lock. This differs from the registry lock above: the mutation is
   done by the LLM via `Edit` (a mid-file table/section insert), which CANNOT live
   inside one `printf >>`, so the lock spans separate tool calls in THREE phases:
 
@@ -196,8 +194,8 @@ Races only exist when multiple chats share one folder. The rules:
   `{quest-basename}` is the quest folder's BASENAME (last path segment), never the
   full path. All writers to the same quest compute the identical key. **Invariant:**
   a command holds AT MOST ONE per-quest lock at a time → no lock-ordering cycle →
-  no deadlock. A waiter that times out STOPs safely (e.g. a side-quest stays OPEN),
-  it never proceeds unguarded. (LLM-executed: the release-on-failure protocol is
+  no deadlock. A waiter that times out STOPs safely (e.g. the second `/make-camp`
+  reports the quest is busy and stops), it never proceeds unguarded. (LLM-executed: the release-on-failure protocol is
   verified by review, not by an automated test.)
 - **XP is append-only.** Append XP events to `.claude/quest-xp/events.log` with a
   shell append (`printf '%s\n' >> events.log`) ONLY — never via Edit/Write (a
@@ -505,54 +503,23 @@ All quest state and project memory lives here. Committed to git so the whole tea
     ADVENTURE_JOURNAL.md
     TOME_OF_DANGERS.md
     ADVENTURERS_HANDBOOK.md
-  side-quests/{slug}/             ← lightweight side-quests (one NOTE.md each)
-    NOTE.md
-  side-quests/done/{slug}/        ← closed side-quests (moved by /close-side-quest)
   archived/{quest-name}/          ← completed quests (moved by /complete-quest)
-```
-
-### Side-quest layout — `NOTE.md`
-
-A side-quest is one file. Created by `/side-quest`, it does not disturb the
-current chat's active quest. `parent` links it to the quest that was active when
-it was spawned (or `none`). On `/close-side-quest` its findings/decisions distill
-up to the parent's TOME/STRATEGY (or the project registries if `parent: none`).
-```
----
-type: side-quest
-slug: {slug}
-parent: .ai-context/quests/{parent-name} | none
-realm: {realm}
-status: open | done | promoted
-created: "{YYYY-MM-DD}"          # quoted — unquoted ISO dates parse to Date
----
-# Side-Quest: {one-line description}
-## Findings
-## Dangers     (distills to parent TOME_OF_DANGERS / project DANGER_REGISTRY)
-## Decisions   (distills to parent STRATEGY_SCROLL / project DECISIONS_LOG)
 ```
 
 ### Canonical multi-chat walkthrough
 
-The intended end-to-end flow, two chats in one folder:
+The intended end-to-end flow, two chats in one folder working different quests:
 
-1. **Chat A** `/embark --quest dashboard-redesign` → works the main quest; carries
-   `dashboard-redesign` in-conversation.
-2. Mid-work, A spots a font bug: `/side-quest "badge label font too small"` →
-   creates `.ai-context/side-quests/badge-label-font/NOTE.md` with
-   `parent: .ai-context/quests/dashboard-redesign`, appends a one-line breadcrumb
-   to the parent journal, and **leaves A on dashboard-redesign** (no switch).
-3. **Chat B** (new chat, same folder) picks it up: `/start-quest badge-label-font`
-   (or any command with `--quest badge-label-font`). Side-quest pickup activates
-   the NOTE as a lightweight one-scroll context and does NOT touch the shared
-   pointer — it still reads dashboard-redesign — so Chat A is unaffected either
-   way; Chat B works directly against the NOTE.
-4. Both finish together. Chat A `/make-camp` echoes "camping dashboard-redesign /
-   realm app — confirm?", appends an `expedition` line to `events.log` via `>>`,
-   recomputes `profile.md`. Chat B `/close-side-quest` distills the font danger up
-   into dashboard-redesign's `TOME_OF_DANGERS.md`, moves the NOTE to
-   `side-quests/done/`. No shared file is rewritten from a stale read; both XP
-   events land.
+1. **Chat A** `/embark --quest dashboard-redesign` → works that quest; carries
+   `dashboard-redesign` in-conversation (the shared pointer is untrusted).
+2. **Chat B** (same folder) `/embark --quest api-hardening` → works a different
+   quest; carries `api-hardening` in-conversation. Neither chat trusts
+   `.claude/active-quest.txt` — each passes its quest explicitly via `--quest`.
+3. Both finish together. Each `/make-camp` echoes "camping {quest} / realm {realm}
+   — confirm?", appends an `expedition` line to `events.log` via `>>`, and
+   recomputes `profile.md`. Append-only XP means both events land with no
+   lost-update; per-quest scroll writes are serialized by the per-quest lock, so
+   even two chats on the SAME quest never clobber each other's scroll edits.
 
 | File | Contents | Updated by |
 |---|---|---|
