@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.29.0
+version: 1.30.0
 ---
 
 # Quest System — Skill Definition
@@ -52,7 +52,7 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 
 | Command | When to use |
 |---|---|
-| `/campaign` | Orchestrate a whole problem end to end: clarify what is ambiguous, route to a quest, run the embark/make-camp loop applying the development habits, record decisions — until the goals are met |
+| `/set-bounty` | Set a bounty on a goal and let an autonomous party deliver it: clarify terms, route to a quest, then explore/plan/build/self-test/review and present a near-done solution for sign-off |
 | `/new-quest` | Scaffold a brand new quest (folder + scrolls) |
 | `/start-quest` | Activate a quest and get guided to next step |
 | `/counsel-quest` | Plan (or replan/pivot) the active quest — 3 modes: PRE, MID, PIVOT |

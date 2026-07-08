@@ -58,7 +58,7 @@ list the directory (remote install), fall back to the canonical set below.
 Canonical command set (also the fallback list — keep in sync with
 `skills/quest-system/commands/`; `hooks/tests/quest-system-smoke.sh` enforces parity):
 
-- `campaign.md`
+- `set-bounty.md`
 - `new-quest.md`
 - `start-quest.md`
 - `counsel-quest.md`

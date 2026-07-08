@@ -36,7 +36,7 @@ AGENT_MANIFEST=".claude/agents/.quest-system-manifest"
 # Fallback list used for remote installs where directory listing is unavailable.
 REMOTE_COMMANDS=(
   ask-sages.md
-  campaign.md
+  set-bounty.md
   change-quest.md
   complete-quest.md
   counsel-plan.md
@@ -64,6 +64,7 @@ REMOTE_COMMANDS=(
 # names are deleted — never a user's own custom slash commands. Add a name here
 # whenever a command file is removed or renamed in skills/quest-system/commands/.
 RETIRED_COMMANDS=(
+  campaign.md
 )
 
 # Legacy file names used before the manifest existed, seeded into a MISSING

@@ -22,8 +22,8 @@ Output verbatim:
 ```
 QUEST-SYSTEM COMMANDS
 
-Orchestration
-  /campaign <problem + goals>                        clarify -> route to a quest -> run the embark/make-camp loop to done
+Bounties (autonomous)
+  /set-bounty <problem + goals>                       post a bounty; a party explores->plans->builds->tests->reviews->presents for sign-off
 
 Lifecycle
   /new-quest <name> [realm]                          scaffold a new quest (folder + 5 scrolls)
