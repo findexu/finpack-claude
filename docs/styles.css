@@ -285,27 +285,32 @@ em { font-style: normal; color: var(--amber); }
 .ide__chat     { grid-area: chat; }
 .ide__pane-head {
   font-family: var(--f-mono); font-size: .68rem; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--muted);
-  padding: .55rem .9rem; background: rgba(0,0,0,.2);
+  text-transform: uppercase; color: #9AA4BA;
+  padding: .65rem 1rem; background: rgba(0,0,0,.25);
 }
 .ide__tab { color: var(--teal); text-transform: none; letter-spacing: 0; }
 
-.ide__tree { list-style: none; padding: .6rem .9rem; max-height: 190px; overflow: auto; }
-.ide__tree-item { font-family: var(--f-mono); font-size: .8rem; padding: .16rem 0; color: var(--muted); }
-.ide__tree-item--new { color: var(--moss); }
-.ide__tree-dir { color: #55606F; }
+.ide__tree { list-style: none; padding: .8rem 1rem; max-height: 200px; overflow: auto; }
+.ide__tree-item {
+  font-family: var(--f-mono); font-size: .8rem; padding: .24rem 0; color: #B6BFCF;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ide__tree-item--new { color: var(--moss); font-weight: 600; }
+/* the shared .ai-context/quests/<quest>/ prefix wraps + gets cut in a narrow
+   column and buries the filename — show the basename only, which carries the point */
+.ide__tree-dir { display: none; }
 .ide__tree-base { color: inherit; }
 
-.ide__lines { padding: .7rem .9rem; max-height: 230px; overflow: auto; }
+.ide__lines { padding: .9rem 1rem; max-height: 240px; overflow: auto; }
 .ide__line {
-  font-family: var(--f-mono); font-size: .82rem; line-height: 1.7; color: #C6CEDD;
+  font-family: var(--f-mono); font-size: .82rem; line-height: 1.75; color: #D2D9E7;
   white-space: pre-wrap; word-break: break-word;
 }
 
 .ide__chat { background: #0d121b; }
-.ide__chatlog { padding: .8rem .9rem; max-height: 300px; overflow: auto; }
+.ide__chatlog { padding: .95rem 1rem; max-height: 300px; overflow: auto; }
 .ide__chatline {
-  font-family: var(--f-mono); font-size: .82rem; line-height: 1.7; color: #CBD3E2;
+  font-family: var(--f-mono); font-size: .82rem; line-height: 1.75; color: #D7DEEC;
   white-space: pre-wrap; word-break: break-word;
 }
 .ide__prompt {
