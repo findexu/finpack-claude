@@ -93,11 +93,11 @@ em { font-style: normal; color: var(--amber); }
 /* brand emblem sits in the right gutter on desktop; hidden on phones to keep the hero clean */
 .hero__emblem { display: none; }
 @media (min-width: 900px) {
-  .hero { padding-right: 290px; }
+  .hero { padding-right: 330px; }
   .hero__emblem {
     display: block; position: absolute; right: var(--step);
-    top: clamp(3rem, 6vw, 5.5rem); width: 230px; height: 230px; opacity: .92;
-    filter: drop-shadow(0 8px 30px rgba(227,168,87,.25));
+    top: clamp(2.5rem, 5vw, 4.5rem); width: 264px; height: auto; opacity: .96;
+    filter: drop-shadow(0 10px 34px rgba(227,168,87,.28));
   }
 }
 .eyebrow, .kicker {
