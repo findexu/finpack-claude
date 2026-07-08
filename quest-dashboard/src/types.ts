@@ -110,14 +110,6 @@ export interface ScrollFile {
   meta: ScrollMeta | null;
 }
 
-// An open side-quest discovered under `.ai-context/side-quests/`. Side-quests
-// run alongside the active quest (they never switch the pointer), so they are
-// surfaced as a separate indicator rather than folded into the quest phase.
-export interface SideQuest {
-  slug: string;
-  fsPath: string; // the side-quest's NOTE.md, for click-to-open
-}
-
 // One sub-agent launch recorded in `.claude/quest-xp/agents.log` by the
 // PostToolUse(Agent|Task) hook: `{date}|agent|{quest-or--}|type={t};desc={d}`.
 // The hook fires at agent COMPLETION, so timing reflects finish, not start.
@@ -142,7 +134,6 @@ export interface QuestState {
   plannedExpeditions: PlannedExpedition[];
   activeQuest: ActiveQuest | null;
   scrolls: ScrollFile[];
-  openSideQuests: SideQuest[];
   // Recent sub-agent launches (newest first), from agents.log. Optional so
   // existing QuestState literals (initialState, tests) need no change; absent
   // is treated as [] by surfaces.

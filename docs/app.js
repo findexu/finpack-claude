@@ -298,8 +298,7 @@
   /* ---- mounts ----
      The #workflow caption panel STAYS — it is the demo's instructions (the
      launch review's top critical finding was removing it). One engine mount
-     only; the side-quest section is static (its beats remain in data.js as
-     the engine interface, just unmounted). */
+     only. */
   var workflowEngine = null;
   var workflow = document.getElementById("workflow");
   if (workflow) {

@@ -12,7 +12,7 @@ import { parseScroll } from "./parsers/scrollParser";
 import { detectPhase } from "./phaseDetector";
 import { checkSchemaVersion } from "./schema";
 import { LoadingState, QuestPhase } from "./types";
-import type { ActiveQuest, AgentActivity, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, ScrollFile, SideQuest } from "./types";
+import type { ActiveQuest, AgentActivity, ExpFold, ExpHistoryEntry, PlannedExpedition, QuestState, ScrollFile } from "./types";
 
 const PROFILE_PATH = [".claude", "quest-xp", "profile.md"];
 const HISTORY_PATH = [".claude", "quest-xp", "quest-history.md"];
@@ -22,7 +22,6 @@ const AGENTS_PATH = [".claude", "quest-xp", "agents.log"];
 const RECENT_AGENTS_LIMIT = 20;
 const ACTIVE_QUEST_PATH = [".claude", "active-quest.txt"];
 const VERSION_PATH = [".claude", "commands", ".quest-system-version"];
-const SIDE_QUESTS_PATH = [".ai-context", "side-quests"];
 
 const SCROLL_FILENAMES = [
   "STRATEGY_SCROLL.md",
@@ -35,7 +34,6 @@ const SCROLL_FILENAMES = [
 const WATCH_PATTERNS = [
   ".claude/quest-xp/**",
   ".ai-context/quests/**",
-  ".ai-context/side-quests/**",
   ".claude/active-quest.txt",
 ];
 
@@ -111,10 +109,9 @@ export class StateManager implements vscode.Disposable {
     const expFold = await this.readExpFold();
     const plannedExpeditions = await this.readPlannedExpeditions(activeQuest);
     const phase = await this.detectPhase(activeQuest);
-    const openSideQuests = await this.readSideQuests();
     const recentAgents = await this.readAgents();
 
-    const base = { phase, expHistory, expFold, plannedExpeditions, activeQuest, scrolls, openSideQuests, recentAgents, schemaVersion };
+    const base = { phase, expHistory, expFold, plannedExpeditions, activeQuest, scrolls, recentAgents, schemaVersion };
 
     if (profileText === null) {
       return { loadingState: LoadingState.NoAdventurer, profile: null, error: null, ...base };
@@ -162,26 +159,6 @@ export class StateManager implements vscode.Disposable {
       this.readText(vscode.Uri.joinPath(questDir, "ADVENTURE_JOURNAL.md")),
     ]);
     return detectPhase(strategyText, journalText, true);
-  }
-
-  // Open side-quests are the directories directly under `.ai-context/side-quests/`
-  // excluding the `done/` archive. Each holds one NOTE.md. Closing a side-quest
-  // moves its folder into `done/`, which fires the watcher and drops it here.
-  private async readSideQuests(): Promise<SideQuest[]> {
-    const dir = this.uri(SIDE_QUESTS_PATH);
-    let entries: [string, vscode.FileType][];
-    try {
-      entries = await vscode.workspace.fs.readDirectory(dir);
-    } catch {
-      return [];
-    }
-    return entries
-      .filter(([name, type]) => type === vscode.FileType.Directory && name !== "done")
-      .map(([name]) => ({
-        slug: name,
-        fsPath: vscode.Uri.joinPath(dir, name, "NOTE.md").fsPath,
-      }))
-      .sort((a, b) => a.slug.localeCompare(b.slug));
   }
 
   // Recent sub-agent launches from agents.log (written by the trace hook). The
@@ -275,7 +252,6 @@ export class StateManager implements vscode.Disposable {
       plannedExpeditions: [],
       activeQuest: null,
       scrolls: [],
-      openSideQuests: [],
       schemaVersion: null,
       error: null,
     };

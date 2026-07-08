@@ -53,7 +53,6 @@ function readyState(overrides: Partial<QuestState> = {}): QuestState {
     plannedExpeditions: [],
     activeQuest: { questFolderPath: ".ai-context/quests/vs-code-QS-plugin", realm: "app" },
     scrolls: [],
-    openSideQuests: [],
     schemaVersion: null,
     error: null,
     ...overrides,

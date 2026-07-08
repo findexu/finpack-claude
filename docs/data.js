@@ -8,10 +8,9 @@
      quest-complete = 100 + modules*25 + expeditions*10 + dangers*15
                       + oaths*20 + splits*50 + (clean ? 75 : 0) + (speed ? 50 : 0)
    Demo fiction: quest "user-avatars" -> exp1 (+25), exp2 (+15),
-   complete (modules=2, expeditions=2, dangers=2, oaths=2, clean=1, speed=1 -> +365).
-   The second danger arrives via the side-quest closing (distilled up into the
-   parent TOME between the two camps) — the timeline is one coherent fiction.
-   Running total 0 -> 25 -> 40 -> 405 (level 2 at threshold 300). */
+   complete (modules=2, expeditions=2, dangers=1, oaths=2, clean=1, speed=1 -> +350).
+   The single danger (HEIC trap) is mapped in expedition 1 and counts at completion.
+   Running total 0 -> 25 -> 40 -> 390 (level 2 at threshold 300). */
 
 const QUEST_DEMO = {
   meta: {
@@ -19,7 +18,7 @@ const QUEST_DEMO = {
     realm: "app",
     // Pinned baseline: fresh install. Every step's xp.total derives from this.
     baseline: { totalExp: 0, level: 1, title: "Apprentice Coder I" },
-    final: { totalExp: 405, level: 2, title: "Apprentice Coder II" }
+    final: { totalExp: 390, level: 2, title: "Apprentice Coder II" }
   },
 
   steps: [
@@ -268,7 +267,7 @@ const QUEST_DEMO = {
       why: "Completion distills the quest's lessons into PROJECT-level memory — every future quest's briefing starts smarter.",
       chat: [
         "🏆 Quest complete: user-avatars",
-        "Dangers distilled: 2 → .ai-context/DANGER_REGISTRY.md",
+        "Dangers distilled: 1 → .ai-context/DANGER_REGISTRY.md",
         "Decisions distilled: 2 → .ai-context/DECISIONS_LOG.md",
         "Archived: .ai-context/archived/user-avatars/",
         "",
@@ -279,10 +278,10 @@ const QUEST_DEMO = {
         "╚══════════════════════════════════════════════╝",
         "",
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-        "+365 XP  (base: 100  modules: 50  expeditions: 20",
-        "          dangers: 30  oaths: 40",
+        "+350 XP  (base: 100  modules: 50  expeditions: 20",
+        "          dangers: 15  oaths: 40",
         "          clean sweep: +75  speed run: +50)",
-        "Total EXP: 405  |  Level 2 — Apprentice Coder II",
+        "Total EXP: 390  |  Level 2 — Apprentice Coder II",
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
         "",
         "🎖️  Badge unlocked: 🗡️  First Blood",
@@ -301,91 +300,17 @@ const QUEST_DEMO = {
           "## Rendering Dangers",
           "| Danger | Impact | Remedy | Quest |",
           "|---|---|---|---|",
-          "| HEIC decodes as 1×1 on Safari canvas | Cropped avatar silently blank | Resize client-side to 512px JPEG | user-avatars |",
-          "| Retina border clip | 1px avatar border clips on 2× displays | Border on wrapper element, not the img | user-avatars |"
+          "| HEIC decodes as 1×1 on Safari canvas | Cropped avatar silently blank | Resize client-side to 512px JPEG | user-avatars |"
         ]
       },
-      // Fold: 100 + modules(2)*25 + expeditions(2)*10 + dangers(2)*15 + oaths(2)*20
-      //       + splits(0)*50 + clean(1)*75 + speed(2<=3 -> 1)*50 = 365. Total 40+365=405.
-      // dangers=2: the HEIC trap (exp 1) + the retina clip distilled up by the
-      // side-quest close. Level: threshold(2) = 150*2*1 = 300 <= 405 -> level 2.
+      // Fold: 100 + modules(2)*25 + expeditions(2)*10 + dangers(1)*15 + oaths(2)*20
+      //       + splits(0)*50 + clean(1)*75 + speed(2<=3 -> 1)*50 = 350. Total 40+350=390.
+      // dangers=1: the HEIC trap mapped in exp 1.
+      // Level: threshold(2) = 150*2*1 = 300 <= 390 -> level 2.
       xp: {
-        delta: 365, total: 405, level: 2,
-        detail: "base 100 + modules 2×25 + expeditions 2×10 + dangers 2×15 + oaths 2×20 + clean sweep 75 + speed run 50."
+        delta: 350, total: 390, level: 2,
+        detail: "base 100 + modules 2×25 + expeditions 2×10 + dangers 1×15 + oaths 2×20 + clean sweep 75 + speed run 50."
       }
     }
-  ],
-
-  /* Side-quest: capture-without-derailing. Same beat shape as steps[]. */
-  sideQuest: {
-    intro: "Mid-expedition you spot something small and unrelated. Capturing it must not derail the quest you're on. (Timeline: captured after camp 1, closed before camp 2 — its lesson lands in the parent TOME and counts at completion.)",
-    beats: [
-      {
-        id: "side-quest-capture",
-        command: "/side-quest \"avatar border clips on retina\"",
-        why: "One command, one scroll, zero derailment — your active quest does not change.",
-        chat: [
-          "🧭 Side-quest captured: avatar-border-clips",
-          "Parent: user-avatars  |  Realm: app",
-          "You are still on your current quest — nothing switched.",
-          "",
-          "Pick it up later in another chat:",
-          "  /start-quest avatar-border-clips",
-          "Close it with /close-side-quest avatar-border-clips."
-        ],
-        fileTree: [".ai-context/side-quests/avatar-border-clips/NOTE.md"],
-        scroll: {
-          file: "NOTE.md",
-          diff: [
-            "# Side-Quest: avatar border clips on retina",
-            "parent: .ai-context/quests/user-avatars",
-            "status: open",
-            "## Findings",
-            "## Dangers     (distills to parent TOME_OF_DANGERS on close)",
-            "## Decisions   (distills to parent STRATEGY_SCROLL on close)"
-          ]
-        },
-        xp: { delta: 0, total: 25, level: 1, detail: "Captured, not switched — the main quest keeps its focus." }
-      },
-      {
-        id: "side-quest-pickup",
-        command: "(another chat) open the NOTE, fix, record findings",
-        why: "A different chat (even a different day) picks it up by name — one scroll holds everything it needs.",
-        chat: [
-          "(in another chat, same folder)",
-          "Working side-quest avatar-border-clips — NOTE.md is the whole scroll.",
-          "Fixed. Findings recorded in the NOTE; ready to close."
-        ],
-        fileTree: [],
-        scroll: {
-          file: "NOTE.md",
-          diff: [
-            "## Findings",
-            "Border radius rounds against the un-scaled box on 2× displays.",
-            "Fix: border on the wrapper element, not the img."
-          ]
-        },
-        xp: { delta: 0, total: 25, level: 1, detail: "Two chats, one folder, no collisions." }
-      },
-      {
-        id: "side-quest-close",
-        command: "/close-side-quest avatar-border-clips",
-        why: "Closing distills what was learned UP into the parent quest's scrolls — small fixes feed the same memory.",
-        chat: [
-          "Side-quest closed: avatar-border-clips",
-          "Dangers distilled up → user-avatars/TOME_OF_DANGERS.md",
-          "NOTE moved to .ai-context/side-quests/done/"
-        ],
-        fileTree: [".ai-context/side-quests/done/avatar-border-clips/NOTE.md"],
-        scroll: {
-          file: "TOME_OF_DANGERS.md",
-          diff: [
-            "## Known Dangers",
-            "| Retina border clip | 1px avatar border clips on 2× displays | Border on wrapper element, not the img |"
-          ]
-        },
-        xp: { delta: 0, total: 25, level: 1, detail: "Lesson kept; clutter gone — and it counts at /complete-quest." }
-      }
-    ]
-  }
+  ]
 };

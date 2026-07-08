@@ -3,22 +3,20 @@ import * as vscode from "vscode";
 import { deriveBattlePlan } from "../battlePlan";
 import type { BattlePlanRow } from "../battlePlan";
 import { leafName } from "../leafName";
-import type { AgentActivity, QuestState, ScrollFile, SideQuest } from "../types";
+import type { AgentActivity, QuestState, ScrollFile } from "../types";
 import type { SurfaceUpdate } from "../stateManager";
 
-type GroupKind = "battle-plan" | "side-quests" | "war-party" | "scrolls";
+type GroupKind = "battle-plan" | "war-party" | "scrolls";
 
 type QuestNode =
   | { kind: "quest"; questName: string; realm: string }
   | { kind: "group"; group: GroupKind; label: string; description: string }
   | { kind: "expedition"; row: BattlePlanRow; openPath: string | null }
-  | { kind: "side-quest"; sideQuest: SideQuest }
   | { kind: "agent"; activity: AgentActivity }
   | { kind: "scroll"; scroll: ScrollFile };
 
 const GROUP_ICON: Record<GroupKind, string> = {
   "battle-plan": "tasklist",
-  "side-quests": "git-branch",
   "war-party": "organization",
   scrolls: "library",
 };
@@ -70,17 +68,6 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
             arguments: [vscode.Uri.file(node.openPath)],
           };
         }
-        return item;
-      }
-      case "side-quest": {
-        const item = new vscode.TreeItem(node.sideQuest.slug, vscode.TreeItemCollapsibleState.None);
-        item.iconPath = new vscode.ThemeIcon("note");
-        item.contextValue = "sideQuest";
-        item.command = {
-          command: "vscode.open",
-          title: "Open Side-Quest",
-          arguments: [vscode.Uri.file(node.sideQuest.fsPath)],
-        };
         return item;
       }
       case "agent": {
@@ -142,14 +129,6 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
         description: `${c.done} done · ${c.active} active · ${c.planned} plan`,
       });
     }
-    if (state.openSideQuests.length > 0) {
-      groups.push({
-        kind: "group",
-        group: "side-quests",
-        label: "Side-Quests",
-        description: `${state.openSideQuests.length}`,
-      });
-    }
     const agents = state.recentAgents ?? [];
     if (agents.length > 0) {
       groups.push({ kind: "group", group: "war-party", label: "War Party", description: `${agents.length} recent` });
@@ -173,8 +152,6 @@ export class QuestTreeProvider implements vscode.TreeDataProvider<QuestNode>, Su
           openPath: row.status === "done" ? journal : strategy,
         }));
       }
-      case "side-quests":
-        return state.openSideQuests.map((sideQuest) => ({ kind: "side-quest", sideQuest }));
       case "war-party":
         return (state.recentAgents ?? []).map((activity) => ({ kind: "agent", activity }));
       case "scrolls":

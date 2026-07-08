@@ -8,7 +8,7 @@ description: >
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /install-quest-system, /summon-witch-doctor.
-version: 1.31.0
+version: 1.31.1
 ---
 
 # Quest System — Skill Definition
@@ -75,7 +75,6 @@ only). All maintenance is a scroll-body edit — never `events.log`/`lifecycle.l
 ## Key concepts
 
 - **Quest** — a feature or epic (e.g. "scan-alignment-floor-annotation")
-- **Side-quest** — a small thing found along the way (UI bug, font size, layout), usually independent but sometimes related to the main quest. Cheap to capture (one scroll, no counsel), worked in a separate chat, distilled UP to its parent on close.
 - **Realm** — the app target in scope (e.g. "WeScanX")
 - **Expedition** — a single focused work loop (`/embark` -> implementation -> `/make-camp`)
 - **Conquered** — completed step

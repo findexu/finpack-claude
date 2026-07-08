@@ -51,7 +51,6 @@ const state = {
   expFold,
   plannedExpeditions,
   activeQuest: { questFolderPath: ".ai-context/quests/vs-code-cs-plugin", realm: "devforge" },
-  openSideQuests: [],
   scrolls: [], schemaVersion: null, error: null,
 };
 const assets = {

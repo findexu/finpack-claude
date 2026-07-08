@@ -59,9 +59,8 @@ export class StatusBar implements SurfaceUpdate, vscode.Disposable {
     const questLabel = quest ? ` ${quest}` : "";
     const bar = progress.isMax ? "MAX" : expBar(progress.ratio, BAR_WIDTH);
     const icon = PHASE_ICON[state.phase];
-    const sideQuests = state.openSideQuests.length > 0 ? ` $(git-branch)${state.openSideQuests.length}` : "";
 
-    this.item.text = `${icon} Lv.${progress.tier.level}${questLabel} ${bar}${sideQuests}`;
+    this.item.text = `${icon} Lv.${progress.tier.level}${questLabel} ${bar}`;
     this.item.tooltip = this.buildTooltip(state, progress.tier.level, progress.tier.title, progress.isMax, progress.expThisLevel, progress.expToNext);
   }
 
@@ -81,10 +80,6 @@ export class StatusBar implements SurfaceUpdate, vscode.Disposable {
     const quest = questName(state.activeQuest);
     if (quest) {
       lines.push(`Active quest: \`${quest}\` (${state.activeQuest?.realm ?? "?"})`);
-    }
-    if (state.openSideQuests.length > 0) {
-      const slugs = state.openSideQuests.map((sq) => `\`${sq.slug}\``).join(", ");
-      lines.push(`Side-quests open: ${slugs}`);
     }
     lines.push("Click to open the character sheet.");
     return new vscode.MarkdownString(lines.join("\n\n"));
