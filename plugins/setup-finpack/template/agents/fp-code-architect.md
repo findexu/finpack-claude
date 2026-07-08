@@ -1,8 +1,8 @@
 ---
 name: fp-code-architect
-version: 0.1.0
+version: 0.2.0
 description: Designs a feature architecture implementation blueprint by analyzing existing codebase patterns. Used by /counsel-quest during architecture design phase. Produces a single decisive recommendation with specific files, build sequence, and data flow.
-model: sonnet
+model: opus  # design decisions cascade into all downstream code; deep reasoning pays off
 tools:
   - Read
   - Grep

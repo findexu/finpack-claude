@@ -30,6 +30,18 @@ Read-only codebase analyst. Traces execution paths, maps architecture layers, an
 ### fp-code-architect
 Read-only architecture designer. Turns codebase findings into an implementation blueprint: specific files to create/modify, build sequence, and data flow. Spawned in parallel by `/counsel-quest` during the design phase. Like `fp-code-explorer`, it prefers Serena MCP tools for surveying existing structure and blast radius, falling back to Grep/Glob.
 
+## Model tiers
+
+Each agent pins a `model:` in its frontmatter, tiered by reasoning need rather than run uniformly:
+
+| Model | Agents | Why |
+|-------|--------|-----|
+| `opus` | `fp-code-architect`, `fp-code-reviewer`, `fp-security-reviewer` | Reasoning-bound and cascade-heavy — a bad design or a missed bug/vuln is expensive. |
+| `sonnet` | `fp-code-explorer`, `fp-performance-reviewer`, `fp-plan-reviewer`, `fp-frontend-designer`, `fp-swiftui-designer` | Default tier. Good judgment without opus cost. |
+| `haiku` | `fp-doc-reviewer` | Docs-vs-code cross-referencing is mechanical; no deep reasoning needed. |
+
+`fp-security-reviewer` carries a `FLOOR` note: never downgrade it below `sonnet`. Watch `opus` agents that run frequently or inside loops (`/pr-review`, `/counsel-quest`) — cost multiplies; `fp-code-reviewer` is the first to drop back to `sonnet` if bills spike.
+
 ## Adding your own
 
 Create a new `.md` file in this directory:
@@ -37,7 +49,9 @@ Create a new `.md` file in this directory:
 ```yaml
 ---
 name: your-agent-name
+version: 0.1.0            # bump on every change so sync-plugins.sh restamps plugin.json and `claude plugin update` detects it
 description: When Claude should delegate to this agent
+model: sonnet             # opus | sonnet | haiku — pick by reasoning need; omit to inherit the session model
 tools:
   - Read
   - Grep
