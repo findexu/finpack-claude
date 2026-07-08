@@ -63,33 +63,39 @@
     <!-- ============================= THE PROBLEM ============================= -->
     <section class="band wrap" id="why" aria-labelledby="why-h">
       <p class="kicker">The problem</p>
-      <h2 class="band__h" id="why-h">A chat ends. The lesson dies with it.</h2>
+      <h2 class="band__h" id="why-h">New chat. Blank slate. Every time.</h2>
       <p class="lead">
-        Same project, same two chats &mdash; you're adding avatar upload. The only
-        difference between these timelines is whether anything gets <em>remembered</em>.
+        Claude starts every chat from zero &mdash; no memory of the bug you fixed, the
+        decision you locked, or the dead end you already ruled out. So you re-explain,
+        and the same mistakes ship twice. The fix isn't a longer prompt; it's memory
+        that outlives the chat.
       </p>
 
-      <div class="pair">
-        <article class="log log--lost" aria-labelledby="lost-h">
-          <span class="log__stamp log__stamp--lost">Lost</span>
-          <h3 class="log__h" id="lost-h">Without quest-system</h3>
-          <ol class="log__steps">
-            <li><span class="log__when">Mon</span> You fix a real trap: HEIC photos from iPhones decode blank on Safari. You resize to 512px JPEG and decide that's the rule.</li>
-            <li class="log__break">the chat ends &mdash; bug, fix, and decision all gone</li>
-            <li><span class="log__when">Wed</span> New chat. "Add avatar cropping." Claude suggests server-side resizing &mdash; the decision, unmade. The HEIC bug ships again.</li>
+      <div class="problem">
+        <article class="track track--lost" aria-labelledby="lost-h">
+          <div class="track__head">
+            <h3 class="track__title" id="lost-h">Without quest-system</h3>
+            <span class="track__stamp track__stamp--lost">Forgotten</span>
+          </div>
+          <ol class="thread">
+            <li class="thread__node"><span class="thread__day">Mon</span><p>Fix the HEIC-blank-on-Safari bug. Lock the rule: resize to 512px before upload.</p></li>
+            <li class="thread__link thread__link--cut">chat ends &mdash; bug, fix and decision forgotten</li>
+            <li class="thread__node"><span class="thread__day">Wed</span><p>New chat: &ldquo;add cropping.&rdquo; Claude reverses the decision &mdash; the HEIC bug ships again.</p></li>
           </ol>
-          <p class="log__verdict">every chat starts at zero</p>
+          <p class="track__verdict track__verdict--lost">Starts at zero</p>
         </article>
 
-        <article class="log log--kept" aria-labelledby="kept-h">
-          <span class="log__stamp log__stamp--kept">Kept</span>
-          <h3 class="log__h" id="kept-h">With quest-system</h3>
-          <ol class="log__steps">
-            <li><span class="log__when">Mon</span> Same fix &mdash; but the session ends with <code>/make-camp</code>, writing the trap and your decision into the repo.</li>
-            <li class="log__break log__break--kept">lessons land in <code>.ai-context/</code>, committed with your code</li>
-            <li><span class="log__when">Wed</span> <code>/embark</code> briefs the new chat first: <em>"HEIC decodes blank on Safari &rarr; resize to 512px. Decision on record."</em> Cropping builds on top. Nothing regresses.</li>
+        <article class="track track--kept" aria-labelledby="kept-h">
+          <div class="track__head">
+            <h3 class="track__title" id="kept-h">With quest-system</h3>
+            <span class="track__stamp track__stamp--kept">Kept</span>
+          </div>
+          <ol class="thread">
+            <li class="thread__node"><span class="thread__day">Mon</span><p>Same fix &mdash; and <code>/make-camp</code> writes the trap and the decision into the repo.</p></li>
+            <li class="thread__link thread__link--kept">saved to <code>.ai-context/</code>, committed with your code</li>
+            <li class="thread__node"><span class="thread__day">Wed</span><p><code>/embark</code> briefs the next chat first, so cropping builds on top. Nothing regresses.</p></li>
           </ol>
-          <p class="log__verdict log__verdict--kept">every chat starts ahead</p>
+          <p class="track__verdict track__verdict--kept">Starts ahead</p>
         </article>
       </div>
     </section>
