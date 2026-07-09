@@ -1,17 +1,19 @@
 ---
 name: explain
-description: Explain code. Default is a one-sentence summary plus a mental model. Add `verbose` for an ASCII diagram, key details, and a modification guide. Add `interactive` to render a self-contained interactive HTML explainer instead.
-argument-hint: "[target] [verbose | interactive]?"
+description: Explain code. Default is a one-sentence summary plus a mental model. Add --verbose for an ASCII diagram, key details, and a modification guide. Add --interactive (alias --html, --visual) for a self-contained interactive HTML explainer. Plain words like "detailed" or "visualised" work too.
+argument-hint: "[target] [--verbose | --interactive]?"
 disable-model-invocation: true
 ---
 
-Explain `$ARGUMENTS` clearly. Pick ONE output mode from the target's trailing keyword, then strip that keyword from the target name before interpreting what to explain.
+Explain `$ARGUMENTS` clearly. Pick ONE output mode. Flags win; if no flag, scan the whole argument text for intent words. Strip flags and mode words when interpreting what to explain.
 
 ## Modes
 
-- **default** (no keyword): sections 1 and 2 only, then stop. Day-to-day that's usually all you need.
-- **`verbose`** (e.g. `/explain my-function verbose`): all five ASCII sections below.
-- **`interactive`** or **`html`** (e.g. `/explain reducer interactive`): render a self-contained interactive HTML explainer as an Artifact (see "Interactive mode"). Best when the code is spatial or temporal — state machines, algorithms, recursion, data pipelines, event flows — where stepping through beats prose.
+- **interactive**: flag `--interactive` (aliases `--html`, `--visual`), or intent words like `interactive`, `visualise(d)`, `visualize(d)`, `animated`, "show me", "step through" (e.g. `/explain reducer --interactive`, `/explain the retry loop, visualised`). Render a self-contained interactive HTML explainer as an Artifact (see "Interactive mode"). Best when the code is spatial or temporal — state machines, algorithms, recursion, data pipelines, event flows — where stepping through beats prose.
+- **verbose**: flag `--verbose`, or intent words like `verbose`, `detail(ed)`, `deep`, "in depth" (e.g. `/explain my-function --verbose`, `/explain the sync script in detail`). All five ASCII sections below.
+- **default** (no flag, no mode words): sections 1 and 2 only, then stop. Day-to-day that's usually all you need.
+
+If both interactive and verbose signals appear, interactive wins.
 
 ## Sections (ASCII modes)
 

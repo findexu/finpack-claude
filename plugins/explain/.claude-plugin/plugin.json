@@ -1,7 +1,7 @@
 {
   "name": "explain",
-  "version": "0.2.0",
-  "description": "Explain code: one-sentence summary + mental model, an ASCII verbose mode, or a self-contained interactive HTML explainer.",
+  "version": "0.3.0",
+  "description": "Explain code: one-sentence summary + mental model, --verbose for an ASCII deep-dive, --interactive for a self-contained interactive HTML explainer. Plain intent words like 'detailed' or 'visualised' work too.",
   "author": {
     "name": "findexu"
   },
