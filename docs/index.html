@@ -4,13 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>quest-system — persistent memory for Claude Code</title>
-  <meta name="description" content="quest-system gives Claude Code memory that survives between chats: features are quests, work sessions are expeditions, and every lesson is written to plain markdown in your repo. Drive it yourself, or post a bounty and let an autonomous party run the whole quest." />
+  <meta name="description" content="quest-system gives Claude Code memory that survives between chats: features are quests, sessions are expeditions, every lesson lands in plain markdown in your repo." />
+  <link rel="canonical" href="https://findexu.github.io/finpack-claude/" />
+  <meta name="theme-color" content="#0E131C" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://findexu.github.io/finpack-claude/" />
+  <meta property="og:title" content="quest-system — persistent memory for Claude Code" />
+  <meta property="og:description" content="Claude Code forgets between chats. quest-system remembers: quests, expeditions, and lessons written to plain markdown in your repo." />
+  <meta property="og:image" content="https://findexu.github.io/finpack-claude/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=2" />
-  <script src="data.js?v=2" defer></script>
-  <script src="app.js?v=2" defer></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <script src="data.js?v=4" defer></script>
+  <script src="app.js?v=4" defer></script>
+  <script src="motion.js?v=1" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -22,6 +34,8 @@
         <a href="#why">The problem</a>
         <a href="#ways">Two ways</a>
         <a href="#run">See it run</a>
+        <a href="#builtin">Built in</a>
+        <a href="#armory">Armory</a>
         <a href="#install">Install</a>
         <a class="nav__ext" href="https://github.com/findexu/finpack-claude" rel="noopener">GitHub</a>
       </nav>
@@ -39,11 +53,11 @@
           <span class="hero__accent">quest-system remembers.</span>
         </h1>
         <p class="hero__sub">
-          Your repo becomes the world. Features are <strong>quests</strong>, work
-          sessions are <strong>expeditions</strong>, and everything learned is written
-          to plain markdown in your repo &mdash; so the next chat starts ahead, not from
-          zero. Drive it yourself, or post a bounty and let an autonomous party run the
-          whole quest.
+          Your repo becomes the world &mdash; each app in it, a realm. Features are
+          <strong>quests</strong>, work sessions are <strong>expeditions</strong>, and
+          everything learned is written to plain markdown &mdash; so the next chat
+          starts ahead, not from zero. Drive it yourself, or post a bounty and let an
+          autonomous party run the whole quest.
         </p>
 
         <div class="term term--hero" aria-hidden="true">
@@ -52,8 +66,8 @@
         </div>
 
         <div class="ctas">
-          <a class="btn btn--primary" href="#install">Install</a>
-          <a class="btn btn--ghost" href="#run">See it run</a>
+          <a class="btn btn--primary" href="#run">See it run</a>
+          <a class="btn btn--ghost" href="#install">Install</a>
         </div>
 
         <p class="hero__foot">
@@ -81,7 +95,7 @@
             <span class="track__stamp track__stamp--lost">Forgotten</span>
           </div>
           <ol class="thread">
-            <li class="thread__node"><span class="thread__day">This chat</span><p>You make a real call &mdash; a rule, an architecture decision, an approach you rejected on purpose.</p></li>
+            <li class="thread__node"><span class="thread__day">This chat</span><p>You make a real call &mdash; and explain exactly why the obvious shortcut is wrong.</p></li>
             <li class="thread__link thread__link--cut">chat ends, or just grows too long &mdash; the decision fades</li>
             <li class="thread__node"><span class="thread__day">Next chat</span><p>Claude reverses it without a word. You catch it in review &mdash; or you don't, and it ships.</p></li>
           </ol>
@@ -94,7 +108,7 @@
             <span class="track__stamp track__stamp--kept">Kept</span>
           </div>
           <ol class="thread">
-            <li class="thread__node"><span class="thread__day">This chat</span><p>Same call &mdash; <code>/make-camp</code> writes it down as an oath in the repo, not just in the chat.</p></li>
+            <li class="thread__node"><span class="thread__day">This chat</span><p>Same call &mdash; <code>/make-camp</code> swears it in as an oath, written to the repo, not just the chat.</p></li>
             <li class="thread__link thread__link--kept">saved to <code>.ai-context/</code>, in your git history</li>
             <li class="thread__node"><span class="thread__day">Next chat</span><p><code>/embark</code> reloads just that decision into a small, fresh context. The call holds.</p></li>
           </ol>
@@ -102,10 +116,9 @@
         </article>
       </div>
       <p class="cite">
-        Straight from Claude's makers: Anthropic describes an
+        Anthropic calls this the model's
         <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" rel="noopener">&ldquo;attention budget&rdquo;</a>
-        &mdash; as the context fills, &ldquo;the model's ability to accurately recall
-        information from that context decreases.&rdquo; Their own remedy is the shape of
+        &mdash; the fuller the context, the worse its recall. Their fix is the shape of
         ours: keep &ldquo;the smallest possible set of high-signal tokens.&rdquo;
         quest-system parks decisions in durable files and reloads only what the next
         chat needs.
@@ -129,7 +142,7 @@
           and review help, but every decision is yours. Full control, step by step.</p>
           <ol class="chain" aria-label="The manual loop">
             <li><code>/new-quest</code> <span>scaffold the feature</span></li>
-            <li><code>/counsel-quest</code> <span>plan, checked by a review AI</span></li>
+            <li><code>/counsel-quest</code> <span>scout the code, lock the plan</span></li>
             <li><code>/embark</code> <span>open a session, briefed from the repo</span></li>
             <li><code>/make-camp</code> <span>record what you learned</span></li>
             <li><code>/complete-quest</code> <span>distill into project memory</span></li>
@@ -152,7 +165,7 @@
             <li>plans and refines the approach</li>
             <li>builds it, test-first</li>
             <li>self-tests until green</li>
-            <li>reviews its own code and security</li>
+            <li>reviews its own code, security-checks risky changes</li>
             <li>presents a near-done solution for sign-off</li>
           </ol>
         </article>
@@ -165,13 +178,14 @@
       <h2 class="band__h" id="run-h">One week of the loop, in a minute.</h2>
       <div class="caption" id="demo-caption">
         <p>A <strong>simulated Claude Code session</strong> &mdash; five commands
-        across eight steps. You talk to Claude at the <strong>prompt</strong> (right).
-        The <strong>scrolls</strong> are Claude's memory: it reads and writes them for
-        you (middle and left) &mdash; you never edit them by hand.</p>
+        across eight steps in one realm (an app in your repo). You talk to Claude at
+        the <strong>prompt</strong> (right). The <strong>scrolls</strong> are Claude's
+        memory: it reads and writes them for you (middle and left) &mdash; you never
+        edit them by hand.</p>
         <p class="caption__note">Press <strong>Play</strong> to watch it run, or
         <strong>Step</strong> at your own pace. Each step shows the command, its
         one-line reason, the files Claude touched, and the transcript. The payoff:
-        step 6 is a brand-new chat that already knows the trap Claude recorded in
+        step 6 is a brand-new chat that already knows the danger Claude recorded in
         step 4.</p>
       </div>
       <!-- The engine (app.js) mounts here. With JS off, this stays as the fallback note. -->
@@ -192,15 +206,51 @@
         </li>
         <li class="tile">
           <h3 class="tile__h">Reviewed before it lands</h3>
-          <p>Code and security reviewers check the changes before a session is recorded. Confirmed issues become known dangers.</p>
+          <p>A code reviewer checks every change before a session is recorded; a security reviewer joins when auth, inputs, or secrets are touched. Confirmed issues become known dangers.</p>
         </li>
         <li class="tile">
           <h3 class="tile__h">Right model for the job</h3>
-          <p>Agents are tiered &mdash; deep reasoning for architecture and review, cheaper models for mechanical work. You control the tier.</p>
+          <p>Agents are tiered: heavy thinking for architecture and review, cheap and fast for the busywork &mdash; you choose who swings which blade.</p>
         </li>
         <li class="tile">
           <h3 class="tile__h">Memory you can read</h3>
           <p>Everything lives in <code>.ai-context/</code> as plain markdown &mdash; committed, reviewable, greppable. The RPG flavor stays in filenames; your code stays normal.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ============================== ARMORY ============================== -->
+    <section class="band wrap" id="armory" aria-labelledby="armory-h">
+      <p class="kicker">The armory</p>
+      <h2 class="band__h" id="armory-h">Three more blades on the belt.</h2>
+      <p class="lead">
+        Same marketplace, same philosophy: one command, real work, nothing to configure.
+      </p>
+      <ul class="armory">
+        <li class="arm">
+          <p class="arm__cmd"><span class="arm__prompt">&#10095;</span> /explain</p>
+          <h3 class="arm__h">Read the runes</h3>
+          <p class="arm__body">One sentence plus a mental model for any code you point
+          at. Add <code>verbose</code> for an ASCII map and modification guide, or
+          <code>interactive</code> to conjure a step-through HTML explainer.</p>
+          <p class="arm__foot">its own plugin &mdash; <code>explain@finpack-claude</code></p>
+        </li>
+        <li class="arm">
+          <p class="arm__cmd"><span class="arm__prompt">&#10095;</span> /summon-seer</p>
+          <h3 class="arm__h">Divine your friction</h3>
+          <p class="arm__body">The seer reads your recent Claude Code sessions, finds
+          what keeps going wrong, and proposes fixes &mdash; new skills, hooks, and
+          CLAUDE.md edits, each tied to evidence. Changes nothing unless you say
+          <code>--fix</code>.</p>
+          <p class="arm__foot">its own plugin &mdash; <code>summon-seer@finpack-claude</code></p>
+        </li>
+        <li class="arm">
+          <p class="arm__cmd"><span class="arm__prompt">&#10095;</span> /hunt-bugs</p>
+          <h3 class="arm__h">Loose the hounds</h3>
+          <p class="arm__body">Cheap scouts sweep the code through parallel lenses; a
+          skeptical verifier kills the plausible-but-wrong; only bugs that survive the
+          second opinion reach you, ranked with a fix plan. Read-only by default.</p>
+          <p class="arm__foot">ships with <code>quest-system</code></p>
         </li>
       </ul>
     </section>
@@ -211,6 +261,10 @@
       <h2 class="band__h" id="install-h">Two commands to start.</h2>
       <pre class="code" tabindex="0" role="region" aria-label="Install commands"><code>/plugin marketplace add findexu/finpack-claude
 /plugin install quest-system@finpack-claude</code></pre>
+      <div class="ctas ctas--install">
+        <button class="btn btn--primary" id="copy-install" type="button" hidden>Copy commands</button>
+        <a class="btn btn--ghost" href="https://github.com/findexu/finpack-claude" rel="noopener">Star it on GitHub</a>
+      </div>
       <p class="lead">
         Restart Claude Code, then run <code>/install-quest-system</code> once in your
         project. Start a quest with <code>/new-quest</code>, or hand one off with
@@ -227,7 +281,8 @@
   </main>
 
   <footer class="footer wrap">
-    <p>Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>. MIT licensed.</p>
+    <p>Hugely inspired by <a href="https://github.com/poshan0126/dotclaude" rel="noopener">dotclaude</a>. MIT licensed.
+    If it earns its keep, <a href="https://github.com/findexu/finpack-claude" rel="noopener">a star on GitHub</a> keeps the quest going.</p>
   </footer>
 </body>
 </html>

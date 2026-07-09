@@ -1,6 +1,6 @@
 ---
-name: session-audit
-description: Audit your recent Claude Code sessions to find where you keep hitting friction, then propose concrete fixes — new skills, automations (hooks/settings.json), and CLAUDE.md edits. Fans out cheap sub-agents over session transcripts, clusters recurring friction, and reports evidence-linked proposals. Report-only unless --fix.
+name: summon-seer
+description: Summon the seer to divine recurring friction in your recent Claude Code sessions, then propose concrete fixes — new skills, automations (hooks/settings.json), and CLAUDE.md edits. Fans out cheap sub-agents over session transcripts, clusters recurring friction, and reports evidence-linked proposals. Report-only unless --fix.
 argument-hint: "[--all-projects] [--days N] [--sessions N] [--fix]"
 version: 1.0.0
 disable-model-invocation: true
@@ -13,9 +13,9 @@ allowed-tools:
   - Agent
 ---
 
-# Session Audit
+# Summon Seer
 
-Find the recurring friction in how you work with Claude Code, then propose fixes that
+The seer gazes into past sessions and divines the patterns. Find the recurring friction in how you work with Claude Code, then propose fixes that
 remove it. This reads your local session transcripts, fans out cheap workers to extract
 friction signals, clusters what recurs, and proposes new skills / automations / CLAUDE.md
 edits — each tied to evidence. It changes nothing unless you pass `--fix`.
@@ -106,7 +106,7 @@ best-effort). Mask, at minimum: values after `token`/`secret`/`key`/`password`/`
 
 Produce the report:
 ```
-## Session Audit — {scope: N sessions, date range}
+## Seer's Vision — {scope: N sessions, date range}
 
 ### Friction clusters (ranked)
 1. {theme} — seen {K}× across {sessions}. Evidence: {uuid:line}, …

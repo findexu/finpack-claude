@@ -306,7 +306,7 @@ frontmatter key; keep this table in sync with `agents/fp-*.md`).**
 | fp-doc-reviewer | haiku | Docs-vs-code cross-referencing is mechanical |
 | fp-plan-reviewer | sonnet | Returns a `READY\|REVISE` verdict — loop-terminating judgment |
 | fp-frontend-designer, fp-swiftui-designer | sonnet | Production UI generation |
-| bug-hunt scouts, session-audit, danger/doc extraction (command-spawned general-purpose) | haiku | Cheap fan-out to grep/trace/extract candidates; the orchestrator curates |
+| bug-hunt scouts, summon-seer, danger/doc extraction (command-spawned general-purpose) | haiku | Cheap fan-out to grep/trace/extract candidates; the orchestrator curates |
 | goal-evaluator (command-spawned) | strong | This IS the gate reasoning — must not be cheap |
 
 Orchestrator is always the session model (Opus 4.8 / Fable 5). Workers set their tier in

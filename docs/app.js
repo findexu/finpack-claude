@@ -32,6 +32,63 @@
     return out;
   }
 
+  /* Scroll pane renders READABLE markdown, not raw source — raw pipe tables
+     were line noise to anyone who doesn't sight-read markdown. Structural
+     only: every string still lands via textContent (engine contract); the
+     structure comes from line shape. Covers exactly the subset the demo
+     scrolls use: #/##/### headings, pipe tables, task items, bullets, text. */
+  var TABLE_ROW = /^\s*\|.*\|\s*$/;
+  var TASK_MARKS = { " ": "☐", ">": "▸", "x": "☑" };
+
+  function renderScroll(mount, lines) {
+    var i = 0;
+    while (i < lines.length) {
+      if (TABLE_ROW.test(lines[i])) {
+        var rows = [];
+        while (i < lines.length && TABLE_ROW.test(lines[i])) { rows.push(lines[i]); i++; }
+        mount.appendChild(buildTable(rows));
+        continue;
+      }
+      mount.appendChild(buildLine(lines[i]));
+      i++;
+    }
+  }
+
+  function buildTable(rows) {
+    var table = el("table", "ide__md-table");
+    var pastSeparator = false;
+    rows.forEach(function (row) {
+      var cells = row.replace(/^\s*\|/, "").replace(/\|\s*$/, "").split("|");
+      var isSeparator = cells.every(function (c) { return /^\s*:?-+:?\s*$/.test(c); });
+      if (isSeparator) { pastSeparator = true; return; }
+      var tr = el("tr");
+      cells.forEach(function (c) { tr.appendChild(el(pastSeparator ? "td" : "th", "", c.trim())); });
+      table.appendChild(tr);
+    });
+    return table;
+  }
+
+  function buildLine(line) {
+    var h = line.match(/^(#{1,3}) (.*)$/);
+    if (h) return el("div", "ide__md-h ide__md-h--" + h[1].length, h[2]);
+    var task = line.match(/^- \[( |x|>)\] (.*)$/);
+    if (task) {
+      var state = task[1] === "x" ? "done" : task[1] === ">" ? "active" : "open";
+      var t = el("div", "ide__md-item ide__md-task--" + state);
+      t.appendChild(el("span", "ide__md-mark", TASK_MARKS[task[1]]));
+      t.appendChild(el("span", "", task[2]));
+      return t;
+    }
+    var li = line.match(/^- (.*)$/);
+    if (li) {
+      var b = el("div", "ide__md-item");
+      b.appendChild(el("span", "ide__md-mark", "•"));
+      b.appendChild(el("span", "", li[1]));
+      return b;
+    }
+    return el("div", "ide__line", line);
+  }
+
   function Engine(mount, beats, opts) {
     var playable = !!(opts && opts.playable);
     var title = (opts && opts.title) || "user-avatars — Claude Code";
@@ -152,9 +209,7 @@
 
       tab.textContent = beat.scroll.file;
       editorBody.textContent = "";
-      beat.scroll.diff.forEach(function (line) {
-        editorBody.appendChild(el("div", "ide__line", line));
-      });
+      renderScroll(editorBody, beat.scroll.diff);
 
       stepWhy.textContent = beat.why;
       stepCmd.textContent = beat.command;
@@ -321,6 +376,22 @@
         run.scrollIntoView(REDUCED.matches ? { behavior: "auto" } : { behavior: "smooth" });
       }
       workflowEngine.startPlay();
+    });
+  }
+
+  /* Install: copy-to-clipboard close. Button ships hidden; only revealed when
+     the Clipboard API is actually available, so no-JS/no-API users never see a
+     dead control. */
+  var copyBtn = document.getElementById("copy-install");
+  if (copyBtn && navigator.clipboard && window.isSecureContext) {
+    copyBtn.hidden = false;
+    copyBtn.addEventListener("click", function () {
+      var codeEl = document.querySelector("#install .code code");
+      if (!codeEl) return;
+      navigator.clipboard.writeText(codeEl.textContent.trim()).then(function () {
+        copyBtn.textContent = "Copied — go quest";
+        setTimeout(function () { copyBtn.textContent = "Copy commands"; }, 1800);
+      });
     });
   }
 

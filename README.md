@@ -18,7 +18,7 @@ Recommended — marketplace:
 
 Want just one piece? `/plugin install <name>@finpack-claude`.
 
-**Plugins (15):** `fp-code-reviewer` `fp-security-reviewer` `fp-performance-reviewer` `fp-doc-reviewer` `fp-plan-reviewer` `fp-code-architect` `fp-code-explorer` `fp-frontend-designer` `fp-swiftui-designer` `setup-finpack` `explain` `session-audit` `quest-system` `install-quest-system` `update-quest-system`
+**Plugins (15):** `fp-code-reviewer` `fp-security-reviewer` `fp-performance-reviewer` `fp-doc-reviewer` `fp-plan-reviewer` `fp-code-architect` `fp-code-explorer` `fp-frontend-designer` `fp-swiftui-designer` `setup-finpack` `explain` `summon-seer` `quest-system` `install-quest-system` `update-quest-system`
 
 <details><summary>Alternative — clone instead of the marketplace</summary>
 
@@ -56,7 +56,7 @@ Then reload Claude Code and run `/setup-finpack`.
 |---|---|
 | `/setup-finpack` | bootstrap + tune the kit to your stack |
 | `/explain <target> [verbose\|interactive]` | explain code — ASCII, or a self-contained interactive HTML page |
-| `/session-audit` | mine recent sessions for friction, propose fixes |
+| `/summon-seer` | divine friction in recent sessions, propose fixes |
 | `/quest-system` | RPG-themed epic + expedition workflow (below) |
 
 **quest-system** (opt-in) — persistent project memory across sessions. Run `/install-quest-system` once per project, then either:

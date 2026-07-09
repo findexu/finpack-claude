@@ -59,7 +59,7 @@ a { color: var(--amber); text-underline-offset: 3px; text-decoration-thickness: 
 a:hover { color: #F2C079; }
 code { font-family: var(--f-mono); font-size: 0.88em; }
 strong { font-weight: 600; color: #F3F5FA; }
-em { font-style: normal; color: var(--amber); }
+em { font-style: italic; color: #F3F5FA; }
 
 .wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--step); }
 
@@ -111,8 +111,8 @@ em { font-style: normal; color: var(--amber); }
   letter-spacing: .18em; text-transform: uppercase; color: var(--amber);
 }
 .hero__title {
-  font-family: var(--f-display); font-weight: 600;
-  font-size: clamp(2.1rem, 1.2rem + 4.6vw, 4rem); line-height: 1.04;
+  font-family: var(--f-display); font-weight: 700;
+  font-size: clamp(2.1rem, 1.2rem + 4.6vw, 3.5rem); line-height: 1.06;
   letter-spacing: -.015em; margin-top: .8rem;
 }
 .hero__accent { color: var(--amber); }
@@ -129,7 +129,11 @@ em { font-style: normal; color: var(--amber); }
 .term__prompt { color: var(--amber); font-weight: 700; flex: none; }
 .term__arg { color: var(--teal); }
 .term--hero { margin-top: 1.8rem; max-width: 560px; font-size: 1.02rem; }
-.term--inline { margin: 1rem 0 1.1rem; font-size: .92rem; background: rgba(0,0,0,.24); }
+.term--inline {
+  margin: 1rem 0 1.1rem; font-size: .92rem;
+  background: var(--panel-2); border-color: rgba(0,0,0,.28);
+  color: #E7EBF3; white-space: normal;
+}
 .term__caret {
   display: inline-block; width: .6ch; height: 1.15em; translate: 0 .18em;
   background: var(--amber); animation: blink 1.1s step-end infinite;
@@ -151,7 +155,7 @@ em { font-style: normal; color: var(--amber); }
 /* ----------------------------- bands ----------------------------- */
 .band { padding-block: clamp(2.4rem, 5vw, 4.2rem); border-top: 1px solid var(--line); }
 .band__h {
-  font-family: var(--f-display); font-weight: 600;
+  font-family: var(--f-display); font-weight: 700;
   font-size: clamp(1.6rem, 1.1rem + 2.2vw, 2.5rem); line-height: 1.1;
   letter-spacing: -.01em; margin-top: .5rem;
 }
@@ -168,13 +172,15 @@ em { font-style: normal; color: var(--amber); }
 @media (min-width: 780px) { .pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
 
 .log {
-  min-width: 0; position: relative; background: var(--paper);
+  min-width: 0; position: relative;
+  background: url("assets/parchment.png") repeat, var(--paper);
   color: var(--paper-ink); border-radius: var(--r-lg);
   padding: 1.5rem 1.4rem 1.6rem;
   border: 1px solid var(--paper-2);
   box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 18px 40px -28px rgba(0,0,0,.9);
 }
-.log__icon { width: 52px; height: 52px; margin-bottom: .5rem; opacity: .95; }
+.log__icon { width: 72px; height: 72px; margin-bottom: .6rem; }
+@media (min-width: 780px) { .log__icon { width: 84px; height: 84px; } }
 .log__h { font-family: var(--f-display); font-size: 1.3rem; font-weight: 600; padding-right: 5.5rem; }
 .log__body { margin-top: .7rem; color: #423C2F; }
 .log code { background: rgba(44,40,32,.09); color: #6A3B1E; padding: .08em .35em; border-radius: 4px; }
@@ -185,9 +191,9 @@ em { font-style: normal; color: var(--amber); }
   font-family: var(--f-mono); font-weight: 700; font-size: .72rem;
   letter-spacing: .12em; text-transform: uppercase;
   padding: .28rem .55rem; border: 2px solid currentColor; border-radius: 5px;
-  rotate: 5deg; opacity: .82; color: var(--paper-mut);
+  rotate: 5deg; color: #635A47;
 }
-.log__stamp--bounty { color: var(--amber-dk); }
+.log__stamp--bounty { color: #8A5E20; }
 .log--bounty { box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 20px 46px -24px rgba(227,168,87,.6); }
 
 /* --------------- the problem: two threads, cut vs kept ----------- */
@@ -258,16 +264,45 @@ em { font-style: normal; color: var(--amber); }
 }
 
 /* ----------------------------- tiles ----------------------------- */
-.grid { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-top: 1.8rem; }
+.grid { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-top: 1.8rem; counter-reset: tile; }
 @media (min-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .tile {
   min-width: 0; background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--r-lg); padding: 1.3rem 1.35rem;
-  border-left: 3px solid var(--amber);
+}
+.tile::before {
+  counter-increment: tile; content: counter(tile, upper-roman);
+  display: block; margin-bottom: .5rem;
+  font-family: var(--f-mono); font-weight: 700; font-size: .72rem;
+  letter-spacing: .14em; color: var(--amber);
 }
 .tile__h { font-family: var(--f-display); font-size: 1.15rem; font-weight: 600; }
 .tile p { margin-top: .5rem; color: var(--muted); font-size: .98rem; }
 .tile code { color: var(--teal); }
+
+/* ----------------------------- armory ---------------------------- */
+.armory { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-top: 1.8rem; }
+@media (min-width: 860px) { .armory { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; } }
+.arm {
+  min-width: 0; display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 1.3rem 1.35rem 1.15rem;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.arm:hover {
+  transform: translateY(-3px); border-color: rgba(227,168,87,.45);
+  box-shadow: 0 18px 40px -26px rgba(227,168,87,.55);
+}
+.arm__cmd { font-family: var(--f-mono); font-weight: 700; font-size: .95rem; color: var(--amber); }
+.arm__prompt { color: var(--muted); margin-right: .15rem; }
+.arm__h { font-family: var(--f-display); font-size: 1.15rem; font-weight: 600; margin-top: .55rem; }
+.arm__body { margin-top: .5rem; color: var(--muted); font-size: .96rem; }
+.arm__body code { color: var(--teal); }
+.arm__foot {
+  margin-top: auto; padding-top: .9rem;
+  font-family: var(--f-mono); font-size: .74rem; letter-spacing: .04em; color: #7C869C;
+}
+.arm__foot code { color: #9AA4BA; }
 
 /* ----------------------------- code / install ------------------- */
 .code {
@@ -276,6 +311,8 @@ em { font-style: normal; color: var(--amber); }
   font-family: var(--f-mono); font-size: .95rem; line-height: 1.9; color: #DCE3EF;
 }
 .code code { color: inherit; font-size: 1em; }
+#install .code { border-left: 3px solid var(--amber); }
+.ctas--install { margin-top: 1.2rem; }
 .fineprint { margin-top: 1rem; color: var(--muted); font-size: .9rem; }
 
 /* ----------------------------- footer ---------------------------- */
@@ -338,11 +375,39 @@ em { font-style: normal; color: var(--amber); }
 .ide__tree-dir { display: none; }
 .ide__tree-base { color: inherit; }
 
+/* the scroll pane is parchment — scrolls are paper, chat stays terminal-dark */
+.ide__editor { background: url("assets/parchment.png") repeat, var(--paper); }
+.ide__editor .ide__pane-head { color: #6A3B1E; background: rgba(44,40,32,.08); }
 .ide__lines { padding: .9rem 1rem; max-height: 240px; overflow: auto; }
 .ide__line {
-  font-family: var(--f-mono); font-size: .82rem; line-height: 1.75; color: #D2D9E7;
+  font-family: var(--f-mono); font-size: .82rem; line-height: 1.75; color: var(--paper-ink);
   white-space: pre-wrap; word-break: break-word;
 }
+
+/* rendered-markdown scroll: raw pipe tables read as line noise on the pane */
+.ide__md-h {
+  font-family: var(--f-mono); font-weight: 700; color: var(--paper-ink);
+  line-height: 1.5; margin: .6rem 0 .3rem;
+}
+.ide__md-h:first-child { margin-top: 0; }
+.ide__md-h--1 { font-size: .95rem; border-bottom: 1px solid rgba(44,40,32,.3); padding-bottom: .3rem; }
+.ide__md-h--2, .ide__md-h--3 { font-size: .85rem; color: #6A3B1E; }
+.ide__md-table {
+  width: 100%; border-collapse: collapse; margin: .4rem 0;
+  font-family: var(--f-mono); font-size: .76rem; line-height: 1.5; color: var(--paper-ink);
+}
+.ide__md-table th, .ide__md-table td {
+  border: 1px solid rgba(44,40,32,.3); padding: .32rem .5rem;
+  text-align: left; vertical-align: top;
+}
+.ide__md-table th { background: rgba(44,40,32,.08); }
+.ide__md-item {
+  display: flex; gap: .5rem; font-family: var(--f-mono); font-size: .82rem;
+  line-height: 1.75; color: var(--paper-ink); white-space: pre-wrap; word-break: break-word;
+}
+.ide__md-mark { flex: none; }
+.ide__md-task--active { font-weight: 700; }
+.ide__md-task--done .ide__md-mark { color: #4F7A43; } /* darkened moss: AA on paper */
 
 .ide__chat { background: #0d121b; }
 .ide__chatlog { padding: .95rem 1rem; max-height: 300px; overflow: auto; }
@@ -372,6 +437,19 @@ em { font-style: normal; color: var(--amber); }
   .ide__pane + .ide__pane { border-left: 1px solid var(--line); }
   .ide__tree, .ide__lines, .ide__chatlog { max-height: 340px; }
 }
+
+/* ------------------- motion.js enhancement layer ------------------ */
+/* Everything here is inert without motion.js: initial hidden states are set
+   by JS only, so no-JS and reduced-motion users always see full content. */
+.m-word { display: inline-block; will-change: transform, filter; }
+.hero__accent { position: relative; }
+.hero__accent::after {
+  content: ""; position: absolute; left: 0; bottom: .02em; height: .085em; width: 100%;
+  background: linear-gradient(90deg, var(--amber), rgba(227,168,87,0) 94%);
+  border-radius: 2px; transform: scaleX(0); transform-origin: left;
+  transition: transform .8s cubic-bezier(.2, .7, .15, 1) .15s;
+}
+.hero__accent.is-inked::after { transform: scaleX(1); }
 
 /* --------------------------- motion ------------------------------ */
 @media (prefers-reduced-motion: reduce) {

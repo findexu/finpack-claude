@@ -102,7 +102,7 @@ const QUEST_DEMO = {
           "- [ ] avatar rendering"
         ]
       },
-      xp: { delta: 0, total: 0, level: 1, detail: "Phase: planning → ready." }
+      xp: { delta: 0, total: 0, level: 1, detail: "Planning earns nothing either — loot comes from finished work." }
     },
 
     {
@@ -131,11 +131,11 @@ const QUEST_DEMO = {
         file: "STRATEGY_SCROLL.md",
         diff: [
           "## Planned Expeditions",
-          "- [>] avatar upload + crop      ← active",
+          "- [>] avatar upload + crop",
           "- [ ] avatar rendering"
         ]
       },
-      xp: { delta: 0, total: 0, level: 1, detail: "Phase: ready → embarked." }
+      xp: { delta: 0, total: 0, level: 1, detail: "Expedition underway." }
     },
 
     {
@@ -194,13 +194,13 @@ const QUEST_DEMO = {
         ]
       },
       // Fold: 5 + (dangers=1 > 0 ? 10) + (oaths=1 > 0 ? 10) = 25
-      xp: { delta: 25, total: 25, level: 1, detail: "base 5 + dangers 10 + oaths 10. Phase: embarked → at-camp." }
+      xp: { delta: 25, total: 25, level: 1, detail: "base 5 + dangers 10 + oaths 10." }
     },
 
     {
       id: "embark-2",
       command: "/embark",
-      why: "THE PAYOFF: a brand-new chat, zero shared history — and the briefing already knows last week's trap and the decision that dodged it.",
+      why: "The payoff: a brand-new chat, zero shared history — and the briefing already knows last week's danger and the decision that dodged it.",
       aha: true,
       chat: [
         "Expedition begins.",
@@ -222,8 +222,8 @@ const QUEST_DEMO = {
         file: "STRATEGY_SCROLL.md",
         diff: [
           "## Planned Expeditions",
-          "- [x] avatar upload + crop      ← done",
-          "- [>] avatar rendering          ← active"
+          "- [x] avatar upload + crop",
+          "- [>] avatar rendering"
         ]
       },
       xp: { delta: 0, total: 25, level: 1, detail: "Lessons carried forward — for free." }

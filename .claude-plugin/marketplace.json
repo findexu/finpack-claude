@@ -72,9 +72,9 @@
       "license": "MIT"
     },
     {
-      "name": "session-audit",
-      "source": "./plugins/session-audit",
-      "description": "Audit recent Claude Code sessions for recurring friction, then propose new skills, automations, and CLAUDE.md fixes. Report-only unless --fix.",
+      "name": "summon-seer",
+      "source": "./plugins/summon-seer",
+      "description": "Summon the seer to divine recurring friction in recent Claude Code sessions, then propose new skills, automations, and CLAUDE.md fixes. Report-only unless --fix.",
       "license": "MIT"
     },
     {
