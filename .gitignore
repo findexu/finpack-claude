@@ -22,6 +22,9 @@ hooks/*_files/
 .claude/
 .claude/quest-xp/
 
+# quest-system storage from dogfooding this repo (live quest data, not source)
+/finpack-claude/
+
 # quest-dashboard build artifacts
 quest-dashboard/node_modules/
 quest-dashboard/out/
