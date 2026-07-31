@@ -69,6 +69,20 @@ actions or a CONFIRMED high-severity finding. For each expedition (`/embark` →
    fixed or inscribed as dangers.
 7. `/make-camp` — record results, dangers, and decisions; refresh context.
 
+**Judge first (behaviour-preserving bounties):** when the bounty refactors, migrates, or
+extracts, the FIRST slice builds the referee — characterization tests capturing current
+behaviour (oddities recorded as findings, not fixed) plus one run-all script that becomes
+every later slice's exit gate. Validate it by deliberate breakage: break behaviour, confirm
+the suite goes red, revert; uncaught breakage is a coverage gap to close before continuing.
+A later change that requires editing the referee is a gate for the commander, never a fix.
+
+**Rule-not-patch:** a review finding repeated across slices is a defect in the plan's rules,
+not in the slices — amend the rule once, regenerate the affected work, inscribe the rule as
+a decision. And when 3+ upcoming slices will follow the same translation rules, stress-test
+the rules first: migrate ONE unit twice in separate worktrees (strictly-by-rules vs
+freestyle), have a third agent diff them and propose the missing rules, then DISCARD both
+implementations — the deliverable is better rules, not progress.
+
 **Parallel dispatch (optional):** if the project provides an `/orchestrate` skill AND the
 current slice decomposes into 3+ independent write-streams (separate modules/libraries, many
 independent call sites), dispatch steps 4-6 for that slice to `/orchestrate` — parallel
