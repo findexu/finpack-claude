@@ -69,6 +69,13 @@ actions or a CONFIRMED high-severity finding. For each expedition (`/embark` →
    fixed or inscribed as dangers.
 7. `/make-camp` — record results, dangers, and decisions; refresh context.
 
+**Parallel dispatch (optional):** if the project provides an `/orchestrate` skill AND the
+current slice decomposes into 3+ independent write-streams (separate modules/libraries, many
+independent call sites), dispatch steps 4-6 for that slice to `/orchestrate` — parallel
+builders in isolated worktrees, per-package fresh-context review, sequential test-gated
+merge. Its plan gate still counts as a real gate. When steps build on each other, stay with
+the sequential pipeline above: it is the default and far cheaper (~4x tokens vs ~15x).
+
 Loop until an exit condition from Step 0 fires. Every iteration must move a criterion forward
 or surface — as a gate — why it can't.
 
