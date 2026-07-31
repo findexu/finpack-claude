@@ -1,11 +1,15 @@
 ---
-description: Rewrite a rough prompt into a sharp, well-contextualized Claude prompt. Loads quest context so the rewritten prompt includes relevant project details. Output is a single copyable block.
-argument-hint: "[rough prompt text] [--quest <name>]"
+description: Triage a messy prompt into a pre-cleaned, routed command. Sorts the raw brief into an intake card (goal, answer-now questions, open decisions, constraints, pain history, non-goals), flags dangling references, recommends the right command to run it with, and outputs a single copyable block. Loads quest context so the rewrite includes relevant project details.
+argument-hint: "[rough prompt text] [--quest <name>] [--no-route]"
 ---
 
 # Counsel Prompt
 
-Rewrite a rough or vague prompt into a precise, effective Claude prompt.
+Turn a messy brief into a pre-cleaned, routed prompt. Real briefs arrive as a
+mix of vision, questions, doubts, history, and constraints — not orderly steps.
+Untangling them is this command's job, never the commander's. The rewrite
+preserves the commander's facts and voice; it adds structure only where
+structure is signal.
 
 ## Step 1: Read quest context (optional)
 
@@ -21,41 +25,102 @@ If a quest resolved, load:
 
 ## Step 2: Take the rough prompt
 
-First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
-(already consumed in Step 1). Read what remains as the rough prompt to rewrite.
+First strip any `--quest <token>` / `--realm <token>` / bare `--no-route` flags
+from `$ARGUMENTS` (quest flags already consumed in Step 1). Read what remains as
+the rough prompt.
 
 If empty, ask: "What do you want to ask Claude? Paste your rough prompt."
 
-## Step 3: Analyze the rough prompt
+## Step 3: Triage into an intake card
 
-Identify:
-- The actual goal (what outcome does the user need?)
-- Missing context (what does Claude need to know to answer well?)
-- Ambiguities (what could be misread?)
-- Scope drift risks (is it too broad or too narrow?)
+Sort every sentence of the rough prompt into these buckets. A sentence can land
+in two buckets; none may be dropped silently.
 
-If quest context is loaded, identify which quest details are relevant to include
-(battle status, tech stack, realm, known dangers — only what's directly relevant).
+- **End state** — the actual goal, in the commander's words.
+- **Answer-now questions** — factual, answerable by reading code ("is X already
+  applied to Y?"). These belong at the TOP of the rewrite: their answers may
+  reshape everything after them.
+- **Open decisions** — anything the commander marks unsure ("I'm not sure if we
+  need Z"). Preserve the doubt verbatim as an explicit "Open decision, do not
+  assume:" line — a rewrite that resolves the commander's doubt by assumption
+  has failed.
+- **Hard constraints** — regressions, testability, thread safety, style. Carry
+  these through near-verbatim; do not soften or summarize them away.
+- **History / pain** — past failures mentioned ("we split before and lost the
+  connections"). Keep them: they are targeting data for whoever executes.
+- **Non-goals** — what the commander refuses ("no quick fixes"), with the WHY
+  if given.
+- **Targets** — the apps/modules/artifacts in scope, as an explicit list.
+- **Rule conflicts** — if the brief's interest may collide with CLAUDE.md or
+  project rules, add a line telling the executing agent to surface the conflict
+  to the commander instead of silently obeying or overriding.
 
-## Step 4: Rewrite
+If quest context is loaded, pull in ONLY details that sharpen a bucket (known
+dangers matching the pain history, concrete paths, battle status) — no bloat.
 
-Produce a single polished prompt that:
-- Opens with a clear one-sentence goal
-- Includes only the context Claude needs (no bloat)
-- Specifies expected output format if relevant
-- Is direct — no filler, no pleasantries
+## Step 4: Gap check
 
-## Step 5: Output
+Hunt for what the rewrite cannot fix because it is not there:
+
+- **Dangling references** — "the first screenshot", "that file we discussed",
+  "like before". Resolve from quest context or the codebase when possible
+  (e.g. replace "the earlier iPhone work" with its actual scroll path). What
+  cannot be resolved becomes an "Attach before sending" item in the output.
+- **Vague paths** — replace "the annotation stuff" with concrete
+  paths/module names when the codebase or quest context answers it cheaply.
+- **Missing exit conditions** — if Step 5 routes to `/set-bounty`, the prompt
+  needs success criteria and a budget ceiling. Draft the success line from the
+  brief; leave budget as a visible `<N>` placeholder if the commander gave none.
+
+Ask the commander AT MOST one batched question, and only for gaps the rewrite
+genuinely cannot proceed without. Everything else is flagged in the output, not
+asked about.
+
+## Step 5: Route (skip if `--no-route`)
+
+Recommend the command the cleaned prompt should be given to, and prefix the
+rewritten prompt with it:
+
+- Pure bug hunting -> `/hunt-bugs`. Pure decision/dilemma -> `/ask-sages`.
+- Small and concrete (1-2 files, one clear change) -> no command; a plain
+  prompt (or `/embark` if quest-tracked) is cheapest.
+- Big with a sequential spine (steps build on each other, contracts/decisions
+  come first) -> `/set-bounty`.
+- 3+ INDEPENDENT write-streams ready to run simultaneously -> `/orchestrate`,
+  ONLY if the project provides that skill; otherwise `/set-bounty`.
+- Mixed briefs default to the command that owns the spine (usually
+  `/set-bounty`) — it can dispatch the parallel slices itself.
+
+One sentence of routing rationale goes in the output. The commander may
+disagree; the route is a recommendation, not a gate.
+
+## Step 6: Rewrite
+
+Produce a single prompt from the intake card:
+
+- Answer-now questions first, then end state, then the structured body
+  (targets, open decisions, constraints, non-goals), then exit conditions.
+- Keep the commander's voice and vocabulary; this is their prompt, cleaned —
+  not a formal spec.
+- Every "Open decision, do not assume" and every hard constraint from Step 3
+  appears explicitly. Nothing the commander wrote is silently dropped.
+- Direct — no filler, no pleasantries.
+
+## Step 7: Output
 
 Present as:
 
 ---
-**Rewritten prompt** — copy the block below:
+**Pre-cleaned prompt** — copy the block below{, attach the listed items,} and
+run it in a fresh session:
 
 ```
-{rewritten prompt here}
+{/recommended-command} {rewritten prompt}
 ```
 
-**What changed:** {1-2 sentence summary of what was added, clarified, or removed}
+**Route:** {command} — {one-sentence rationale}
+**Attach before sending:** {list, or omit the line entirely if nothing}
+**Fill in:** {placeholders like <N>, or omit the line}
+**What changed:** {1-2 sentences: what was reordered, resolved, or flagged}
 
 ---
