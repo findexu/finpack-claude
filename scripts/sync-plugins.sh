@@ -78,7 +78,7 @@ JSON
 for d in skills/*/; do
   name="$(basename "$d")"
   [ -f "${d}SKILL.md" ] || continue
-  rm -rf "plugins/$name/skills"
+  rm -rf "plugins/$name/skills" "plugins/$name/commands"
   mkdir -p "plugins/$name/skills/$name" "plugins/$name/.claude-plugin"
   cp "${d}SKILL.md" "plugins/$name/skills/$name/SKILL.md"
   # Frontmatter description: single-line `description: value` or a folded
@@ -124,7 +124,13 @@ JSON
     if [ ${#cmd_files[@]} -gt 0 ]; then
       mkdir -p "plugins/$name/skills/$name/commands"
       cp "${cmd_files[@]}" "plugins/$name/skills/$name/commands/"
-      echo "  commands  $name"
+      # Also mirror to the PLUGIN ROOT commands/ — the only location Claude Code
+      # registers as native slash commands (/<plugin>:<command>). The skill-dir
+      # copy stays: SKILL.md references its templates skill-relative, and the
+      # install script copies from there for repo-copy (non-plugin) installs.
+      mkdir -p "plugins/$name/commands"
+      cp "${cmd_files[@]}" "plugins/$name/commands/"
+      echo "  commands  $name (skill + plugin root)"
     fi
   fi
   if [ -f "${d}VERSION" ]; then

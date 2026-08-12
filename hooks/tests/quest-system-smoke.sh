@@ -28,6 +28,17 @@ else
   bad "sync drift: plugins copy missing ($DST)"
 fi
 
+# Plugin-root commands mirror — the location Claude Code registers as native
+# slash commands. Without it the plugin ships no /quest-system:* commands.
+ROOTCMD="plugins/quest-system/commands"
+if [ -d "$ROOTCMD" ]; then
+  d=$(diff -r "$SRC/commands" "$ROOTCMD" 2>&1)
+  [ -z "$d" ] && ok "sync drift: plugin-root commands mirror == source commands" \
+    || bad "sync drift: plugin-root commands mirror stale — run sync-plugins.sh" "$d"
+else
+  bad "sync drift: plugin-root commands mirror missing ($ROOTCMD) — run sync-plugins.sh"
+fi
+
 # 2. Registration parity --------------------------------------------------------
 INSTALL="scripts/install-quest-system.sh"
 INSTALL_SKILL="skills/install-quest-system/SKILL.md"

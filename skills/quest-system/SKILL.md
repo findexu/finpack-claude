@@ -9,7 +9,7 @@ description: >
   /make-camp, /complete-quest, /quest-log, /quest-help, /change-quest,
   /counsel-quest, /counsel-plan, /ask-sages, /hunt-bugs, /set-bounty,
   /install-quest-system, /summon-witch-doctor.
-version: 2.0.0
+version: 2.1.0
 ---
 
 # Quest System — Skill Definition
@@ -44,7 +44,11 @@ MID/PIVOT). The block lives in the top-level scroll and stays in the index on sp
 (status readers parse the index only). All maintenance is a scroll-body edit — never
 `lifecycle.log`.
 
-## Commands provided (installed by /install-quest-system)
+## Commands provided
+
+Marketplace-plugin installs get these as native namespaced slash commands
+(`/quest-system:new-quest`, tab-completable); repo-copy installs get the bare
+forms via `/install-quest-system`. Both forms resolve to the same command files.
 
 | Command | When to use |
 |---|---|
@@ -474,8 +478,10 @@ vault from the CLI. Full spec: `commands/setup-obsidian.md` / `commands/open-obs
 
 ## Installation
 
-Run `/install-quest-system` once per project (to reuse elsewhere: copy this SKILL.md,
-then run it there).
+Installing the `quest-system` plugin from the finpack-claude marketplace is enough —
+its commands register natively as `/quest-system:<command>`. For repo-copy setups
+(no plugin manager), run `/install-quest-system` once per project to copy the bare
+`/<command>` forms into `.claude/commands/`.
 
 ## Scroll templates
 
