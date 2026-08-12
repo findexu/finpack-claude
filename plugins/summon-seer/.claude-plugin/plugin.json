@@ -1,10 +1,8 @@
 {
   "name": "summon-seer",
-  "version": "0.1.0",
-  "description": "Summon the seer to divine recurring friction in recent Claude Code sessions, then propose new skills, automations, and CLAUDE.md fixes. Report-only unless --fix.",
-  "author": {
-    "name": "findexu"
-  },
+  "version": "1.0.0",
+  "description": "Summon the seer to divine recurring friction in your recent Claude Code sessions, then propose concrete fixes — new skills, automations (hooks/settings.json), and CLAUDE.md edits. Fans out cheap sub-agents over session transcripts, clusters recurring friction, and reports evidence-linked proposals. Report-only unless --fix.",
+  "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

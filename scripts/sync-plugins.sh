@@ -43,11 +43,41 @@ done
 
 # 2. Sync skills: skills/<name>/SKILL.md -> plugins/<name>/skills/<name>/SKILL.md
 #    Also sync skills/<name>/commands/*.md -> plugins/<name>/skills/<name>/commands/*.md
+#    The per-plugin skills dir is removed first so files deleted from skills/
+#    disappear from the committed mirror too (deletion-safe, like the template).
+#    The plugin manifest is (re)generated from the SKILL.md frontmatter so
+#    .claude-plugin/plugin.json never drifts from the skill it describes.
 for d in skills/*/; do
   name="$(basename "$d")"
   [ -f "${d}SKILL.md" ] || continue
-  mkdir -p "plugins/$name/skills/$name"
+  rm -rf "plugins/$name/skills"
+  mkdir -p "plugins/$name/skills/$name" "plugins/$name/.claude-plugin"
   cp "${d}SKILL.md" "plugins/$name/skills/$name/SKILL.md"
+  # Frontmatter description: single-line `description: value` or a folded
+  # `description: >` block (continuation lines joined with spaces); JSON-escape it.
+  desc="$(awk '
+    NR==1 && $0=="---" { fm=1; next }
+    fm && !fold && /^description:[[:space:]]*>-?[[:space:]]*$/ { fold=1; next }
+    fm && !fold && /^description:/ { line=$0; sub(/^description:[[:space:]]*/, "", line); print line; done=1; exit }
+    fold && /^[[:space:]]/ { t=$0; gsub(/^[[:space:]]+|[[:space:]]+$/, "", t); buf = buf (buf ? " " : "") t; next }
+    fold { done=1; exit }
+    fm && $0=="---" { exit }
+    END { if (!done && buf != "") print buf; else if (done && fold) print buf }
+  ' "${d}SKILL.md" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  # Version from the skill frontmatter (default 0.1.0). Stamped into plugin.json so
+  # `claude plugin update` can detect changes; bump the frontmatter `version:` to ship.
+  ver="$(sed -n 's/^version:[[:space:]]*//p' "${d}SKILL.md" | head -1)"; ver="${ver:-0.1.0}"
+  cat > "plugins/$name/.claude-plugin/plugin.json" <<JSON
+{
+  "name": "$name",
+  "version": "$ver",
+  "description": "$desc",
+  "author": { "name": "findexu" },
+  "license": "MIT",
+  "homepage": "https://github.com/findexu/finpack-claude",
+  "repository": "https://github.com/findexu/finpack-claude"
+}
+JSON
   echo "  skill  $name"
   if [ -d "${d}commands" ]; then
     # nullglob makes an empty commands/ expand to nothing; guard so `cp` is not
@@ -68,7 +98,9 @@ done
 #      self-contained on install, so quest-system must carry every agent it can
 #      summon: counsel-quest spawns architect+explorer; make-camp/complete-quest
 #      summon the reviewers; UI quests summon the designers.
+#      Removed first so agents deleted from agents/ drop out of the bundle too.
 if [ -d "plugins/quest-system" ]; then
+  rm -rf "plugins/quest-system/agents"
   mkdir -p "plugins/quest-system/agents"
   for f in agents/fp-*.md; do
     dep="$(basename "$f")"

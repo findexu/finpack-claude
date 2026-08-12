@@ -1,10 +1,8 @@
 {
   "name": "explain",
   "version": "0.3.0",
-  "description": "Explain code: one-sentence summary + mental model, --verbose for an ASCII deep-dive, --interactive for a self-contained interactive HTML explainer. Plain intent words like 'detailed' or 'visualised' work too.",
-  "author": {
-    "name": "findexu"
-  },
+  "description": "Explain code. Default is a one-sentence summary plus a mental model. Add --verbose for an ASCII diagram, key details, and a modification guide. Add --interactive (alias --html, --visual) for a self-contained interactive HTML explainer. Plain words like \"detailed\" or \"visualised\" work too.",
+  "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

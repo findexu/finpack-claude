@@ -2,6 +2,7 @@
 name: explain
 description: Explain code. Default is a one-sentence summary plus a mental model. Add --verbose for an ASCII diagram, key details, and a modification guide. Add --interactive (alias --html, --visual) for a self-contained interactive HTML explainer. Plain words like "detailed" or "visualised" work too.
 argument-hint: "[target] [--verbose | --interactive]?"
+version: 0.3.0
 disable-model-invocation: true
 ---
 

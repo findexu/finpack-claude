@@ -1,10 +1,8 @@
 {
   "name": "quest-system",
-  "version": "0.1.0",
-  "description": "RPG-themed epic and session management. Tracks quests, expeditions, realms, and persistent scrolls across all sessions. Includes /summon-witch-doctor for scroll health diagnostics and repair.",
-  "author": {
-    "name": "findexu"
-  },
+  "version": "1.33.0",
+  "description": "RPG-themed epic and expedition management system for Claude Code. Tracks quests (features/epics), expeditions (work loops), realms (app targets), and maintains persistent scrolls (docs) across all expeditions. Use this skill when working on any feature development in a mono-repo with multiple app targets. Triggers: /new-quest, /start-quest, /embark, /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest, /counsel-quest, /counsel-plan, /ask-sages, /hunt-bugs, /set-bounty, /install-quest-system, /summon-witch-doctor.",
+  "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

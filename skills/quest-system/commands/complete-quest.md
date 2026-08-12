@@ -110,6 +110,15 @@ carries `related: ["[[DECISIONS_LOG]]"]` (quoted wikilinks in frontmatter). Add 
 if missing (idempotent). The archived quest's own scrolls keep the `related:` links make-camp
 already wrote. If the marker is absent, do nothing. Hold the same advisory lock as Steps 3–4.
 
+## Step 4.8: Reconcile todos and the expedition checklist
+
+The quest is confirmed complete: if STRATEGY_SCROLL's `## Planned Expeditions`
+checklist still carries `- [>]` or `- [ ]` items, flip them to `- [x]` (confirm
+with the commander first if any look genuinely unfinished — that suggests a
+skipped /make-camp). Then mark every remaining todo for this quest completed via
+TodoWrite so the session list matches the sealed scroll. Scroll edit only — never
+events.log/lifecycle.log; runs under the same lock as Steps 3–6.
+
 ## Step 5: Write final journal entry
 
 Append to `{quest-folder}/ADVENTURE_JOURNAL.md`

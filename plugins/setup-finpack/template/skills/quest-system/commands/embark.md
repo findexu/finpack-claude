@@ -196,6 +196,15 @@ scroll `/embark` writes — a STRATEGY_SCROLL body edit. NEVER touch `events.log
 would wipe a migrated profile). If the checklist is absent (quest never counselled),
 skip silently — do not create it (that is `/counsel-quest`'s job).
 
+## Step 6.92: Seed the session todo list
+
+Runs with Step 6.9, after the commander approves the plan. Seed the session todo
+list via TodoWrite from the scroll's `## Planned Expeditions` checklist: one todo
+per remaining `- [ ]` item, plus the active `- [>]` item marked in_progress. If
+the checklist is absent, seed from the approved expedition plan's steps instead.
+This surfaces the expedition in Ctrl+T; the scroll stays the persistent source of
+truth — todos are session-local, and this step writes nothing to disk.
+
 ## Step 6.95: Emit the /goal condition (opt-in `--goal`)
 
 Runs ONLY when `$ARGUMENTS` contains `--goal`, and only AFTER the plan is approved. With

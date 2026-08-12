@@ -107,6 +107,15 @@ Changes to make:
 
 Update `last-updated: {date}` in YAML frontmatter.
 
+## Step 4.5: Reconcile the session todo list
+
+Reconcile TodoWrite state against the checklist just updated in Step 4: completed
+todos are evidence for the `- [x]` flip (if the todo list shows this expedition's
+focus unfinished, confirm with the commander before flipping); an in_progress todo
+that carries over maps to the `- [>]` marker. Then mark this expedition's todos
+completed via TodoWrite so the session list matches the scroll. The scroll markers
+are the persistent record; this runs under the same lock as Steps 3–7.
+
 ## Step 5: Update TOME_OF_DANGERS.md (if new dangers reported)
 
 If any new dangers were reported in Step 2:

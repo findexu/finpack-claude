@@ -1,10 +1,8 @@
 {
   "name": "update-quest-system",
   "version": "0.1.0",
-  "description": "Update quest-system to the latest version. Overwrites installed command files, tutorial skill, and verifier hook from source. Run after pulling finpack-claude updates.",
-  "author": {
-    "name": "findexu"
-  },
+  "description": "Update quest-system to the latest version by running the install script (install is idempotent — same script installs and updates). Prefers a local finpack-claude clone, otherwise runs the allow-listed curl one-liner. The script self-cleans renamed/removed commands and agents via its manifest. Run after pulling finpack-claude updates. Requires quest-system to already be installed (/install-quest-system).",
+  "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"

@@ -9,7 +9,7 @@ description: >
   /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
   /counsel-quest, /counsel-plan, /ask-sages, /hunt-bugs, /set-bounty,
   /install-quest-system, /summon-witch-doctor.
-version: 1.32.0
+version: 1.33.0
 ---
 
 # Quest System — Skill Definition
@@ -415,6 +415,24 @@ Realm: {realm}  |  Last updated: {date}
 ### Project Decisions
 {rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
+
+## Transparency
+
+How to see what the quest system — and Claude — is doing at any moment:
+
+- **Todo list (live).** `/embark` seeds the session todo list (TodoWrite) from the
+  scroll's `## Planned Expeditions`; `/make-camp` and `/complete-quest` reconcile
+  it back to the checklist's `- [x]`/`- [>]` markers. Press **Ctrl+T** to toggle
+  the live checklist in the terminal.
+- **Background work.** `/tasks` lists running shells and subagents; `/workflows`
+  drills into multi-phase runs (council reviews, bounties) — phases, agents,
+  token usage, pause/stop.
+- **Persistent phase record.** `.claude/quest-xp/lifecycle.log` (append-only
+  `date|state|quest|phase=` lines, backstopped by `hooks/quest-lifecycle-bump.sh`)
+  plus `.claude/active-quest.txt` are the durable cross-session record of which
+  quest is active and what phase it is in — and the seed data for a future
+  graph-based tracking system. Both are plain files, so Cowork can read quest
+  status directly from a granted project folder.
 
 ## XP system
 
