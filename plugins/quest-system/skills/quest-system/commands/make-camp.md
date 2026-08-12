@@ -157,7 +157,7 @@ For each file that exceeds 500 lines:
 1. Announce: "📜 {filename} has grown beyond 500 lines. Splitting into subfiles..."
 2. Apply SKILL.md -> "Split rules" (split targets + index format), with this
    command-side caveat: the STRATEGY_SCROLL index always keeps the battle status
-   table AND the `## Planned Expeditions` checklist (the dashboard parses the
+   table AND the `## Planned Expeditions` checklist (status readers parse the
    checklist from the index only — never strand it in a module subfile).
 3. Confirm: "Split complete. {filename} → {list of subfiles created}."
 

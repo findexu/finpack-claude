@@ -425,5 +425,5 @@ connect_serena
 INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""
 echo "quest-system $INSTALLED_VERSION: $UPDATED files installed"
-echo "Interactive tutorial (no install needed): https://findexu.github.io/finpack-claude/"
+echo "Docs (one-page overview, no install needed): https://findexu.github.io/finpack-claude/"
 echo "Restart Claude Code if commands don't appear immediately."

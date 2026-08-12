@@ -13,7 +13,7 @@ description: >
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-so all quest-system slash commands become available. The interactive tutorial
+so all quest-system slash commands become available. A one-page overview
 lives at https://findexu.github.io/finpack-claude/ — no install needed.
 The install also writes a stable verifier hook at
 `.claude/hooks/quest-system-verify.sh` and adds a local permissions override
@@ -143,7 +143,7 @@ Commands now available:
 Installed skills:
   /update-quest-system   — update to the latest version after pulling finpack-claude
 
-Interactive tutorial (no install needed):
+Docs (one-page overview, no install needed):
   https://findexu.github.io/finpack-claude/
 
 Next steps:

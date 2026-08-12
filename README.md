@@ -63,7 +63,7 @@ Then reload Claude Code and run `/setup-finpack`.
 - `/set-bounty "<goal>"` — autonomous: you set the goal, a party explores -> plans -> builds -> self-tests -> reviews -> presents a near-done solution for sign-off.
 - Manual loop: `/new-quest` -> `/counsel-quest` -> `/embark` -> `/make-camp` -> `/complete-quest`.
 
-Try it first in the browser: https://findexu.github.io/finpack-claude/
+One-page docs (install, plugin list, quickstart): https://findexu.github.io/finpack-claude/
 
 ## Update
 
