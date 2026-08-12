@@ -1,7 +1,7 @@
 {
   "name": "quest-system",
   "displayName": "Quest System",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "RPG-themed epic and expedition management system for Claude Code. Tracks quests (features/epics), expeditions (work loops), realms (app targets), and maintains persistent scrolls (docs) across all expeditions. Use this skill when working on any feature development in a mono-repo with multiple app targets. Triggers: /new-quest, /start-quest, /embark, /make-camp, /complete-quest, /quest-log, /quest-help, /change-quest, /counsel-quest, /counsel-plan, /ask-sages, /hunt-bugs, /set-bounty, /install-quest-system, /summon-witch-doctor.",
   "keywords": ["rpg", "themed", "epic", "expedition", "management", "system", "claude", "code"],
   "author": { "name": "findexu" },
