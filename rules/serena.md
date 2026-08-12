@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Serena (semantic code tools)
 
 Applies only when the Serena MCP server is connected (tools named `mcp__serena__*` are present). If they are absent, ignore this rule and use the built-in tools.

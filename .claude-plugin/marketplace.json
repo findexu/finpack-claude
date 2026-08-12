@@ -6,57 +6,9 @@
   "description": "Lean, token-efficient agents and skills for daily Claude Code development. Install the whole kit by cloning the repo, or pick individual plugins from this marketplace.",
   "plugins": [
     {
-      "name": "fp-code-reviewer",
-      "source": "./plugins/fp-code-reviewer",
-      "description": "Reviews code for real bugs: off-by-ones, null derefs, race conditions, swallowed errors. Skips style nitpicks.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-security-reviewer",
-      "source": "./plugins/fp-security-reviewer",
-      "description": "OWASP-style review: injection, auth, data exposure, weak crypto. Severity-ranked with file:line + fix.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-performance-reviewer",
-      "source": "./plugins/fp-performance-reviewer",
-      "description": "Finds real bottlenecks. DB N+1, memory leaks, blocking calls, re-renders.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-doc-reviewer",
-      "source": "./plugins/fp-doc-reviewer",
-      "description": "Cross-references docs against actual source. Flags drift, missing params, dead references.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-plan-reviewer",
-      "source": "./plugins/fp-plan-reviewer",
-      "description": "Reviews a plan or expedition steps for executable completeness, risk, and scope drift. Returns a READY | REVISE verdict so a planning loop can terminate.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-frontend-designer",
-      "source": "./plugins/fp-frontend-designer",
-      "description": "Builds production-grade UI. Tokens-first, anti-AI-slop aesthetics, design tokens enforced.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-swiftui-designer",
-      "source": "./plugins/fp-swiftui-designer",
-      "description": "Builds polished SwiftUI UI/UX for iPhone and iPad. HIG-driven, size-class adaptive, Dynamic Type and VoiceOver ready.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-code-architect",
-      "source": "./plugins/fp-code-architect",
-      "description": "Designs a feature architecture implementation blueprint by analyzing existing codebase patterns. Used by /counsel-quest during architecture design.",
-      "license": "MIT"
-    },
-    {
-      "name": "fp-code-explorer",
-      "source": "./plugins/fp-code-explorer",
-      "description": "Deeply analyzes existing codebase features by tracing execution paths, mapping architecture layers, and documenting dependencies. Used by /counsel-quest during codebase exploration.",
+      "name": "fp-agents",
+      "source": "./plugins/fp-agents",
+      "description": "Nine focused engineering agents: code/security/performance/doc/plan review, frontend + SwiftUI design, architecture, exploration.",
       "license": "MIT"
     },
     {

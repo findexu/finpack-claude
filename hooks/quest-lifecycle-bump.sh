@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # PostToolUse(Edit|Write) — activity-driven lifecycle bump for quest-system.
 #
-# Advances the dashboard phase to `embarked` the moment real expedition work
-# starts (the first code edit), instead of relying on the model remembering to
-# run /embark's manual lifecycle append. That manual append is gated on plan
-# approval and buried mid-command, so a skipped step or an interrupted session
-# left the dashboard stuck on the previous phase (planning / at-camp). This hook
-# is the deterministic backstop.
+# Advances the persistent phase record (lifecycle.log — the durable cross-session
+# quest-phase trail and seed data for a future graph-based tracking system) to
+# `embarked` the moment real expedition work starts (the first code edit), instead
+# of relying on the model remembering to run /embark's manual lifecycle append.
+# That manual append is gated on plan approval and buried mid-command, so a
+# skipped step or an interrupted session left the phase record stuck on the
+# previous phase (planning / at-camp). This hook is the deterministic backstop.
 #
 # Idempotent: appends only when the active quest's last recorded phase is NOT
 # already `embarked`. Edits to planning artifacts (quest scrolls under

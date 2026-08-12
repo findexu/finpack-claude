@@ -15,11 +15,9 @@ required_commands=(
   counsel-prompt.md
   counsel-quest.md
   embark.md
-  init-xp.md
   make-camp.md
   new-quest.md
   quest-log.md
-  quest-xp.md
   quest-help.md
   start-quest.md
   summon-witch-doctor.md

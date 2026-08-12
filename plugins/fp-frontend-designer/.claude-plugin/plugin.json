@@ -1,9 +1,0 @@
-{
-  "name": "fp-frontend-designer",
-  "version": "0.2.0",
-  "description": "Creates distinctive, production-grade frontend UI. Use when building any web UI, landing page, dashboard, or component. Generates creative, polished code that avoids generic AI aesthetics.",
-  "author": { "name": "findexu" },
-  "license": "MIT",
-  "homepage": "https://github.com/findexu/finpack-claude",
-  "repository": "https://github.com/findexu/finpack-claude"
-}

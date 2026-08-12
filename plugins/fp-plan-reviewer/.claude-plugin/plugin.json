@@ -1,9 +1,0 @@
-{
-  "name": "fp-plan-reviewer",
-  "version": "0.1.0",
-  "description": "Reviews a plan or expedition steps for executable completeness, risk, gaps, and scope drift before work begins. Returns a verdict (READY | REVISE) so a planning loop can terminate. Used by /counsel-plan and /embark. NOT a code reviewer (that is fp-code-reviewer).",
-  "author": { "name": "findexu" },
-  "license": "MIT",
-  "homepage": "https://github.com/findexu/finpack-claude",
-  "repository": "https://github.com/findexu/finpack-claude"
-}

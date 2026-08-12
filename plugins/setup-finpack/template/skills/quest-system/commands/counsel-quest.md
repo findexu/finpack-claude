@@ -224,8 +224,8 @@ After all agents return:
    (`- {outcome} — Check: {command} surfaces "{expected}"`), plain `- {outcome}` for
    the rest. `/embark --goal` reads these, so keep the `Check:` phrasing exact.
 4. Seed a `## Planned Expeditions` checklist in STRATEGY_SCROLL — one `- [ ]` per
-   battle-plan phase with a short focus phrase (e.g. `- [ ] data layer`). The dashboard
-   reads this tracker; `/embark` flips an item to `- [>]` (active), `/make-camp` to
+   battle-plan phase with a short focus phrase (e.g. `- [ ] data layer`). Status readers
+   parse this tracker; `/embark` flips an item to `- [>]` (active), `/make-camp` to
    `- [x]` (done). Keep the block in the top-level scroll (it must survive a later split).
 5. Update `WORLD_MAP.md` with structural insights from architect agents
 6. Update `last-updated` frontmatter in all modified scrolls

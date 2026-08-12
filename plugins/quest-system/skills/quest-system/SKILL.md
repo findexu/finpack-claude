@@ -6,10 +6,10 @@ description: >
   and maintains persistent scrolls (docs) across all expeditions.
   Use this skill when working on any feature development in a mono-repo
   with multiple app targets. Triggers: /new-quest, /start-quest, /embark,
-  /make-camp, /complete-quest, /quest-log, /quest-xp, /quest-help, /change-quest,
+  /make-camp, /complete-quest, /quest-log, /quest-help, /change-quest,
   /counsel-quest, /counsel-plan, /ask-sages, /hunt-bugs, /set-bounty,
   /install-quest-system, /summon-witch-doctor.
-version: 1.32.0
+version: 2.0.0
 ---
 
 # Quest System — Skill Definition
@@ -30,7 +30,7 @@ Expedition; five persistent scrolls carry all knowledge across conversations.
 ### Planned Expeditions convention
 
 `STRATEGY_SCROLL.md` carries a `## Planned Expeditions` checklist — the upcoming-work
-tracker the quest-dashboard renders:
+tracker:
 
 ```
 - [ ] surface layer      ← seeded by /counsel-quest (planned)
@@ -38,11 +38,11 @@ tracker the quest-dashboard renders:
 - [x] surface layer      ← /make-camp flips it at camp (done), then appends the next - [ ]
 ```
 
-Markers map to dashboard status: `[x]`→done, `[>]`→active, `[ ]` (or anything else)
+Markers map to status: `[x]`→done, `[>]`→active, `[ ]` (or anything else)
 →planned. `/counsel-quest` seeds one `- [ ]` per battle-plan phase (reconciles on
 MID/PIVOT). The block lives in the top-level scroll and stays in the index on split
-(the dashboard parses the index only). All maintenance is a scroll-body edit — never
-`events.log`/`lifecycle.log`.
+(status readers parse the index only). All maintenance is a scroll-body edit — never
+`lifecycle.log`.
 
 ## Commands provided (installed by /install-quest-system)
 
@@ -58,12 +58,10 @@ MID/PIVOT). The block lives in the top-level scroll and stays in the index on sp
 | `/change-quest` | Save state and switch quest or realm |
 | `/summon-witch-doctor` | Diagnose scroll health; gated repair |
 | `/complete-quest` | Distill to project files, archive quest, clear active quest |
-| `/quest-xp` | Show adventurer profile: level, EXP, badges |
 | `/quest-help` | Cheat-sheet of every command and its `--` flags |
 | `/ask-sages` | Three sages (codebase, web, reason) counsel a decision; `--critique` |
 | `/counsel-plan` | Review a `plan.md` — READY/REVISE verdict; `--critique` lens panel |
 | `/counsel-prompt` | Rewrite a rough prompt into a sharp one |
-| `/init-xp` | Bootstrap the XP profile without starting a quest |
 | `/hunt-bugs` | Scouts fan out, reviewers verify, ranked findings; `--fix` gates applying |
 | `/setup-obsidian` | Opt in to `.ai-context/` as an Obsidian vault |
 | `/open-obsidian` | Open the vault in Obsidian; `--graph` hints the graph view |
@@ -106,7 +104,7 @@ shared pointer.
 
 ### Mutating commands confirm first
 
-`/make-camp` and `/complete-quest` write scrolls and XP. Before any write they MUST
+`/make-camp` and `/complete-quest` write scrolls. Before any write they MUST
 echo the resolved `quest + realm` and confirm (or require an explicit `--quest`) —
 the backstop against a bare command acting on a pointer another chat just repointed.
 
@@ -150,9 +148,9 @@ Races only exist when multiple chats share one folder. The rules:
   writers compute the identical key. **Invariant:** at most ONE per-quest lock held
   at a time → no lock-ordering cycle → no deadlock. A timed-out waiter STOPs safely,
   never proceeds unguarded.
-- **XP is append-only.** Append XP events to `.claude/quest-xp/events.log` via shell
-  append (`printf '%s\n' >> events.log`) ONLY — never Edit/Write (a whole-file
-  rewrite reintroduces the lost-update race).
+- **The lifecycle log is append-only.** Append `state` lines to
+  `.claude/quest-xp/lifecycle.log` via shell append (`printf '%s\n' >>`) ONLY —
+  never Edit/Write (a whole-file rewrite reintroduces the lost-update race).
 - `.claude/locks/` is gitignored.
 
 ## Council cross-critique (shared)
@@ -416,144 +414,34 @@ Realm: {realm}  |  Last updated: {date}
 {rows from DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
 
-## XP system
+## Transparency
 
-Developers earn EXP for completing work. `.claude/quest-xp/` (gitignored — local,
-not shared; created by `/new-quest` on first use) holds `profile.md` (stats, level,
-EXP, badges — a derived cache) and `quest-history.md` (append-only EXP log, one
-entry per completed quest).
+How to see what the quest system — and Claude — is doing at any moment:
 
-### EXP formula (awarded by /complete-quest)
+- **Todo list (live).** `/embark` seeds the session todo list (TodoWrite) from the
+  scroll's `## Planned Expeditions`; `/make-camp` and `/complete-quest` reconcile
+  it back to the checklist's `- [x]`/`- [>]` markers. Press **Ctrl+T** to toggle
+  the live checklist in the terminal.
+- **Background work.** `/tasks` lists running shells and subagents; `/workflows`
+  drills into multi-phase runs (council reviews, bounties) — phases, agents,
+  token usage, pause/stop.
+- **Surface caveat.** `/tasks`, `/workflows`, and Ctrl+T are terminal-CLI views.
+  The VSCode extension exposes only a subset of commands (its task panel below
+  the input shows a one-line progress summary); for full visibility there, run
+  `claude` in the integrated terminal, or use the desktop app's Background
+  tasks panel via Remote Control. The todo list is visible in all surfaces.
+- **Persistent phase record.** `.claude/quest-xp/lifecycle.log` (append-only
+  `date|state|quest|phase=` lines, backstopped by `hooks/quest-lifecycle-bump.sh`)
+  plus `.claude/active-quest.txt` are the durable cross-session record of which
+  quest is active and what phase it is in — and the seed data for a future
+  graph-based tracking system. Both are plain files, so Cowork can read quest
+  status directly from a granted project folder.
 
-EXP is derived from quest data — no manual difficulty rating.
+## Lifecycle log (persistent phase record)
 
-| Source | EXP |
-|---|---|
-| Base reward | 100 |
-| Per module conquered | 25 |
-| Per expedition logged | 10 |
-| Per danger in TOME_OF_DANGERS | 15 |
-| Per oath sworn | 20 |
-| Per split scroll | 50 |
-| Clean sweep (zero open riddles at completion) | +75 bonus |
-| Speed run (completed in ≤ 3 expeditions) | +50 bonus |
-
-Per-expedition EXP (awarded by /make-camp):
-
-| Source | EXP |
-|---|---|
-| Completing an expedition | 5 |
-| New danger discovered this expedition | +10 |
-| New oath sworn this expedition | +10 |
-
-### Level table
-
-Levels run 1–50. Each level costs `level × 300` EXP over the previous one, so the
-total EXP to REACH level N is:
-
-    threshold(N) = 150 × N × (N − 1)          (exp-to-next at level L = 300 × L)
-
-Titles are tiered every 5 levels, with rank `I`–`V` for the 1st–5th level inside a
-tier. A full title is `{tier} {rank}` — e.g. level 1 = `Apprentice Coder I`,
-level 26 = `Master Builder I`, level 50 = `Transcendent Engineer V` (MAX LEVEL).
-
-| Levels | Tier title | Threshold at tier start |
-|---|---|---|
-| 1–5 | Apprentice Coder | 0 |
-| 6–10 | Journeyman Developer | 4,500 |
-| 11–15 | Skilled Developer | 16,500 |
-| 16–20 | Senior Developer | 36,000 |
-| 21–25 | Expert Architect | 63,000 |
-| 26–30 | Master Builder | 97,500 |
-| 31–35 | Grand Master | 139,500 |
-| 36–40 | Legendary Coder | 189,000 |
-| 41–45 | Mythic Developer | 246,000 |
-| 46–50 | Transcendent Engineer | 310,500 |
-
-### Badges
-
-| Badge | Name | Unlock condition |
-|---|---|---|
-| 🗡️ | First Blood | Complete your first quest |
-| 📜 | Scroll Keeper | Complete 5 quests |
-| ⚔️ | Veteran | Complete 10 quests |
-| 🏆 | Legend | Complete 25 quests |
-| 🕵️ | Danger Mapper | Map 10 total dangers |
-| ☠️ | Danger Hoarder | Map 50 total dangers |
-| 🤝 | Oath Keeper | Swear 10 total oaths |
-| 📚 | Lore Master | Swear 50 total oaths |
-| 🚀 | Speed Runner | Complete a quest in ≤ 3 expeditions |
-| 🧘 | Marathoner | Log 50 total expeditions |
-| 🔥 | Unstoppable | Log 200 total expeditions |
-| ✨ | Clean Sweep | Complete a quest with zero open riddles |
-| 📂 | Split Master | Trigger 5 scroll splits |
-| 🌟 | Rising Star | Reach level 5 |
-| 💎 | Diamond | Reach level 10 |
-
-### XP derivation (the fold)
-
-XP is never a read-modify-write counter (concurrent chats would lose updates).
-`events.log` is the append-only source of truth; totals/level/badges are DERIVED by
-folding the WHOLE log every time (idempotent — never patch the cache incrementally).
-Concurrent appends interleave whole lines; torn lines are skipped.
-
-Event line format (pipe-delimited; shell `>>` append ONLY, never Edit/Write):
-`{YYYY-MM-DD}|{type}|{quest-name}|{k=v;k=v;...}`
-```
-2026-06-04|expedition|scan-align|base=5;dangers=1;oaths=0
-2026-06-04|quest-complete|scan-align|modules=4;expeditions=3;dangers=6;oaths=2;splits=1;clean=1;speed=1
-2026-06-02|seed|-|total-exp=2790;expeditions=10;dangers=16;oaths=33;splits=0
-```
-
-| type | emitted by | fields |
-|---|---|---|
-| `seed` | first XP write on a pre-events.log install | total-exp; quests-completed; total-expeditions; total-dangers-mapped; total-oaths-sworn; total-splits; badges=A,B,C (the FULL current profile, verbatim) |
-| `expedition` | /make-camp | dangers=N; oaths=N; split=0\|1 |
-| `quest-complete` | /complete-quest | modules; expeditions; dangers; oaths; splits; clean=0\|1; speed=0\|1 |
-
-Fold algorithm — start all counters at 0 and the badge set empty, then per line:
-- `seed` → add its counters to the accumulators; UNION its badges into the set.
-  (Baseline for migrated installs; absent on fresh installs.)
-- `expedition` → total-expeditions += 1; total-dangers-mapped += dangers;
-  total-oaths-sworn += oaths; total-splits += split;
-  total-exp += 5 + (dangers>0 ? 10 : 0) + (oaths>0 ? 10 : 0).
-- `quest-complete` → quests-completed += 1;
-  total-exp += 100 + modules*25 + expeditions*10 + dangers*15 + oaths*20 + splits*50
-  + (clean ? 75 : 0) + (speed ? 50 : 0).
-  Does NOT re-add expedition/danger/oath/split counters — those were already counted
-  by the expedition events; the quest-complete fields drive the REWARD only.
-- Skip any malformed/torn line (warn, do not abort).
-
-Then derive:
-- `level` = highest level whose threshold ≤ total-exp (Level table above).
-- derived badges = every badge whose condition holds against the folded
-  counters/level (Badges table); Speed Runner / Clean Sweep additionally unlock
-  from any `quest-complete` event with speed=1 / clean=1.
-- **`badges` = UNION(seed badges, derived badges). NEVER recompute badges from
-  scratch** — the seed carries historically-earned badges that may not be
-  re-derivable, and they must never be dropped.
-
-Write the result to `profile.md` (the cache): all 7 numeric keys + `adventurer` +
-`badges` + `derived-from-events: {lines folded}`. The read-only dashboard reads this
-cache, so every key MUST be present on every write. Any command that appends an
-event MUST recompute and rewrite `profile.md` in the same run.
-
-Seeding (migration), idempotent: if `events.log` is ABSENT and `profile.md` has
-totals, append ONE `seed` line carrying the full current profile, then proceed. The
-log-absent check is the guard — never seed twice.
-
-Self-healing: `/quest-xp` (and any XP write) recomputes when `derived-from-events` ≠
-the actual line count; a lost cache write self-heals on the next full-log fold.
-
-Oracle: `scripts/quest-xp-fold.sh` is the authoritative implementation of this fold
-(input: events.log; output: derived KEY=VALUE profile fields). Keep this prose and
-that script in lockstep; regression-tested by `hooks/tests/quest-xp-fold-test.sh`.
-
-### Lifecycle log (live phase for the dashboard)
-
-`.claude/quest-xp/lifecycle.log` is a SEPARATE append-only log — never `events.log`
-itself (a state line there could suppress the XP migration seed and perturb the
-fold's line count). Each lifecycle command appends ONE `state` line via shell append
+`.claude/quest-xp/lifecycle.log` is the append-only phase record — the durable
+cross-session trail of quest phases, and the seed data for a future graph-based
+tracking system. Each lifecycle command appends ONE `state` line via shell append
 (`printf '%s\n' >> .claude/quest-xp/lifecycle.log`) the moment a quest changes phase:
 
 ```
@@ -570,32 +458,10 @@ fold's line count). Each lifecycle command appends ONE `state` line via shell ap
 The `quest-lifecycle-bump.sh` hook (PostToolUse on `Edit|Write`) is the deterministic
 backstop for `embarked`: it records `phase=embarked` on the first edit to a real
 project file (edits under `.ai-context/` or `.claude/` never bump); idempotent —
-appends only when the last recorded phase is not already `embarked`. The dashboard
-reads the LAST `state` line for the active quest and trusts it over scroll inference.
-`/complete-quest` and `/change-quest` write no `state` line — they update
-`.claude/active-quest.txt`, which the dashboard watches directly.
-
-### Profile file format
-
-`.claude/quest-xp/profile.md` (derived cache — recomputed from events.log):
-```
----
-adventurer: {git user.name or "Adventurer"}
-level: 1
-total-exp: 0
-quests-completed: 0
-total-expeditions: 0
-total-dangers-mapped: 0
-total-oaths-sworn: 0
-total-splits: 0
-badges: []
-derived-from-events: 0
----
-# {adventurer}'s Adventurer Profile
-...rendered by /quest-xp...
-```
-
-`.claude/quest-xp/quest-history.md`: append-only log, one entry per completed quest.
+appends only when the last recorded phase is not already `embarked`. Phase-record
+readers take the LAST `state` line for the active quest and trust it over scroll
+inference. `/complete-quest` and `/change-quest` write no `state` line — they update
+`.claude/active-quest.txt`, which phase-record readers consult directly.
 
 ## Obsidian integration (opt-in)
 
@@ -623,3 +489,21 @@ however created or repaired, MUST keep these parsed anchors:
 - STRATEGY_SCROLL: `## Battle Status`, `## Open Riddles`, `## Planned Expeditions`
   (markers per the Planned Expeditions convention above)
 - Split indexes: `## Content Index`
+
+## Changelog
+
+### 2.0.0 — XP/gamification removed (migration note)
+
+BREAKING: `/quest-xp` and `/init-xp` are removed, along with the EXP formula,
+levels, badges, `events.log`, `profile.md`, `agents.log`, and `quest-history.md`.
+The lifecycle phase record is KEPT.
+
+`.claude/quest-xp/` in consumer projects is NOT inert: `hooks/quest-lifecycle-bump.sh`
+hardcodes `.claude/quest-xp/lifecycle.log`, so that directory and file stay live —
+never delete them. `/update-quest-system` OFFERS (never auto-deletes) a cleanup
+scoped to the dead files only — `events.log`, `profile.md`, `agents.log`,
+`quest-history.md` — and additionally offers to delete the retired consumer hook
+`.claude/hooks/quest-agent-trace.sh` and strip its PostToolUse(`Agent|Task`)
+registration from `.claude/settings.json` (the hook is the live writer that would
+otherwise recreate `agents.log` on the next agent call). The directory itself and
+`lifecycle.log` are never touched.

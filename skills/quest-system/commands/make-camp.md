@@ -67,8 +67,8 @@ cannot interleave a lost-update append between your write and the Step 7 split r
 If the lock cannot be acquired within the budget, report "quest {quest-name} busy
 (another chat is writing its scrolls) — retry shortly" and STOP. The lock is held
 across Steps 3–7 (Step 6's world-map write is fine inside too) and RELEASED in
-Step 7.5 on every exit path (including a failed Edit). context.md (Step 8) and XP
-(Step 9) run AFTER release.
+Step 7.5 on every exit path (including a failed Edit). context.md (Step 8) and the
+lifecycle line (Step 9) run AFTER release.
 
 ## Step 3: Update ADVENTURE_JOURNAL.md
 
@@ -103,9 +103,18 @@ Changes to make:
 - If a `## Planned Expeditions` checklist exists: flip the active `- [>]` (this
   expedition's focus) to `- [x]`, then append a new `- [ ]` whose label is a SHORT
   focus phrase summarizing "The Road Ahead" just written (not the full prose). If no
-  checklist exists, skip. This is a scroll-body edit — never events.log/lifecycle.log.
+  checklist exists, skip. This is a scroll-body edit — never lifecycle.log.
 
 Update `last-updated: {date}` in YAML frontmatter.
+
+## Step 4.5: Reconcile the session todo list
+
+Reconcile TodoWrite state against the checklist just updated in Step 4: completed
+todos are evidence for the `- [x]` flip (if the todo list shows this expedition's
+focus unfinished, confirm with the commander before flipping); an in_progress todo
+that carries over maps to the `- [>]` marker. Then mark this expedition's todos
+completed via TodoWrite so the session list matches the scroll. The scroll markers
+are the persistent record; this runs under the same lock as Steps 3–7.
 
 ## Step 5: Update TOME_OF_DANGERS.md (if new dangers reported)
 
@@ -138,7 +147,7 @@ a `related:` frontmatter list — the peer scrolls in the same quest folder plus
 (e.g. `"[[quests/{quest-name}/TOME_OF_DANGERS]]"`). Add the key to any scroll missing it;
 SKIP scrolls that already have `related:` (idempotent). If the marker is absent, do nothing.
 This keeps the Obsidian graph connected as scrolls are added (see /setup-obsidian). It is a
-scroll-frontmatter edit under the lock — never touches events.log/lifecycle.log.
+scroll-frontmatter edit under the lock — never touches lifecycle.log.
 
 ## Step 7: Split check
 
@@ -148,7 +157,7 @@ For each file that exceeds 500 lines:
 1. Announce: "📜 {filename} has grown beyond 500 lines. Splitting into subfiles..."
 2. Apply SKILL.md -> "Split rules" (split targets + index format), with this
    command-side caveat: the STRATEGY_SCROLL index always keeps the battle status
-   table AND the `## Planned Expeditions` checklist (the dashboard parses the
+   table AND the `## Planned Expeditions` checklist (status readers parse the
    checklist from the index only — never strand it in a module subfile).
 3. Confirm: "Split complete. {filename} → {list of subfiles created}."
 
@@ -157,7 +166,8 @@ For each file that exceeds 500 lines:
 RELEASE the per-quest lock acquired in Step 2.9 (explicit `rmdir`, recomputing the
 key from the SAME basename — not from any path changed by a split). This runs on
 EVERY exit path: if any Edit in Steps 3–7 failed, release here and STOP rather than
-leaving a stranded lock. Steps 8–10 (context.md, XP, confirm) run after release.
+leaving a stranded lock. Steps 8–10 (context.md, lifecycle line, confirm) run after
+release.
 
 ## Step 8: Refresh context.md
 
@@ -192,34 +202,15 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: camped
 {rows from .ai-context/DECISIONS_LOG.md if exists, else "(none yet — complete a quest first)"}
 ```
 
-## Step 9: Award expedition EXP
+## Step 9: Record the lifecycle transition
 
-If `.claude/quest-xp/profile.md` does not exist, skip this step silently.
-
-XP is an append-only event log — do NOT read-modify-write the counters. See
-SKILL.md -> "XP derivation (the fold)".
-
-1. **Seed if needed (idempotent):** if `.claude/quest-xp/events.log` is ABSENT,
-   append ONE `seed` line carrying the full current profile (all 6 counters +
-   the `badges` list, verbatim). The log-absent check is the guard — never seed twice.
-2. **Append the expedition event** with a SHELL APPEND (never Edit/Write):
-   ```bash
-   printf '%s\n' "{YYYY-MM-DD}|expedition|{quest-name}|dangers={N};oaths={N};split={0|1}" >> .claude/quest-xp/events.log
-   ```
-   `dangers`/`oaths` = COUNTS of new dangers/oaths reported in Step 2; `split` = 1
-   if a split occurred in Step 7, else 0. (The expedition reward — base 5,
-   +10 if dangers>0, +10 if oaths>0 — is computed by the fold, not here.)
-3. **Recompute the cache:** fold the WHOLE `events.log` (SKILL.md derivation) and
-   rewrite `profile.md` — all 7 numeric keys + `adventurer` + `badges`
-   (UNION of seed + derived; never dropped) + `derived-from-events`. Record old vs
-   new `level` for Step 10.
-4. **Record the lifecycle transition** (separate append-only log, not events.log —
-   it carries no XP and must never enter the XP fold):
-   ```bash
-   printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=at-camp" >> .claude/quest-xp/lifecycle.log
-   ```
-   This flips the dashboard to "At Camp"; the next code edit re-bumps to "Embarked"
-   via the `quest-lifecycle-bump.sh` hook.
+Append ONE `state` line to the phase record with a SHELL APPEND (never Edit/Write —
+SKILL.md -> "Lifecycle log"):
+```bash
+printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=at-camp" >> .claude/quest-xp/lifecycle.log
+```
+This records "at-camp" in the phase record; the next code edit re-bumps to
+"embarked" via the `quest-lifecycle-bump.sh` hook.
 
 ## Step 10: Confirm
 
@@ -228,21 +219,4 @@ Report:
 ⛺ Camp made. Expedition {date} recorded.
 Files updated: {list}
 {any split announcements}
-
-+{exp_earned} XP  ({reason breakdown})
-Total EXP: {total-exp}  |  Level {level} — {title}
 ```
-
-If level-up occurred:
-```
-╔══════════════════════════════════════╗
-║  🌟  LEVEL UP!  Level {new level}     ║
-║  {new title}                          ║
-╚══════════════════════════════════════╝
-```
-
-If any new badges unlocked, display after the level-up block:
-```
-🎖️  Badge unlocked: {badge emoji}  {badge name}
-```
-(one line per badge, in order unlocked)

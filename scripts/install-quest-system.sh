@@ -44,10 +44,8 @@ REMOTE_COMMANDS=(
   new-quest.md
   counsel-quest.md
   embark.md
-  init-xp.md
   make-camp.md
   quest-log.md
-  quest-xp.md
   quest-help.md
   start-quest.md
   summon-witch-doctor.md
@@ -65,6 +63,8 @@ RETIRED_COMMANDS=(
   campaign.md
   side-quest.md
   close-side-quest.md
+  quest-xp.md
+  init-xp.md
 )
 
 # Legacy file names used before the manifest existed, seeded into a MISSING
@@ -87,7 +87,6 @@ HOOKS=(
   session-start.sh
   quest-system-verify.sh
   quest-lifecycle-bump.sh
-  quest-agent-trace.sh
 )
 
 # The full fp- agent suite quest-system can summon: counsel-quest spawns
@@ -204,8 +203,8 @@ for rule in RULES:
         allow.insert(0, rule)
 
 # Wire the activity-driven lifecycle bump as a PostToolUse(Edit|Write) hook so
-# the dashboard phase advances to `embarked` on the first real edit. Idempotent:
-# only added when no group already runs the command.
+# the persistent phase record advances to `embarked` on the first real edit.
+# Idempotent: only added when no group already runs the command.
 post = data.setdefault("hooks", {}).setdefault("PostToolUse", [])
 already = any(
     h.get("command") == BUMP_CMD
@@ -222,27 +221,6 @@ if not already:
         "command": BUMP_CMD,
         "timeout": 5000,
         "statusMessage": "Updating quest phase...",
-    })
-
-# Wire the sub-agent trace as a PostToolUse(Agent|Task) hook so the dashboard can
-# surface recent sub-agent activity. Task was renamed Agent in CC v2.1.63; match
-# both. Idempotent: only added when no group already runs the command.
-TRACE_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-agent-trace.sh"
-trace_already = any(
-    h.get("command") == TRACE_CMD
-    for group in post
-    for h in group.get("hooks", [])
-)
-if not trace_already:
-    tgt = next((g for g in post if g.get("matcher") == "Agent|Task"), None)
-    if tgt is None:
-        tgt = {"matcher": "Agent|Task", "hooks": []}
-        post.append(tgt)
-    tgt.setdefault("hooks", []).append({
-        "type": "command",
-        "command": TRACE_CMD,
-        "timeout": 5000,
-        "statusMessage": "Recording sub-agent...",
     })
 
 path.write_text(json.dumps(data, indent=2) + "\n")
@@ -339,8 +317,8 @@ for rule in RULES:
         allow.insert(0, rule)
 
 # Wire the activity-driven lifecycle bump as a PostToolUse(Edit|Write) hook so
-# the dashboard phase advances to `embarked` on the first real edit. Idempotent:
-# only added when no group already runs the command.
+# the persistent phase record advances to `embarked` on the first real edit.
+# Idempotent: only added when no group already runs the command.
 post = data.setdefault("hooks", {}).setdefault("PostToolUse", [])
 already = any(
     h.get("command") == BUMP_CMD
@@ -357,27 +335,6 @@ if not already:
         "command": BUMP_CMD,
         "timeout": 5000,
         "statusMessage": "Updating quest phase...",
-    })
-
-# Wire the sub-agent trace as a PostToolUse(Agent|Task) hook so the dashboard can
-# surface recent sub-agent activity. Task was renamed Agent in CC v2.1.63; match
-# both. Idempotent: only added when no group already runs the command.
-TRACE_CMD = "$CLAUDE_PROJECT_DIR/.claude/hooks/quest-agent-trace.sh"
-trace_already = any(
-    h.get("command") == TRACE_CMD
-    for group in post
-    for h in group.get("hooks", [])
-)
-if not trace_already:
-    tgt = next((g for g in post if g.get("matcher") == "Agent|Task"), None)
-    if tgt is None:
-        tgt = {"matcher": "Agent|Task", "hooks": []}
-        post.append(tgt)
-    tgt.setdefault("hooks", []).append({
-        "type": "command",
-        "command": TRACE_CMD,
-        "timeout": 5000,
-        "statusMessage": "Recording sub-agent...",
     })
 
 path.write_text(json.dumps(data, indent=2) + "\n")
@@ -468,5 +425,5 @@ connect_serena
 INSTALLED_VERSION="$(cat "$VERSION_DEST" 2>/dev/null | tr -d '[:space:]' || echo "unknown")"
 echo ""
 echo "quest-system $INSTALLED_VERSION: $UPDATED files installed"
-echo "Interactive tutorial (no install needed): https://findexu.github.io/finpack-claude/"
+echo "Docs (one-page overview, no install needed): https://findexu.github.io/finpack-claude/"
 echo "Restart Claude Code if commands don't appear immediately."

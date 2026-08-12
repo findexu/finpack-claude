@@ -37,15 +37,18 @@ for f in glob.glob("skills/*/SKILL.md"):
     if not os.path.isfile(f"plugins/{n}/skills/{n}/SKILL.md"):
         fails.append(f"skill '{n}': not synced to plugins/ (run sync-plugins.sh)")
 
-# 3. every source agent is wired (README is docs, not an agent)
-for f in glob.glob("agents/*.md"):
+# 3. every source agent is delivered through the consolidated fp-agents plugin
+#    AND bundled inside quest-system (counsel-quest/reviews summon them there).
+#    README is docs, not an agent.
+agents = [f for f in glob.glob("agents/*.md") if os.path.basename(f) != "README.md"]
+if agents and "fp-agents" not in mk:
+    fails.append("fp-agents: no marketplace entry (agents unreachable for new users)")
+for f in agents:
     n = os.path.basename(f)[:-3]
-    if n == "README":
-        continue
-    if n not in mk:
-        fails.append(f"agent '{n}': no marketplace entry")
-    if not os.path.isfile(f"plugins/{n}/agents/{n}.md"):
-        fails.append(f"agent '{n}': not synced to plugins/ (run sync-plugins.sh)")
+    if not os.path.isfile(f"plugins/fp-agents/agents/{n}.md"):
+        fails.append(f"agent '{n}': not in plugins/fp-agents (run sync-plugins.sh)")
+    if not os.path.isfile(f"plugins/quest-system/agents/{n}.md"):
+        fails.append(f"agent '{n}': not bundled in quest-system plugin (run sync-plugins.sh)")
 
 if fails:
     print("  FAIL  marketplace-parity")

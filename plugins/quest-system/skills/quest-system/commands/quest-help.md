@@ -36,7 +36,6 @@ Lifecycle
 
 Status
   /quest-log [--all]                                 quick status (--all = multi-quest board)
-  /quest-xp                                          adventurer profile: level, EXP, badges
   /summon-witch-doctor                               diagnose scroll health, offer repair
 
 Counsel & reference
@@ -50,7 +49,6 @@ Code quality
 
 Switch & setup
   /change-quest <name> [realm]                       save state, switch quest/realm
-  /init-xp                                           bootstrap the XP profile (no new quest)
   /install-quest-system  /update-quest-system        install / update the system
   /setup-obsidian [--force]                          opt-in: view .ai-context/ as an Obsidian vault (dashboards + graph)
   /open-obsidian [--graph]                           open this project's .ai-context/ vault in Obsidian (CLI)

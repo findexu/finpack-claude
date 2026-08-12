@@ -1,5 +1,6 @@
 ---
 name: update-quest-system
+version: 0.2.0
 description: >
   Update quest-system to the latest version by running the install script
   (install is idempotent — same script installs and updates). Prefers a local
@@ -15,6 +16,13 @@ The install script is idempotent — it installs AND updates, prunes orphaned
 command/agent files (manifest-diff), refreshes permissions, and retries on
 transient network errors. Updating just means re-running it. This skill picks
 the right invocation and runs it; it does NOT copy files itself.
+
+> **Installed as a plugin instead?** If quest-system came from the
+> finpack-claude marketplace (`/plugin install quest-system@finpack-claude`),
+> update it natively: `claude plugin update quest-system`. Plugin manifests are
+> sync-stamped from SKILL.md versions, so a version bump is the update signal.
+> This skill remains the path for template-file installs (`.claude/commands/`)
+> and consumer-repo migrations like Step 4.5 below.
 
 ## Step 1: Check installation
 
@@ -58,6 +66,27 @@ prunes, and a final `quest-system <version>: <N> files installed` line.
 Do NOT loop, re-run, or copy files individually. One invocation is the whole
 update. If it exits non-zero or prints `FAIL:` lines, report them verbatim — a
 transient network error already got 3 retries, so a failure here is real.
+
+## Step 4.5: Offer XP-remnant cleanup (v2.0.0 migration, opt-in)
+
+quest-system 2.0.0 removed the XP/gamification system but KEEPS the lifecycle
+phase record. `.claude/quest-xp/` is NOT inert — `quest-lifecycle-bump.sh`
+writes `.claude/quest-xp/lifecycle.log`, so never touch the directory itself or
+`lifecycle.log`. Check for these dead remnants and, if any exist, OFFER (never
+auto-delete; skip this step silently when none are found):
+
+1. Dead XP data files — `.claude/quest-xp/events.log`, `.claude/quest-xp/profile.md`,
+   `.claude/quest-xp/agents.log`, `.claude/quest-xp/quest-history.md`. Offer to
+   delete exactly these files, nothing else.
+2. The retired sub-agent trace hook — `.claude/hooks/quest-agent-trace.sh` is the
+   live writer that recreates `agents.log` on the next agent call. Offer to delete
+   the file AND strip its PostToolUse (`Agent|Task` matcher) registration from
+   `.claude/settings.json` and `.claude/settings.local.json` (remove only the hook
+   entry whose command ends in `quest-agent-trace.sh`; if its matcher group is
+   left empty, remove the group).
+
+List what was found, ask once ("Remove these retired XP remnants? (y/n)"), and
+act only on an explicit yes. Report what was deleted or that everything was kept.
 
 ## Step 5: Report
 

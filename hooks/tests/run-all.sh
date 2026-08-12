@@ -122,15 +122,6 @@ else
 fi
 
 echo
-echo "== quest-xp-fold =="
-if bash "$ROOT/tests/quest-xp-fold-test.sh"; then
-  PASS=$((PASS+1))
-else
-  FAIL=$((FAIL+1))
-  FAILED_NAMES+=("quest-xp-fold")
-fi
-
-echo
 echo "== quest-lifecycle-bump =="
 if bash "$ROOT/tests/quest-lifecycle-bump-test.sh"; then
   PASS=$((PASS+1))
@@ -140,21 +131,35 @@ else
 fi
 
 echo
-echo "== quest-agent-trace =="
-if bash "$ROOT/tests/quest-agent-trace-test.sh"; then
-  PASS=$((PASS+1))
-else
-  FAIL=$((FAIL+1))
-  FAILED_NAMES+=("quest-agent-trace")
-fi
-
-echo
 echo "== marketplace-parity =="
 if bash "$ROOT/tests/marketplace-parity.sh"; then
   PASS=$((PASS+1))
 else
   FAIL=$((FAIL+1))
   FAILED_NAMES+=("marketplace-parity")
+fi
+
+echo
+echo "== version-bump-check =="
+if bash "$ROOT/tests/version-bump-check.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("version-bump-check")
+fi
+
+echo
+echo "== shellcheck =="
+if command -v shellcheck >/dev/null 2>&1; then
+  if shellcheck -S error "$ROOT"/*.sh "$ROOT"/tests/*.sh "$ROOT"/../scripts/*.sh; then
+    echo "  PASS  shellcheck: no error-severity findings in hooks/ + scripts/"
+    PASS=$((PASS+1))
+  else
+    FAIL=$((FAIL+1))
+    FAILED_NAMES+=("shellcheck")
+  fi
+else
+  echo "  SKIP  shellcheck (not installed)"
 fi
 
 echo

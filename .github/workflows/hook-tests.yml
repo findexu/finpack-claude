@@ -4,11 +4,21 @@ on:
   pull_request:
     paths:
       - 'hooks/**'
+      - 'scripts/**'
+      - 'skills/**'
+      - 'agents/**'
+      - 'plugins/**'
+      - '.claude-plugin/**'
       - '.github/workflows/hook-tests.yml'
   push:
     branches: [main]
     paths:
       - 'hooks/**'
+      - 'scripts/**'
+      - 'skills/**'
+      - 'agents/**'
+      - 'plugins/**'
+      - '.claude-plugin/**'
 
 jobs:
   test:
@@ -25,5 +35,10 @@ jobs:
       - name: Install jq (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update -y && sudo apt-get install -y jq
+      - name: Sync drift gate (plugins/ mirrors match sources)
+        run: |
+          bash scripts/sync-plugins.sh
+          git add -N plugins/
+          git diff --exit-code plugins/
       - name: Run hook fixtures
         run: bash hooks/tests/run-all.sh

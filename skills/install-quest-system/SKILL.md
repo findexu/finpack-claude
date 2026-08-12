@@ -1,10 +1,11 @@
 ---
 name: install-quest-system
+version: 0.2.0
 description: >
   Bootstrap quest-system in the current project. Copies all command files to
   .claude/commands/ so /new-quest, /counsel-quest, /embark, /make-camp,
-  /quest-log, /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp,
-  /ask-sages, /init-xp, /counsel-prompt, and /counsel-plan become available.
+  /quest-log, /change-quest, /complete-quest, /summon-witch-doctor,
+  /ask-sages, /counsel-prompt, and /counsel-plan become available.
   It also installs a stable verifier hook and a project-local permission
   override so the verification step does not keep triggering ad hoc approval
   prompts. Run once per project. Safe to re-run — confirms before overwriting.
@@ -13,7 +14,7 @@ description: >
 # Install Quest System
 
 Copy the quest-system command files into this project's `.claude/commands/`
-so all quest-system slash commands become available. The interactive tutorial
+so all quest-system slash commands become available. A one-page overview
 lives at https://findexu.github.io/finpack-claude/ — no install needed.
 The install also writes a stable verifier hook at
 `.claude/hooks/quest-system-verify.sh` and adds a local permissions override
@@ -68,10 +69,8 @@ Canonical command set (also the fallback list — keep in sync with
 - `change-quest.md`
 - `complete-quest.md`
 - `summon-witch-doctor.md`
-- `quest-xp.md`
 - `quest-help.md`
 - `ask-sages.md`
-- `init-xp.md`
 - `counsel-prompt.md`
 - `counsel-plan.md`
 - `hunt-bugs.md`
@@ -138,16 +137,14 @@ Commands now available:
   /change-quest        — switch quest or realm
   /complete-quest      — distill + archive when feature ships
   /summon-witch-doctor — health check for scroll files
-  /quest-xp            — view XP, level, and badge progress
   /ask-sages           — summon three specialist sages for a second opinion
-  /init-xp             — bootstrap XP profile on migrated/existing projects
   /counsel-prompt      — rewrite a rough prompt into a sharp copyable Claude prompt
   /counsel-plan        — review a plan.md and produce copyable structured feedback
 
 Installed skills:
   /update-quest-system   — update to the latest version after pulling finpack-claude
 
-Interactive tutorial (no install needed):
+Docs (one-page overview, no install needed):
   https://findexu.github.io/finpack-claude/
 
 Next steps:

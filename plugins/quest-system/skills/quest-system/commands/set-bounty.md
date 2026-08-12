@@ -96,7 +96,7 @@ or surface — as a gate — why it can't.
 ## Step 5: Deliver for sign-off
 
 - **success** → present a near-done summary: what was built, how it was validated, the review
-  verdict, and any residual risk. Then propose `/complete-quest` (distill + archive + XP) —
+  verdict, and any residual risk. Then propose `/complete-quest` (distill + archive) —
   gate before completing, since completion is irreversible.
 - **failure / budget** → `/make-camp` the state, record the blocker as an Open Riddle + danger,
   and hand back a crisp status: what's done, what's blocked, the recommended next move.
