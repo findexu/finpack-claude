@@ -1,5 +1,6 @@
 ---
 name: install-quest-system
+version: 0.2.0
 description: >
   Bootstrap quest-system in the current project. Copies all command files to
   .claude/commands/ so /new-quest, /counsel-quest, /embark, /make-camp,

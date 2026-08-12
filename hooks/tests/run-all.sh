@@ -140,6 +140,29 @@ else
 fi
 
 echo
+echo "== version-bump-check =="
+if bash "$ROOT/tests/version-bump-check.sh"; then
+  PASS=$((PASS+1))
+else
+  FAIL=$((FAIL+1))
+  FAILED_NAMES+=("version-bump-check")
+fi
+
+echo
+echo "== shellcheck =="
+if command -v shellcheck >/dev/null 2>&1; then
+  if shellcheck -S error "$ROOT"/*.sh "$ROOT"/tests/*.sh "$ROOT"/../scripts/*.sh; then
+    echo "  PASS  shellcheck: no error-severity findings in hooks/ + scripts/"
+    PASS=$((PASS+1))
+  else
+    FAIL=$((FAIL+1))
+    FAILED_NAMES+=("shellcheck")
+  fi
+else
+  echo "  SKIP  shellcheck (not installed)"
+fi
+
+echo
 echo "RESULT: $PASS passed, $FAIL failed"
 if [[ $FAIL -gt 0 ]]; then
   printf 'Failed: %s\n' "${FAILED_NAMES[@]}"

@@ -1,7 +1,7 @@
 ---
 name: setup-finpack
 description: Set up finpack-claude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.
-version: 0.2.0
+version: 0.3.0
 argument-hint: "[optional: focus area like 'frontend' or 'backend']"
 disable-model-invocation: true
 ---
