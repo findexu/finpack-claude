@@ -425,6 +425,11 @@ How to see what the quest system — and Claude — is doing at any moment:
 - **Background work.** `/tasks` lists running shells and subagents; `/workflows`
   drills into multi-phase runs (council reviews, bounties) — phases, agents,
   token usage, pause/stop.
+- **Surface caveat.** `/tasks`, `/workflows`, and Ctrl+T are terminal-CLI views.
+  The VSCode extension exposes only a subset of commands (its task panel below
+  the input shows a one-line progress summary); for full visibility there, run
+  `claude` in the integrated terminal, or use the desktop app's Background
+  tasks panel via Remote Control. The todo list is visible in all surfaces.
 - **Persistent phase record.** `.claude/quest-xp/lifecycle.log` (append-only
   `date|state|quest|phase=` lines, backstopped by `hooks/quest-lifecycle-bump.sh`)
   plus `.claude/active-quest.txt` are the durable cross-session record of which
