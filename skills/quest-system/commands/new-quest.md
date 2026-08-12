@@ -90,49 +90,16 @@ Write `.claude/active-quest.txt`:
 ```
 
 Then record the starting lifecycle phase with a SHELL APPEND (never Edit/Write).
-A freshly scaffolded quest has no plan yet, so it begins in planning:
+Create `.claude/quest-xp/` first if it does not exist (the phase record lives
+there). A freshly scaffolded quest has no plan yet, so it begins in planning:
 ```bash
 printf '%s\n' "{date}|state|{quest-name}|phase=planning" >> .claude/quest-xp/lifecycle.log
 ```
 
-## Step 5: Bootstrap adventurer profile (first quest only)
+## Step 5: Bootstrap the phase record (first quest only)
 
-Check if `.claude/quest-xp/profile.md` exists.
-
-If it does NOT exist:
-
-1. Get adventurer name: run `git config user.name`. If unavailable, use "Adventurer".
-
-2. Create `.claude/quest-xp/` directory.
-
-3. Create `.claude/quest-xp/profile.md`:
-```
----
-adventurer: {git-user-name}
-level: 1
-total-exp: 0
-quests-completed: 0
-total-expeditions: 0
-total-dangers-mapped: 0
-total-oaths-sworn: 0
-total-splits: 0
-badges: []
----
-# {git-user-name}'s Adventurer Profile
-
-Complete quests, log expeditions, and map dangers to earn EXP.
-Run /quest-xp to view your profile.
-```
-
-4. Create `.claude/quest-xp/quest-history.md`:
-```
-# Quest History
-
-Append-only EXP log. One entry per completed quest.
-```
-
-5. Ensure `.gitignore` contains `.claude/quest-xp/`.
-   Read `.gitignore` if it exists. If the line is absent, append it.
+Ensure `.gitignore` contains `.claude/quest-xp/` (the lifecycle phase record is
+local, not shared). Read `.gitignore` if it exists. If the line is absent, append it.
 
 ## Step 6: Bootstrap .ai-context/ (first quest only)
 
@@ -185,7 +152,6 @@ Scrolls created in .ai-context/quests/{quest-name}/:
   ✓ ADVENTURE_JOURNAL.md
   ✓ WORLD_MAP.md
   ✓ ADVENTURERS_HANDBOOK.md
-{if first quest: "\n  ✓ Adventurer profile created. Run /quest-xp to view."}
 
 Next steps:
   /start-quest {quest-name}  — activate and get guided to next step

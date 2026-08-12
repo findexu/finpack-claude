@@ -59,6 +59,27 @@ Do NOT loop, re-run, or copy files individually. One invocation is the whole
 update. If it exits non-zero or prints `FAIL:` lines, report them verbatim — a
 transient network error already got 3 retries, so a failure here is real.
 
+## Step 4.5: Offer XP-remnant cleanup (v2.0.0 migration, opt-in)
+
+quest-system 2.0.0 removed the XP/gamification system but KEEPS the lifecycle
+phase record. `.claude/quest-xp/` is NOT inert — `quest-lifecycle-bump.sh`
+writes `.claude/quest-xp/lifecycle.log`, so never touch the directory itself or
+`lifecycle.log`. Check for these dead remnants and, if any exist, OFFER (never
+auto-delete; skip this step silently when none are found):
+
+1. Dead XP data files — `.claude/quest-xp/events.log`, `.claude/quest-xp/profile.md`,
+   `.claude/quest-xp/agents.log`, `.claude/quest-xp/quest-history.md`. Offer to
+   delete exactly these files, nothing else.
+2. The retired sub-agent trace hook — `.claude/hooks/quest-agent-trace.sh` is the
+   live writer that recreates `agents.log` on the next agent call. Offer to delete
+   the file AND strip its PostToolUse (`Agent|Task` matcher) registration from
+   `.claude/settings.json` and `.claude/settings.local.json` (remove only the hook
+   entry whose command ends in `quest-agent-trace.sh`; if its matcher group is
+   left empty, remove the group).
+
+List what was found, ask once ("Remove these retired XP remnants? (y/n)"), and
+act only on an explicit yes. Report what was deleted or that everything was kept.
+
 ## Step 5: Report
 
 Read `.claude/commands/.quest-system-version` again for `{new-version}`, then:

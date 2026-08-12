@@ -42,7 +42,7 @@ Tell the user what was placed and continue to Phase 0. If `$CLAUDE_PLUGIN_ROOT` 
 When `.claude/settings.json` already exists and the user chooses the health check, run only these finpack-specific checks, report findings, and confirm before fixing anything:
 
 - **Template drift**: diff the project's `.claude/` files against the bundled `$CLAUDE_PLUGIN_ROOT/template/` versions. Report files that are added, modified, or missing relative to the template. A modified file may be intentional customization — ask before proposing to restore anything.
-- **Quest-system state**: check that the quest hooks are wired in `.claude/settings.json` (`quest-lifecycle-bump.sh`, `quest-agent-trace.sh`) and that `.ai-context/quests/` exists. If quest-system is installed, compare its installed version against the published VERSION (the curl already allow-listed in settings.json) and suggest `/update-quest-system` if stale — or `/install-quest-system` if it's absent.
+- **Quest-system state**: check that the quest hook is wired in `.claude/settings.json` (`quest-lifecycle-bump.sh`) and that `.ai-context/quests/` exists. If quest-system is installed, compare its installed version against the published VERSION (the curl already allow-listed in settings.json) and suggest `/update-quest-system` if stale — or `/install-quest-system` if it's absent.
 - **Leftover repo files**: rerun the Phase 0 stray-file scan in report mode (list what would be removed; delete only after confirmation).
 
 Install health, settings parseability, unused extensions, and version currency are built-in `/doctor` territory — tell the user to run `/doctor` for those instead of re-checking them here.

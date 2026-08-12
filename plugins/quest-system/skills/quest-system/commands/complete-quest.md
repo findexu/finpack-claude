@@ -117,7 +117,7 @@ checklist still carries `- [>]` or `- [ ]` items, flip them to `- [x]` (confirm
 with the commander first if any look genuinely unfinished — that suggests a
 skipped /make-camp). Then mark every remaining todo for this quest completed via
 TodoWrite so the session list matches the sealed scroll. Scroll edit only — never
-events.log/lifecycle.log; runs under the same lock as Steps 3–6.
+lifecycle.log; runs under the same lock as Steps 3–6.
 
 ## Step 5: Write final journal entry
 
@@ -149,7 +149,7 @@ If an archive with the same name already exists, rename to `{quest-name}-{date}`
 RELEASE the per-quest lock acquired in Step 2.9 (explicit `rmdir`, key recomputed
 from the ORIGINAL quest basename — never from the moved/archived path). Runs on
 every exit path: if any step 3–6 operation failed, release here and STOP. Steps
-7–10 (clear pointer, clear context.md, XP, confirm) run after release.
+7–9 (clear pointer, clear context.md, confirm) run after release.
 
 ## Step 7: Clear active quest
 
@@ -165,61 +165,7 @@ If `{quest-folder}/context.md` exists, overwrite with:
 (no active quest — run /new-quest to start one)
 ```
 
-## Step 9: Calculate and award quest EXP
-
-If `.claude/quest-xp/profile.md` does not exist, skip to Step 10.
-
-**Count quest data** (the quest folder was moved in Step 6 — read these from the archived scrolls at `.ai-context/archived/{quest-name}/`):
-- `modules`: number of rows in STRATEGY_SCROLL battle status table
-- `expeditions`: number of `## Expedition` entries in ADVENTURE_JOURNAL
-- `dangers`: number of rows in TOME_OF_DANGERS Known Dangers table (plus all subfiles if split)
-- `oaths`: number of entries in STRATEGY_SCROLL Oaths Sworn section
-- `splits`: number of split subfolders present (dangers/, strategy/, journal/, map/)
-- `open_riddles`: number of entries in STRATEGY_SCROLL Open Riddles section
-- `clean_sweep`: true if `open_riddles` == 0
-- `speed_run`: true if `expeditions` <= 3
-
-**Award via the event log** — XP is append-only; do NOT read-modify-write the
-counters. See SKILL.md -> "XP derivation (the fold)".
-
-1. **Seed if needed (idempotent):** if `.claude/quest-xp/events.log` is ABSENT,
-   append ONE `seed` line with the full current profile (all 6 counters +
-   `badges`, verbatim). The log-absent check is the guard — never seed twice.
-2. **Append the quest-complete event** with a SHELL APPEND (never Edit/Write):
-   ```bash
-   printf '%s\n' "{YYYY-MM-DD}|quest-complete|{quest-name}|modules={M};expeditions={E};dangers={D};oaths={O};splits={S};clean={0|1};speed={0|1}" >> .claude/quest-xp/events.log
-   ```
-   `clean`=1 if `clean_sweep`, `speed`=1 if `speed_run`. The reward
-   (`100 + modules*25 + expeditions*10 + dangers*15 + oaths*20 + splits*50
-   + (clean?75) + (speed?50)`) and the badge unlocks (incl. Speed Runner / Clean
-   Sweep from this event's flags) are computed by the fold, not here.
-3. **Recompute the cache:** fold the WHOLE `events.log` (SKILL.md derivation) and
-   rewrite `profile.md` — all 7 numeric keys + `adventurer` + `badges`
-   (UNION of seed + derived; never dropped) + `derived-from-events`. Record old vs
-   new `level` for Step 10.
-
-Let `exp` (for the history entry below) = the quest-complete reward computed in
-step 2's formula.
-
-**Append at the END of `.claude/quest-xp/quest-history.md`** (entries are chronological;
-the dashboard's per-quest chart plots them in file order, so a new entry MUST go after
-the last existing one — never after the header). Read the WHOLE file first; never assume
-it is empty from its head alone:
-```
-## {quest-name} — {date}
-EXP earned: {exp}
-  Base reward:   100
-  Modules:       {modules} × 25 = {modules×25}
-  Expeditions:   {expeditions} × 10 = {expeditions×10}
-  Dangers:       {dangers} × 15 = {dangers×15}
-  Oaths:         {oaths} × 20 = {oaths×20}
-  Splits:        {splits} × 50 = {splits×50}
-  {if clean_sweep: "Clean sweep bonus: +75"}
-  {if speed_run:   "Speed run bonus: +50"}
-Total EXP after: {total-exp}  |  Level: {new level}
-```
-
-## Step 10: Confirm
+## Step 9: Confirm
 
 ```
 🏆 Quest complete: {quest-name}
@@ -228,34 +174,7 @@ Decisions distilled: {count} → .ai-context/DECISIONS_LOG.md
 Archived: .ai-context/archived/{quest-name}/
 ```
 
-If XP was awarded, add:
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-+{exp} XP  (modules: {modules×25}  expeditions: {expeditions×10}
-            dangers: {dangers×15}  oaths: {oaths×20}  splits: {splits×50}
-            {bonuses if any})
-Total EXP: {total-exp}  |  Level {new-level} — {title}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-If level-up occurred, display BEFORE the EXP breakdown:
-```
-╔══════════════════════════════════════════════╗
-║  🌟  LEVEL UP!                                ║
-║  Level {old} → Level {new}                    ║
-║  {new title}                                  ║
-╚══════════════════════════════════════════════╝
-```
-
-If any new badges unlocked, display AFTER the EXP breakdown:
-```
-🎖️  Badge unlocked: {badge emoji}  {badge name}
-    {unlock condition description}
-```
-(one line per badge, in order unlocked)
-
 Close with:
 ```
 Run /new-quest to begin the next quest.
-Run /quest-xp to view your full profile.
 ```

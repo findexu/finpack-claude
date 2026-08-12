@@ -1,7 +1,7 @@
 {
   "name": "install-quest-system",
   "version": "0.1.0",
-  "description": "Bootstrap quest-system in the current project. Copies all command files to .claude/commands/ so /new-quest, /counsel-quest, /embark, /make-camp, /quest-log, /change-quest, /complete-quest, /summon-witch-doctor, /quest-xp, /ask-sages, /init-xp, /counsel-prompt, and /counsel-plan become available. It also installs a stable verifier hook and a project-local permission override so the verification step does not keep triggering ad hoc approval prompts. Run once per project. Safe to re-run — confirms before overwriting.",
+  "description": "Bootstrap quest-system in the current project. Copies all command files to .claude/commands/ so /new-quest, /counsel-quest, /embark, /make-camp, /quest-log, /change-quest, /complete-quest, /summon-witch-doctor, /ask-sages, /counsel-prompt, and /counsel-plan become available. It also installs a stable verifier hook and a project-local permission override so the verification step does not keep triggering ad hoc approval prompts. Run once per project. Safe to re-run — confirms before overwriting.",
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",

@@ -122,30 +122,12 @@ else
 fi
 
 echo
-echo "== quest-xp-fold =="
-if bash "$ROOT/tests/quest-xp-fold-test.sh"; then
-  PASS=$((PASS+1))
-else
-  FAIL=$((FAIL+1))
-  FAILED_NAMES+=("quest-xp-fold")
-fi
-
-echo
 echo "== quest-lifecycle-bump =="
 if bash "$ROOT/tests/quest-lifecycle-bump-test.sh"; then
   PASS=$((PASS+1))
 else
   FAIL=$((FAIL+1))
   FAILED_NAMES+=("quest-lifecycle-bump")
-fi
-
-echo
-echo "== quest-agent-trace =="
-if bash "$ROOT/tests/quest-agent-trace-test.sh"; then
-  PASS=$((PASS+1))
-else
-  FAIL=$((FAIL+1))
-  FAILED_NAMES+=("quest-agent-trace")
 fi
 
 echo

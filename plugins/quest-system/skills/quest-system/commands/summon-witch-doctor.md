@@ -16,9 +16,6 @@ reports no active quest).
 
 - **Stale locks:** if `.claude/locks/*.lock` exists, flag `STALE_LOCK` (repair:
   offer manual `rmdir` — never auto-break; another chat may hold it legitimately).
-- **XP cache drift:** if `.claude/quest-xp/events.log` exists and its line count ≠
-  the `profile.md` `derived-from-events` (or that key is missing), flag
-  `XP_CACHE_STALE` (repair: recompute via the SKILL.md fold — /quest-xp self-heals).
 
 ## Step 1: Resolve the active quest
 
