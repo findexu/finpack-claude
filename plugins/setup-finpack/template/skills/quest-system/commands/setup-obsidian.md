@@ -5,16 +5,10 @@ argument-hint: "[--force]"
 
 # Setup Obsidian
 
-Turn `.ai-context/` into an Obsidian vault so the scrolls become filterable
-dashboards AND a connected graph. This is PURELY OPT-IN: it does something only when
-you run it, it writes a consent marker, and no other quest-system command reads that
-marker or changes behavior because of it. Two views come out of it:
-- **Dashboards** — Obsidian **Bases** (core since v1.9, no plugin) renders the
-  existing frontmatter as filterable tables. The primary view for machine data.
-- **Graph** — edges come from a QUOTED frontmatter wikilink property
-  (`related: ["[[X]]"]`), which creates native graph edges + backlinks since
-  Obsidian **1.4** and, living in the YAML block, does NOT put `[[brackets]]` in
-  GitHub-rendered prose. So we get a real graph without a prose-wikilink retrofit.
+Turn `.ai-context/` into an Obsidian vault: **Bases** dashboards over the existing
+frontmatter plus a graph from quoted `related: ["[[X]]"]` frontmatter wikilinks
+(rationale: SKILL.md -> "Obsidian integration (opt-in)"). PURELY OPT-IN — it acts only
+when run and writes a consent marker.
 
 This command resolves NO active quest — it is vault-wide (see SKILL.md; it is the
 Obsidian-setup utility, not a quest lifecycle command).
@@ -33,11 +27,10 @@ and skip to Step 5 (report only). With `--force`, regenerate everything below.
 Write `.ai-context/.obsidian-enabled`:
 ```
 mode: dashboard
-enabled: 2026-07-03
+enabled: {date}
 ```
-`mode: dashboard` is the default. (A future `mode: links` would let make-camp /
-complete-quest emit quoted `related:` frontmatter for native-graph edges — NOT
-implemented here; documentation only. Do not edit make-camp/complete-quest.)
+`mode: dashboard` is the default. This marker gates the `related:` link maintenance
+that /make-camp (Step 6.6) and /complete-quest (Step 4.5) perform.
 
 ## Step 3: Write the `.obsidian/` config
 
@@ -167,11 +160,10 @@ quoted-wikilink form is required: unquoted `[[X]]` is invalid YAML.
 
 ## Step 4.6: Check for the MCP integration (guide toward live connectivity)
 
-The `related:` links written above are a ONE-TIME snapshot. To keep the graph connected
-as the quest grows — and to let Claude read/search/update scrolls directly — pair the
-vault with the Obsidian MCP (the "Local REST API with MCP" plugin's built-in server).
-Detect its state and guide accordingly (do NOT auto-install the plugin — installing a
-plugin + opening a localhost API to the vault is the commander's security decision):
+To let Claude read/search/update scrolls directly, pair the vault with the Obsidian MCP
+(the "Local REST API with MCP" plugin's built-in server). Detect its state and guide
+accordingly (do NOT auto-install the plugin — installing a plugin + opening a localhost
+API to the vault is the commander's security decision):
 
 ```bash
 PLUG=.ai-context/.obsidian/plugins/obsidian-local-rest-api
@@ -199,9 +191,8 @@ REG=$(claude mcp get obsidian >/dev/null 2>&1 && echo yes || echo no)
   snapshot you (or a future /setup-obsidian --force) must refresh manually.
   ```
 
-The insecure port note is deliberate: the MCP http client verifies TLS, so the plugin's
-self-signed cert on 27124 fails to connect; the loopback HTTP port (27123) is the
-supported path for a local agent.
+The insecure-port note is deliberate: the MCP client verifies TLS, so the plugin's
+self-signed cert on 27124 fails; loopback HTTP 27123 is the supported path.
 
 ## Step 5: Report
 

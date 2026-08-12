@@ -1,5 +1,12 @@
 {
   "name": "block .ENV (case-insensitive)",
-  "stdin": { "tool_input": { "file_path": ".ENV" } },
-  "expect_exit": 2
+  "stdin": {
+    "tool_input": {
+      "file_path": ".ENV"
+    }
+  },
+  "expect_exit": 0,
+  "expect_stdout_contains": [
+    "\"permissionDecision\":\"deny\""
+  ]
 }

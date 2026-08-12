@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Blocks edits to sensitive or generated files.
 # PreToolUse hook for Edit|Write operations.
-# Exit 2 = block. Exit 0 = allow.
+# Decisions are emitted as JSON on stdout with exit 0 — the harness honors
+# JSON permissionDecision output only on exit 0. No output + exit 0 = allow.
 
 set -uo pipefail
 
@@ -10,9 +11,9 @@ emit() {
   local decision="$1"
   local reason="${2//\"/\\\"}"
   printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"%s","permissionDecisionReason":"%s"}}\n' "$decision" "$reason"
-  # deny is a hard block (exit 2); ask must exit 0 so the JSON decision is honored
-  # and the user gets a confirmation prompt instead of a blocked-tool error.
-  [ "$decision" = "deny" ] && exit 2
+  # Both deny and ask must exit 0: JSON permissionDecision output is honored
+  # only on exit 0. Exit 2 would hard-block on stderr alone, discarding the
+  # stdout JSON and leaving the block with no visible reason.
   exit 0
 }
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Blocks dangerous shell commands: push to protected branches, force push,
 # destructive operations. PreToolUse hook for Bash operations.
-# Exit 2 = block. Exit 0 = allow.
+# Decisions are emitted as JSON on stdout with exit 0 — the harness honors
+# JSON permissionDecision output only on exit 0. No output + exit 0 = allow.
 #
 # Configurable via env:
 #   CLAUDE_PROTECTED_BRANCHES  comma list (default: derived from git + main,master)
@@ -9,10 +10,12 @@
 set -uo pipefail
 
 emit_deny() {
-  # Emit a JSON deny decision and exit 2.
+  # Emit a JSON deny decision. Must exit 0: JSON permissionDecision output is
+  # honored only on exit 0. Exit 2 would hard-block on stderr alone, discarding
+  # the stdout JSON and leaving the block with no visible reason.
   local reason="${1//\"/\\\"}"
   printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"%s"}}\n' "$reason"
-  exit 2
+  exit 0
 }
 
 if ! command -v jq >/dev/null 2>&1; then

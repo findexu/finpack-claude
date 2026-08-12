@@ -9,10 +9,10 @@ Start a new expedition on the active quest.
 
 ## Step 1: Resolve the active quest
 
-Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
-1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
-   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
-2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+Resolve the quest for THIS chat (SKILL.md -> "Active-quest selection"): a `--quest
+<name-or-path>` argument wins (realm from that quest's `STRATEGY_SCROLL.md` frontmatter
+unless `--realm <realm>` was also passed); otherwise read `.claude/active-quest.txt`
+(line 1 = quest folder path, line 2 = realm).
 
 The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
 and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
@@ -29,57 +29,41 @@ Before loading anything, ask:
 
 > "What are we working on today?"
 
-Wait for the response. This is not optional — the answer drives what context gets
-loaded and what the expedition plan will be.
-
-If the commander says something vague ("not sure", "continue from last time",
-"whatever is next"), probe once:
-- "What was the last open item from the previous expedition?"
-- "Which part of the battle plan is next?"
-
-Do not proceed until you have a concrete focus for this expedition.
+Wait for the response — the answer drives what context gets loaded and what the
+expedition plan will be. If the commander is vague ("not sure", "continue from last
+time"), probe once: "What was the last open item from the previous expedition?" /
+"Which part of the battle plan is next?" Do not proceed without a concrete focus.
 Record it as `{expedition-focus}`.
 
-Then name the **development habits** in scope for this expedition (see SKILL.md →
-"Development habits"): test-first for new contract-bearing behavior, regression-first
-for bug work, cover-new-code after a feature, and review-before-camp always. Fold the
-applicable ones into the expedition plan in Step 6 rather than treating them as afterthoughts.
+Then name the **development habits** in scope (SKILL.md -> "Development habits"):
+test-first for new contract-bearing behavior, regression-first for bug work,
+cover-new-code after a feature, review-before-camp always. Fold the applicable ones
+into the Step 6 plan rather than treating them as afterthoughts.
 
 ## Step 2: Load project-level knowledge (if exists)
 
-Check for project-level files in `.ai-context/`:
-- `.ai-context/DANGER_REGISTRY.md` — distilled dangers from all past quests
-- `.ai-context/DECISIONS_LOG.md` — locked architectural decisions from all past quests
-
-If either file exists, read it in full. These are small by design.
-Note any dangers or decisions relevant to `{expedition-focus}` — they take priority
-over anything in the quest's own scrolls.
-
-If neither file exists, skip this step silently.
+Check `.ai-context/DANGER_REGISTRY.md` (distilled dangers from all past quests) and
+`.ai-context/DECISIONS_LOG.md` (locked architectural decisions). Read any that exist
+in full — they are small by design. Note entries relevant to `{expedition-focus}`;
+they take priority over the quest's own scrolls. If neither exists, skip silently.
 
 ## Step 3: Read all five index scrolls
 
-Read these files from the quest folder:
-- `WORLD_MAP.md`
-- `STRATEGY_SCROLL.md`
-- `ADVENTURE_JOURNAL.md`
-- `TOME_OF_DANGERS.md`
-- `ADVENTURERS_HANDBOOK.md`
+Read from the quest folder: `WORLD_MAP.md`, `STRATEGY_SCROLL.md`,
+`ADVENTURE_JOURNAL.md`, `TOME_OF_DANGERS.md`, `ADVENTURERS_HANDBOOK.md`.
 
-For each scroll that has a split subfolder present on disk
-(`dangers/`, `strategy/`, `journal/`, `map/`):
-read the index file only — do not load all subfiles at this stage.
+For each scroll with a split subfolder on disk (`dangers/`, `strategy/`, `journal/`,
+`map/`): read the index file only — do not load all subfiles at this stage.
 
 ## Step 4: Load relevant subfiles
 
 Using `{expedition-focus}`, load only the subfiles you need for today's work:
 
-- **ADVENTURE_JOURNAL** — if `journal/` exists, read `journal/{YYYY-MM}.md` for the current month only.
-  Do not load historical months unless the commander explicitly asks.
-- **TOME_OF_DANGERS** — if `dangers/` exists, read only the category files relevant to `{expedition-focus}`
-  (e.g. `dangers/rendering.md` if today's work touches rendering logic).
-- **STRATEGY_SCROLL** — if `strategy/` exists, read only the module files in scope for `{expedition-focus}`.
-- **WORLD_MAP** — if `map/` exists, read only the area files relevant to `{expedition-focus}`.
+- **ADVENTURE_JOURNAL** — if `journal/` exists, read `journal/{YYYY-MM}.md` (current
+  month only; historical months only if the commander explicitly asks).
+- **TOME_OF_DANGERS** — if `dangers/` exists, only the relevant category files.
+- **STRATEGY_SCROLL** — if `strategy/` exists, only the module files in scope.
+- **WORLD_MAP** — if `map/` exists, only the relevant area files.
 
 ## Step 5: Brief the commander
 
@@ -92,8 +76,8 @@ Strategy last updated: {last-updated from STRATEGY_SCROLL frontmatter}
 ```
 
 Then present a briefing scoped to today's focus:
-1. **Project dangers** — entries from DANGER_REGISTRY.md relevant to `{expedition-focus}` (if file exists)
-2. **Locked decisions** — entries from DECISIONS_LOG.md relevant to `{expedition-focus}` (if file exists)
+1. **Project dangers** — DANGER_REGISTRY.md entries relevant to `{expedition-focus}` (if file exists)
+2. **Locked decisions** — DECISIONS_LOG.md entries relevant to `{expedition-focus}` (if file exists)
 3. **Battle status** — table from STRATEGY_SCROLL index
 4. **Recent history** — last 3 journal entries (from ADVENTURE_JOURNAL index or current month file)
 5. **Quest dangers** — top 3 dangers from TOME_OF_DANGERS relevant to `{expedition-focus}`
@@ -144,14 +128,10 @@ Parse from `$ARGUMENTS` (after the quest/realm flags are consumed in Step 1):
 - `--strict` — only BLOCKING issues drive the loop; minor issues are listed but
   never cause another round.
 
-**Availability check (graceful degrade).** Before the first review round, confirm
-the `fp-plan-reviewer` agent is installed:
-- Install-script distribution: check that `.claude/agents/fp-plan-reviewer.md` exists.
-- Plugin distribution: the agent ships atomically with the quest-system plugin, so
-  it is present whenever embark is.
-
-If it is unavailable, WARN and fall through to the normal approval prompt — never
-crash the expedition over an optional step:
+**Availability check (graceful degrade).** Before the first round, confirm the
+`fp-plan-reviewer` agent is installed (install-script: `.claude/agents/fp-plan-reviewer.md`
+exists; plugin distribution: ships atomically with quest-system). If unavailable, WARN
+and fall through to the normal approval prompt — never crash over an optional step:
 ```
 Plan counsel unavailable — fp-plan-reviewer not installed.
 Run /install-quest-system (or /update-quest-system) to enable.
@@ -159,9 +139,8 @@ Proceeding to manual approval.
 ```
 
 **Review loop.** The reviewer's LENS rotates each round so the loop escapes local
-minima — a single fixed lens is gradient descent on one rubric and only deepens a
-basin (see SKILL.md -> "Council cross-critique (shared)" -> lens-rotation sub-pattern).
-Otherwise run:
+minima (rationale: SKILL.md -> "Council cross-critique (shared)" -> lens-rotation
+sub-pattern). Run:
 
 ```
 LENSES = [base, contrarian, executor]    # rotates per round; cycle length 3
@@ -195,24 +174,11 @@ loop:
   Re-present the revised steps and continue the loop.
 ```
 
-The per-lens guard stops a run only when the SAME lens twice fails to reduce its own
-blocking count — it is INERT until a lens recurs (round > 3), so a different lens that
-legitimately surfaces a new class of blocker (raising B) does not false-trip an early
-stop. `round >= N` is the absolute backstop that still terminates a persistently
-rising-B run.
-
-**N and rotation.** Rotation is a MULTI-ROUND feature. The bare `--counsel` / menu pick
-is N=1: only the base lens runs and round 1 hits the `round >= N` cap immediately — a
-single review, identical to the pre-rotation behavior (one pass has no iteration, hence
-no local minimum to escape). Rotation engages at N>=2 (round 2 adds the contrarian lens)
-and a full cycle needs N>=3. N is NOT auto-floored — the commander's explicit cap is
-respected. For plans where a local minimum is a real risk, use `--counsel 3` (or more) to
-get the full lens cycle.
-
-Note this is a deliberate behavior change for existing `--counsel N>=2` callers: rounds
-2+ now rotate the lens, and the old scalar `B >= prev_blocking` early-bail is replaced by
-the per-lens guard (so a thrashing plan now runs to at least its first lens recurrence or
-the cap, rather than bailing at round 2).
+The per-lens guard trips only when the SAME lens twice fails to reduce its own
+blocking count — inert until a lens recurs (round > 3); `round >= N` is the absolute
+backstop. Bare `--counsel` (N=1) runs a single base-lens review; rotation engages at
+N>=2, and a full cycle needs N>=3. N is NOT auto-floored — the commander's explicit
+cap is respected; use `--counsel 3` (or more) when a local minimum is a real risk.
 
 After the loop ends for any reason, the approval gate below still applies. Counsel
 informs the decision; it never auto-executes.
@@ -237,14 +203,10 @@ the flag absent, skip this step entirely — emit nothing, so default embark out
 byte-for-byte unchanged.
 
 `/goal` is a built-in Claude Code command (v2.1.139+) that sets a session completion
-condition; after every turn a cheap, transcript-only evaluator (Haiku by default, not
-settable from here) judges whether the condition holds and re-drives another turn until it
-does. Two facts shape what we generate:
-- The evaluator reads ONLY the conversation transcript — it cannot run tools or read files.
-  A condition is checkable only if Claude SURFACES the evidence in a turn (runs the command,
-  shows the output). So we derive conditions from the quest's machine-provable criteria.
-- `/goal` is client-side — this command cannot invoke it. We PRESENT a ready-to-run line
-  for the commander to paste.
+condition, re-judged after every turn by a transcript-only evaluator: it cannot run
+tools or read files, so derive the condition from the quest's machine-provable criteria
+and SURFACE the evidence by running each check in a turn. `/goal` is client-side — this
+command cannot invoke it; PRESENT a ready-to-run line for the commander to paste.
 
 Steps:
 1. Read `## Acceptance Criteria` from STRATEGY_SCROLL. Select the machine-provable criteria:
@@ -309,18 +271,14 @@ Realm: {realm}  |  Last updated: {date}  |  Expedition: active
 ## Step 8: Record the lifecycle transition
 
 After the commander approves the plan, append ONE `state` line to the lifecycle
-log with a SHELL APPEND (never Edit/Write). This is the fast-path signal that an
-expedition has begun — `/embark` writes no journal entry, so this advances the
-dashboard the moment the plan is approved rather than waiting for the first edit.
+log with a SHELL APPEND (never Edit/Write) — the fast-path signal that an
+expedition has begun:
 
 ```bash
 printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=embarked" >> .claude/quest-xp/lifecycle.log
 ```
 
 `{quest-name}` is the basename of the quest folder (matching the XP event format).
-Do this once, silently — it is not part of the expedition work.
-
-If this step is ever missed, the `quest-lifecycle-bump.sh` PostToolUse hook is the
-deterministic backstop: it records `phase=embarked` on the first real code edit
-(edits to scrolls under `.ai-context/` or `.claude/` do not count). The hook is
-idempotent, so running this append as well is harmless.
+Do this once, silently. If this step is ever missed, the `quest-lifecycle-bump.sh`
+PostToolUse hook is the idempotent, deterministic backstop (SKILL.md -> "Lifecycle
+log") — running this append as well is harmless.

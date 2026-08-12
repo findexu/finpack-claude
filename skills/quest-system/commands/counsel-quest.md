@@ -9,10 +9,19 @@ argument-hint: "[--quest <name>] [--realm <realm>] [--pivot] [--expedition-focus
 
 # Counsel Quest
 
-Plan before you leap. Resolve what's unclear before it blocks an expedition.
+Plan before you leap. "Discuss and decide" is distinct from "execute" — ambiguity
+discovered mid-expedition wastes context and produces inconsistent results.
 
-This command exists because "discuss and decide" is distinct from "execute".
-Ambiguity discovered mid-expedition wastes context and produces inconsistent results.
+**Mockup-first.** When the quest touches UI/UX, offer a quick visual mockup early
+(HTML/SVG artifact, ASCII wireframe, or SwiftUI preview stub — via fp-frontend-designer
+or fp-swiftui-designer as fits the realm) before long verbal explanations; iterate on
+the visual, not on prose. Applies to the PRE Step 5 discussion and the Step 6 approach
+presentation.
+
+**Council execution.** Default: parallel Agent-tool launches exactly as written below.
+Only if the commander opts in — the keyword "ultracode" or an explicit ask for
+multi-agent orchestration — may the explorer/architect fan-outs run as a Workflow
+fan-out instead.
 
 ## Mode detection
 
@@ -24,28 +33,21 @@ Before loading anything, determine the mode:
      cleared by /make-camp) → **MID-EXPEDITION mode**
    - Otherwise (no flag present, or `Expedition: camped`) → **PRE-EXPEDITION mode**
 
-If `$ARGUMENTS` contains `--expedition-focus <name>`, record it as `{expedition-focus}`
-and use it to scope context loading and riddle filtering throughout.
-
-If `$ARGUMENTS` contains `--phase <name>`, treat as a legacy alias for `--expedition-focus`.
-
-If `$ARGUMENTS` contains the bare `--critique` flag, set `{critique} = true` (default
-`false`). It is order-independent with the other flags and only enables the architect
-cross-critique in PRE Step 6 (see SKILL.md -> "Council cross-critique (shared)"). With it
-absent, the architecture flow is unchanged.
+Flags (all order-independent):
+- `--expedition-focus <name>` → record as `{expedition-focus}`; scopes context loading and riddle filtering throughout. `--phase <name>` is a legacy alias.
+- `--critique` (bare) → set `{critique} = true` (default `false`); only enables the architect cross-critique in PRE Step 6 (see SKILL.md -> "Council cross-critique (shared)").
 
 ---
 
 ## Step 1: Resolve the active quest
 
 Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
-1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
-   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
+1. If `--quest <name-or-path>` was given, use it; read its realm from that quest's
+   `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
 2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
 
-`--quest` is order-independent with `--pivot` and `--expedition-focus`; it only selects
-which quest to counsel. The shared pointer is UNTRUSTED in multi-chat — carry this chat's
-quest in-conversation and pass it as `--quest`. `{quest-name}` is the basename of the path.
+The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
+and pass it as `--quest`. `{quest-name}` is the basename of the path.
 
 If neither resolves: "No active quest. Run /new-quest to create one, or pass --quest." Stop.
 If quest folder missing: "Quest folder not found. Run /new-quest or /change-quest." Stop.
@@ -99,23 +101,16 @@ Announce: "🔍 Scouting the codebase before we plan..."
 
 Read the Quest Overview from STRATEGY_SCROLL. Use it as the feature description.
 
-Launch 2–3 `fp-code-explorer` agents in parallel. Each agent investigates a different angle.
-(These agents prefer Serena MCP for code navigation when it is connected, falling back to Grep/Glob otherwise — no extra prompting needed; it lives in the agent definition.)
+Launch 2–3 `fp-code-explorer` agents in parallel. (They prefer Serena MCP for code
+navigation when connected, falling back to Grep/Glob — it lives in the agent definition,
+no extra prompting needed.)
 
-**Agent 1 — Similar Features:**
-Prompt the agent with:
-- Quest overview, realm, WORLD_MAP summary (if populated), TOME_OF_DANGERS top dangers
-- Focus: "Find features similar to {quest-overview} and trace their implementation comprehensively. Identify patterns we should follow."
+Each agent's prompt includes: quest overview, realm, WORLD_MAP summary (if populated),
+TOME_OF_DANGERS top dangers — plus one focus each:
 
-**Agent 2 — Architecture & Abstractions:**
-Prompt the agent with:
-- Quest overview, realm, WORLD_MAP summary, TOME_OF_DANGERS top dangers
-- Focus: "Map the architecture and abstractions relevant to {quest-overview}. Trace call chains, identify module boundaries and extension points."
-
-**Agent 3 — Integration Points** (launch if the quest involves UI, APIs, or cross-module work):
-Prompt the agent with:
-- Quest overview, realm, WORLD_MAP summary
-- Focus: "Identify integration points, testing patterns, and cross-cutting concerns relevant to {quest-overview}."
+1. **Similar Features:** "Find features similar to {quest-overview} and trace their implementation comprehensively. Identify patterns we should follow."
+2. **Architecture & Abstractions:** "Map the architecture and abstractions relevant to {quest-overview}. Trace call chains, identify module boundaries and extension points."
+3. **Integration Points** (launch if the quest involves UI, APIs, or cross-module work): "Identify integration points, testing patterns, and cross-cutting concerns relevant to {quest-overview}."
 
 After all agents return:
 1. Read all key files they identified (their "Essential Files" lists)
@@ -142,44 +137,38 @@ Provide your recommendation for each question and ask for explicit confirmation.
 
 Record confirmed answers as candidate oaths.
 
-Also capture the quest's **Acceptance Criteria** — the observable outcomes that mean
-this quest is done. Where an outcome can be proven from what Claude surfaces in a
-turn, phrase it in the shared machine-provable contract so it is `/goal`-ready
-(`/embark --goal` reads these lines verbatim):
+Also capture the quest's **Acceptance Criteria** — observable outcomes that mean the
+quest is done. Where an outcome is provable from what Claude surfaces in a turn, use
+the shared machine-provable contract so it is `/goal`-ready (`/embark --goal` reads
+these lines verbatim):
 
 ```
 - {outcome} — Check: {command} surfaces "{expected string}"
 ```
 
 Example: `- Suite green — Check: `bash hooks/tests/run-all.sh` surfaces "0 failed"`.
-An outcome that cannot be reduced to a transcript-visible check may be written as a
-plain `- {outcome}` line (still valid, just not `/goal`-eligible). These are
-finalized and written to the scroll in Step 7.
+Outcomes not reducible to a transcript-visible check may be plain `- {outcome}` lines
+(still valid, just not `/goal`-eligible). Finalized and written to the scroll in Step 7.
 
 ### PRE Step 6: Architecture Design
 
 Announce: "🏗️ Designing the architecture..."
 
-Launch 2–3 `fp-code-architect` agents in parallel, each with a different focus.
-Each agent receives: quest overview, realm, WORLD_MAP findings, TOME_OF_DANGERS,
-clarifying answers from Step 5, locked oaths, and any fallen strategies.
+Launch 2–3 `fp-code-architect` agents in parallel. Each agent receives: quest overview,
+realm, WORLD_MAP findings, TOME_OF_DANGERS, clarifying answers from Step 5, locked
+oaths, and any fallen strategies — plus one focus each:
 
-**Agent 1 — Minimal Changes:**
-Focus: "Design a minimal-changes approach: maximum reuse of existing patterns, smallest possible footprint."
-
-**Agent 2 — Clean Architecture:**
-Focus: "Design a clean architecture approach: maintainability, elegant abstractions, clear separation of concerns."
-
-**Agent 3 — Pragmatic Balance:**
-Focus: "Design a pragmatic balance: achieves quality without over-engineering, fits the existing codebase patterns."
+1. **Minimal Changes** — Focus: "Design a minimal-changes approach: maximum reuse of existing patterns, smallest possible footprint."
+2. **Clean Architecture** — Focus: "Design a clean architecture approach: maintainability, elegant abstractions, clear separation of concerns."
+3. **Pragmatic Balance** — Focus: "Design a pragmatic balance: achieves quality without over-engineering, fits the existing codebase patterns."
 
 After all agents return:
 1. Review all three blueprints
-2. **Cross-critique (only if `--critique`)** — skip entirely unless `{critique}` is true;
-   when skipped, the comparison below is unchanged from the default flow. When set, run
-   the shared round (see SKILL.md -> "Council cross-critique (shared)"): launch ONE critic
-   with the Agent tool, `subagent_type: general-purpose`, passing all three blueprints
-   verbatim. The critic does not design — it cross-examines:
+2. **Cross-critique (only if `--critique`)** — skip entirely unless `{critique}` is true
+   (the comparison below is then unchanged). When set (see SKILL.md -> "Council
+   cross-critique (shared)"): launch ONE critic with the Agent tool,
+   `subagent_type: general-purpose`, passing all three blueprints verbatim. The critic
+   does not design — it cross-examines:
    ```
    You are the Council's critic. Three architects independently designed an approach to
    the same feature. Do NOT propose your own design. Cross-examine theirs against each
@@ -230,22 +219,19 @@ After all agents return:
    Format: `- {decision}: {rationale in one sentence}`
 2. Write the chosen architecture as **The Battle Plan** (numbered, specific, bounded steps)
 3. **Write/replace the `## Acceptance Criteria` section** of STRATEGY_SCROLL with the
-   criteria captured in Step 5 — replacing the `(run /counsel-quest to define …)`
-   placeholder new-quest scaffolds. Use the shared contract line for every provable
-   outcome (`- {outcome} — Check: {command} surfaces "{expected}"`); write plain
-   `- {outcome}` lines for the rest. This section is what `/embark --goal` reads to
-   derive a machine-checkable `/goal` condition, so keep the `Check:` phrasing exact.
+   Step 5 criteria — replacing the `(run /counsel-quest to define …)` placeholder.
+   Use the contract line for every provable outcome
+   (`- {outcome} — Check: {command} surfaces "{expected}"`), plain `- {outcome}` for
+   the rest. `/embark --goal` reads these, so keep the `Check:` phrasing exact.
 4. Seed a `## Planned Expeditions` checklist in STRATEGY_SCROLL — one `- [ ]` per
-   battle-plan phase, each labeled with a short focus phrase (e.g. `- [ ] data layer`,
-   `- [ ] surface layer`). This is the upcoming-work tracker the dashboard reads;
-   `/embark` flips an item to `- [>]` (active) and `/make-camp` to `- [x]` (done).
-   Keep the block in the top-level scroll (it must survive a later split).
+   battle-plan phase with a short focus phrase (e.g. `- [ ] data layer`). The dashboard
+   reads this tracker; `/embark` flips an item to `- [>]` (active), `/make-camp` to
+   `- [x]` (done). Keep the block in the top-level scroll (it must survive a later split).
 5. Update `WORLD_MAP.md` with structural insights from architect agents
 6. Update `last-updated` frontmatter in all modified scrolls
 7. Refresh `.ai-context/` if it exists
-8. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write) so the
-   dashboard reflects planning progress in real time. Use `phase=ready` when no open
-   riddles remain (plan is locked and ready to embark), else `phase=planning`:
+8. **Record the lifecycle transition** with a SHELL APPEND (never Edit/Write).
+   Use `phase=ready` when no open riddles remain, else `phase=planning`:
    ```bash
    printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=ready" >> .claude/quest-xp/lifecycle.log
    ```
@@ -310,18 +296,14 @@ For each blocking riddle:
 4. **Lock the decision** — confirm: "Locking: [decision]. This becomes an oath."
 5. Move to the next
 
-**Anti-patterns:**
-- Re-opening settled oaths
-- Adding new riddles mid-discussion (note for later, don't derail)
-- Proposing fallen strategies
+Anti-patterns: re-opening settled oaths; adding new riddles mid-discussion (note for
+later, don't derail); proposing fallen strategies.
 
 ### MID Step 5: Adjust battle plan (if needed)
 
 Ask: "Does the battle plan need adjustment for the remaining work?"
-- If yes: draft the revised plan, confirm before writing
-- If no: proceed
-
-The plan should stay: **ordered, specific, bounded**.
+If yes: draft the revised plan, confirm before writing. If no: proceed.
+The plan stays **ordered, specific, bounded**.
 
 ### MID Step 6: Write back to STRATEGY_SCROLL
 
@@ -393,11 +375,10 @@ Append to `ADVENTURE_JOURNAL.md` (or current month file if split):
 
 ### PIVOT Step 6: Run PRE-EXPEDITION planning with new direction
 
-Execute PRE-EXPEDITION Steps 4–8 with these additions:
-- Pass fallen strategies to fp-code-explorer and fp-code-architect agents so they
-  don't re-propose the abandoned approach
-- In Step 4 agent prompts, include: "Fallen strategy to avoid: {abandoned-plan-summary}"
-- In Step 6, if any architect approach resembles the fallen strategy, flag it explicitly
+Execute PRE-EXPEDITION Steps 4–8, additionally passing fallen strategies to the
+explorer/architect agents — include "Fallen strategy to avoid: {abandoned-plan-summary}"
+in Step 4 prompts — so they don't re-propose the abandoned approach. In Step 6, flag
+explicitly any architect approach that resembles the fallen strategy.
 
 ### PIVOT Step 7: Confirm
 

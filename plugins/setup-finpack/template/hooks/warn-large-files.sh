@@ -1,12 +1,13 @@
 #!/bin/bash
 # Blocks writes to build artifacts, binary files, and dependency directories.
 # Used as a PreToolUse hook for Edit|Write operations.
-# Exit 2 = block the action. Exit 0 = allow.
+# Decisions are emitted as JSON on stdout with exit 0 — the harness honors
+# JSON permissionDecision output only on exit 0. No output + exit 0 = allow.
 
 # Requires jq for JSON parsing. Fail closed if missing
 if ! command -v jq >/dev/null 2>&1; then
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"jq is required for file protection hooks but is not installed.\"}}"
-  exit 2
+  exit 0
 fi
 
 INPUT=$(cat)
@@ -34,7 +35,7 @@ esac
 
 if [ -n "$REASON" ]; then
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"$REASON\"}}"
-  exit 2
+  exit 0
 fi
 
 # Block binary and archive file extensions
@@ -52,7 +53,7 @@ esac
 
 if [ -n "$REASON" ]; then
   echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"$REASON\"}}"
-  exit 2
+  exit 0
 fi
 
 exit 0

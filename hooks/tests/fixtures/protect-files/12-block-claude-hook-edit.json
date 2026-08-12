@@ -1,5 +1,12 @@
 {
   "name": "block editing a hook script",
-  "stdin": { "tool_input": { "file_path": "/repo/.claude/hooks/foo.sh" } },
-  "expect_exit": 2
+  "stdin": {
+    "tool_input": {
+      "file_path": "/repo/.claude/hooks/foo.sh"
+    }
+  },
+  "expect_exit": 0,
+  "expect_stdout_contains": [
+    "\"permissionDecision\":\"deny\""
+  ]
 }

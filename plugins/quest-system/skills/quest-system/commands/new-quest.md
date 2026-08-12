@@ -33,33 +33,12 @@ Stop if n.
 Fill in `{quest-name}`, `{realm}`, `{date}` (YYYY-MM-DD) throughout.
 Leave all planning sections as templates — `/counsel-quest` will populate them.
 
-Create each file with the full template content below:
+Create `WORLD_MAP.md`, `ADVENTURE_JOURNAL.md`, `TOME_OF_DANGERS.md`, and
+`ADVENTURERS_HANDBOOK.md` in the quest folder from their templates in
+SKILL.md -> "Scroll templates" (full content, placeholders filled).
 
-**`.ai-context/quests/{quest-name}/WORLD_MAP.md`:**
-```
----
-quest: {quest-name}
-realm: {realm}
-scroll: WORLD_MAP
-last-updated: {date}
----
-# World Map — {quest-name}
-## Realm
-This workspace contains multiple realms (app targets).
-All work this quest is scoped to **{realm}** only.
-Do not venture into other realms unless explicitly commanded.
-## Module Map
-(to be charted during first expedition scouting)
-## Navigation Flow
-(to be charted during first expedition scouting)
-## Data Flow
-(to be charted during first expedition scouting)
-## Key Files
-| File | Role |
-|---|---|
-## Retired Files
-(none yet)
-```
+Create `STRATEGY_SCROLL.md` with THIS template (it carries the Quest Overview /
+Acceptance Criteria / Scope sections that /counsel-quest and /embark --goal rely on):
 
 **`.ai-context/quests/{quest-name}/STRATEGY_SCROLL.md`:**
 
@@ -100,91 +79,6 @@ last-updated: {date}
 
 ## The Battle Plan (Implementation Sequence)
 (not yet defined — run /counsel-quest to lock the plan before embarking)
-```
-
-**`.ai-context/quests/{quest-name}/ADVENTURE_JOURNAL.md`:**
-```
----
-quest: {quest-name}
-realm: {realm}
-scroll: ADVENTURE_JOURNAL
-last-updated: {date}
----
-# Adventure Journal — {quest-name}
-Append-only. One entry per expedition. Never rewrite history.
-```
-
-**`.ai-context/quests/{quest-name}/TOME_OF_DANGERS.md`:**
-
-```
----
-quest: {quest-name}
-realm: {realm}
-scroll: TOME_OF_DANGERS
-last-updated: {date}
----
-# Tome of Dangers — {quest-name}
-Source of truth for every monster, trap, and curse encountered.
-Always read before proposing any strategy involving rendering,
-memory, or architecture.
-## Confirmed Safe Paths
-(to be discovered during scouting)
-## Known Dangers
-| Danger | Impact | Remedy |
-|---|---|---|
-## Fallen Strategies (Tried and Abandoned)
-(none yet)
-## Unsolved Riddles (Open Verification Items)
-(none yet)
-```
-
-**`.ai-context/quests/{quest-name}/ADVENTURERS_HANDBOOK.md`:**
-```
----
-quest: {quest-name}
-realm: {realm}
-scroll: ADVENTURERS_HANDBOOK
-last-updated: {date}
----
-# Adventurer's Handbook — How to Use the Scrolls
-
-Read this scroll if you are unsure what belongs where.
-These scrolls are the party's shared memory.
-Never rely on conversation history — always inscribe to the scrolls.
-
-## WORLD_MAP.md
-The map of the realm — how the codebase is structured.
-Inscribe: module map, navigation flow, data flow, key files, retired files.
-Do NOT inscribe: decisions, constraints, expedition history.
-Update when: any structural or navigational change is made.
-
-## STRATEGY_SCROLL.md
-The agreed battle plan — what we are building and why.
-Inscribe: battle status, implementation sequence, oaths, fallen strategies,
-scouting findings, open riddles.
-Do NOT inscribe: realm structure, dangers, expedition history.
-Update when: step conquered, oath sworn, strategy falls, riddle resolved.
-
-## ADVENTURE_JOURNAL.md
-Append-only chronicle. Format every entry as:
-## Expedition [DATE]
-### Conquered
-### Oaths Sworn
-### Cursed / Uncertain
-### The Road Ahead
-Update when: end of every expedition, no exceptions.
-
-## TOME_OF_DANGERS.md
-Every confirmed danger, curse, and trap encountered.
-Inscribe: safe paths, known dangers, remedies, fallen strategies,
-unsolved riddles, safe limits.
-Update when: new danger found, remedy validated, assumption confirmed.
-STOP mid-expedition and inscribe immediately when a new danger is found.
-
-## Sacred Laws
-- Not in the scrolls = does not exist as shared knowledge
-- TOME_OF_DANGERS.md prevents fighting the same monster twice — keep it current
-- ADVENTURE_JOURNAL.md is append-only — history is sacred
 ```
 
 ## Step 4: Set active quest

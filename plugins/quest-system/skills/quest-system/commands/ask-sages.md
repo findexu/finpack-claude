@@ -7,13 +7,16 @@ argument-hint: "[question or dilemma] [--quest <name>] [--realm <realm>] [--crit
 
 Convene the council. Three sages examine your matter from different vantage points and deliver their counsel.
 
+**Mockup-first.** When `{matter}` is a UI/UX question, offer a quick visual mockup
+(HTML/SVG artifact, ASCII wireframe, or SwiftUI preview stub) alongside — or instead
+of — prose counsel, and offer to iterate on it after the accord.
+
 ## Step 1: Resolve the active quest
 
-First strip any `--quest <token>` / `--realm <token>` flags from `$ARGUMENTS`
-(`--quest` consumes the next whitespace-delimited token as the name). Also strip the
-bare `--critique` flag, if present, and set `{critique} = true` (default `false`);
-it MUST be removed here so it never leaks into `{matter}` (Step 2 reads what is left
-over). Everything left over after all three flags is the question/dilemma.
+Strip `--quest <token>` / `--realm <token>` (each consumes the next whitespace-delimited
+token) and the bare `--critique` flag (set `{critique} = true`, default `false`) from
+`$ARGUMENTS`. `--critique` MUST be removed here so it never leaks into `{matter}`;
+everything left over after all three flags is the question/dilemma (Step 2 reads it).
 
 Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
 1. If `--quest` was given, use it; read its realm from `STRATEGY_SCROLL.md`
@@ -22,41 +25,22 @@ Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
 3. If neither resolves: "No active quest. Run /new-quest first, or pass --quest. The sages cannot advise without a quest." Stop.
 
 The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
-and pass it as `--quest`. The sages are scoped to the RESOLVED quest.
-
-If the quest folder does not exist on disk:
-"Quest folder not found at {path}. Run /new-quest or /change-quest." Stop.
+and pass it as `--quest`. The sages are scoped to the RESOLVED quest. If the quest
+folder does not exist on disk: "Quest folder not found at {path}. Run /new-quest or
+/change-quest." Stop.
 
 ## Step 2: Take the matter
 
-Read `$ARGUMENTS` as the question or dilemma to seek counsel on.
-
-If `$ARGUMENTS` is empty, ask the commander:
+Store the remaining `$ARGUMENTS` as `{matter}`. If empty, ask the commander:
 "What matter do you wish to lay before the sages?"
-
-Store the answer as `{matter}`.
 
 ## Step 3: Load context
 
 Load in this order:
 
-**Project-level knowledge** (if files exist):
-- `.ai-context/DANGER_REGISTRY.md`
-- `.ai-context/DECISIONS_LOG.md`
-
-If neither exists, skip silently.
-
-**Quest scrolls** — read the index file only for each:
-- `WORLD_MAP.md`
-- `STRATEGY_SCROLL.md`
-- `ADVENTURE_JOURNAL.md`
-- `TOME_OF_DANGERS.md`
-- `ADVENTURERS_HANDBOOK.md`
-
-For scrolls with a split subfolder present (`dangers/`, `strategy/`, `journal/`, `map/`):
-read the index file only — do not load subfiles.
-
-**Fast path** — if `{quest-folder}/context.md` exists, read it. It contains a pre-synthesized snapshot of battle status, open riddles, road ahead, dangers, and decisions. Use it to supplement scroll data, not replace it.
+1. **Project-level** (if present, else skip silently): `.ai-context/DANGER_REGISTRY.md`, `.ai-context/DECISIONS_LOG.md`.
+2. **Quest scrolls** — the index file ONLY for each (even when a split subfolder `dangers/`, `strategy/`, `journal/`, `map/` exists — never load subfiles): `WORLD_MAP.md`, `STRATEGY_SCROLL.md`, `ADVENTURE_JOURNAL.md`, `TOME_OF_DANGERS.md`, `ADVENTURERS_HANDBOOK.md`.
+3. **Fast path** — if `{quest-folder}/context.md` exists, read it: a pre-synthesized snapshot of battle status, open riddles, road ahead, dangers, and decisions. Use it to supplement scroll data, not replace it.
 
 ## Step 4: Announce consultation
 
@@ -71,7 +55,18 @@ Three sages answer the call...
 
 ## Step 5: Summon the three sages
 
-Use the Agent tool to launch all three simultaneously in a single message (three Agent tool calls in one response — they run in parallel):
+Default: use the Agent tool to launch all three simultaneously in a single message
+(three Agent tool calls in one response — they run in parallel). Only if the commander
+opts in — the keyword "ultracode" or an explicit ask for multi-agent orchestration —
+may the three sages (plus the optional critic) run as a Workflow fan-out instead.
+
+Each sage's prompt includes, after its opening mandate lines, the shared header:
+
+```
+Quest: {quest-name}
+Realm: {realm}
+Matter: {matter}
+```
 
 ---
 
@@ -82,9 +77,7 @@ Prompt:
 You are The Cartographer — a sage who reads the kingdom's maps (the codebase).
 Your mandate: find what already exists in this codebase that is relevant to the matter below.
 
-Quest: {quest-name}
-Realm: {realm}
-Matter: {matter}
+{shared header}
 
 Battle status (from STRATEGY_SCROLL):
 {battle status table}
@@ -121,9 +114,7 @@ Prompt:
 You are The Emissary — a sage who rides to distant libraries (the internet).
 Your mandate: find what the wider world knows about the matter below.
 
-Quest: {quest-name}
-Realm: {realm}
-Matter: {matter}
+{shared header}
 
 Tech stack / realm context:
 {ADVENTURERS_HANDBOOK summary if available, else: "iOS/Swift project"}
@@ -151,9 +142,7 @@ You are The Sage — a sage who speaks from pure reason alone.
 No codebase. No internet. Only logic, risk analysis, and first principles.
 Your mandate: challenge assumptions and expose what the commander may have missed.
 
-Quest: {quest-name}
-Realm: {realm}
-Matter: {matter}
+{shared header}
 
 Full quest context:
 {battle status table}
@@ -184,12 +173,11 @@ Report as structured critique. Be direct. Challenge everything. Under 300 words.
 ## Step 5.5: Cross-critique (only if `--critique`)
 
 Skip this step entirely unless `{critique}` is true (see SKILL.md ->
-"Council cross-critique (shared)"). When skipped, the council accord below is
-byte-for-byte unchanged from the default flow.
-
-When `{critique}` is true, after all three sages have returned, launch ONE critic
-with the Agent tool, `subagent_type: general-purpose`. The critic judges what the
-sages said — it is given no codebase or web tools and does not re-research.
+"Council cross-critique (shared)"); when skipped, the council accord below is
+byte-for-byte unchanged from the default flow. When true, after all three sages
+return, launch ONE critic with the Agent tool, `subagent_type: general-purpose` —
+it judges what the sages said, is given no codebase or web tools, and does not
+re-research.
 
 Prompt:
 ```
@@ -259,11 +247,8 @@ rather than averaging over them.}
 ## Step 7: Record in journal (optional)
 
 Ask: "Shall the scribes record this counsel in the {quest-name} journal? (y/n)"
-(naming the resolved quest is the echo — confirm it is the intended one before appending).
-
-If n: stop.
-
-If y: append to `ADVENTURE_JOURNAL.md` (or the current month file if split):
+(naming the resolved quest is the echo — confirm it is the intended one).
+If n: stop. If y: append to `ADVENTURE_JOURNAL.md` (or the current month file if split):
 
 ```markdown
 ### Sage Council — {date}

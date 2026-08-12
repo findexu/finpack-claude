@@ -1,5 +1,12 @@
 {
   "name": "block DELETE FROM without WHERE",
-  "stdin": { "tool_input": { "command": "psql -c \"DELETE FROM users\"" } },
-  "expect_exit": 2
+  "stdin": {
+    "tool_input": {
+      "command": "psql -c \"DELETE FROM users\""
+    }
+  },
+  "expect_exit": 0,
+  "expect_stdout_contains": [
+    "\"permissionDecision\":\"deny\""
+  ]
 }

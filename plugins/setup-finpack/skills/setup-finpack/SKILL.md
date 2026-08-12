@@ -1,6 +1,7 @@
 ---
 name: setup-finpack
 description: Set up finpack-claude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.
+version: 0.2.0
 argument-hint: "[optional: focus area like 'frontend' or 'backend']"
 disable-model-invocation: true
 ---
@@ -13,46 +14,38 @@ If the project is empty or has no source code yet, bootstrap defaults but tell t
 
 ## Phase Init: Bootstrap .claude/ if missing
 
-Decide whether to bootstrap by checking for `.claude/settings.json`:
+Check for `.claude/settings.json`:
 
-- If it exists: the user has already populated `.claude/` (likely via the clone+copy flow). Skip this phase entirely and go to Phase 0.
-- If it does NOT exist: bootstrap from the bundled template.
+- If it exists: `.claude/` is already populated. Use AskUserQuestion to offer either a full customization pass (continue to Phase 0) or a health check (see "Doctor mode" below).
+- If it does NOT exist: use AskUserQuestion — "This project has no `.claude/` set up yet. Bootstrap it from the finpack-claude template bundled in this plugin?" (`yes`/`no`). On **no**, stop with: "setup-finpack needs finpack-claude's content to operate. Either clone https://github.com/findexu/finpack-claude and copy the files in, or re-run and choose `yes`."
 
-When bootstrapping:
+On **yes**, run this Bash to copy the bundled template (Claude Code sets `$CLAUDE_PLUGIN_ROOT` to this plugin's installation directory), without clobbering an existing `CLAUDE.md` and ensuring `CLAUDE.local.md` is gitignored:
 
-1. Use AskUserQuestion: "This project has no `.claude/` set up yet. Bootstrap it from the finpack-claude template bundled in this plugin?" Options: `yes` / `no`.
+```bash
+mkdir -p .claude
+cp    "$CLAUDE_PLUGIN_ROOT/template/settings.json"          .claude/
+cp -r "$CLAUDE_PLUGIN_ROOT/template/rules"                  .claude/
+cp -r "$CLAUDE_PLUGIN_ROOT/template/skills"                 .claude/
+cp -r "$CLAUDE_PLUGIN_ROOT/template/agents"                 .claude/
+cp -r "$CLAUDE_PLUGIN_ROOT/template/hooks"                  .claude/
+chmod +x .claude/hooks/*.sh
+[ -f ./CLAUDE.md ]               || cp "$CLAUDE_PLUGIN_ROOT/template/CLAUDE.md" ./
+[ -f ./CLAUDE.local.md.example ] || cp "$CLAUDE_PLUGIN_ROOT/template/CLAUDE.local.md.example" ./
+touch .gitignore
+grep -qxF 'CLAUDE.local.md' .gitignore || echo 'CLAUDE.local.md' >> .gitignore
+```
 
-2. If the user says **no**, stop with: "setup-finpack needs finpack-claude's content to operate. Either clone https://github.com/findexu/finpack-claude and copy the files in, or re-run and choose `yes` to use the bundled template."
+Tell the user what was placed and continue to Phase 0. If `$CLAUDE_PLUGIN_ROOT` is unset (skill run from a non-plugin location such as a direct clone), tell the user to re-install via the marketplace or follow the manual clone+copy flow at https://github.com/findexu/finpack-claude.
 
-3. If the user says **yes**, run these Bash commands to copy the bundled template (Claude Code sets `$CLAUDE_PLUGIN_ROOT` to this plugin's installation directory):
+## Doctor mode (existing installs)
 
-   ```bash
-   mkdir -p .claude
-   cp    "$CLAUDE_PLUGIN_ROOT/template/settings.json"          .claude/
-   cp -r "$CLAUDE_PLUGIN_ROOT/template/rules"                  .claude/
-   cp -r "$CLAUDE_PLUGIN_ROOT/template/skills"                 .claude/
-   cp -r "$CLAUDE_PLUGIN_ROOT/template/agents"                 .claude/
-   cp -r "$CLAUDE_PLUGIN_ROOT/template/hooks"                  .claude/
-   chmod +x .claude/hooks/*.sh
-   ```
+When `.claude/settings.json` already exists and the user chooses the health check, run only these finpack-specific checks, report findings, and confirm before fixing anything:
 
-   Then handle the project-root files (don't clobber existing `CLAUDE.md`):
+- **Template drift**: diff the project's `.claude/` files against the bundled `$CLAUDE_PLUGIN_ROOT/template/` versions. Report files that are added, modified, or missing relative to the template. A modified file may be intentional customization — ask before proposing to restore anything.
+- **Quest-system state**: check that the quest hooks are wired in `.claude/settings.json` (`quest-lifecycle-bump.sh`, `quest-agent-trace.sh`) and that `.ai-context/quests/` exists. If quest-system is installed, compare its installed version against the published VERSION (the curl already allow-listed in settings.json) and suggest `/update-quest-system` if stale — or `/install-quest-system` if it's absent.
+- **Leftover repo files**: rerun the Phase 0 stray-file scan in report mode (list what would be removed; delete only after confirmation).
 
-   ```bash
-   [ -f ./CLAUDE.md ]                  || cp "$CLAUDE_PLUGIN_ROOT/template/CLAUDE.md" ./
-   [ -f ./CLAUDE.local.md.example ]    || cp "$CLAUDE_PLUGIN_ROOT/template/CLAUDE.local.md.example" ./
-   ```
-
-   Then ensure `CLAUDE.local.md` is gitignored:
-
-   ```bash
-   touch .gitignore
-   grep -qxF 'CLAUDE.local.md' .gitignore || echo 'CLAUDE.local.md' >> .gitignore
-   ```
-
-4. Tell the user what was placed and continue to Phase 0.
-
-If `$CLAUDE_PLUGIN_ROOT` is unset (rare, only when this skill is run from a non-plugin location like a direct clone), tell the user to either re-install via the marketplace or follow the manual clone+copy flow at https://github.com/findexu/finpack-claude.
+Install health, settings parseability, unused extensions, and version currency are built-in `/doctor` territory — tell the user to run `/doctor` for those instead of re-checking them here.
 
 ## Phase 0: Clean Up Non-Config Files
 
@@ -94,51 +87,23 @@ Check `git log --oneline -20` for commit message style.
 
 ## Phase 2: Present Findings
 
-Present a summary to the user using AskUserQuestion:
-
-```
-I scanned your project. Here's what I found:
-
-**Stack**: [language] + [framework] + [CSS] + [DB]
-**Package manager**: [npm/pnpm/yarn/bun/pip/cargo/go]
-**Test framework**: [jest/vitest/pytest/etc.]
-**Linter/Formatter**: [eslint+prettier/ruff/clippy/etc.]
-**Architecture**: [layered/feature-based/monorepo/etc.]
-**Source dirs**: [list]
-**Test dirs**: [list]
-
-Should I customize the .claude/ files based on this? (yes/no/corrections)
-```
-
-If the user provides corrections, incorporate them.
+Present the detected stack, package manager, test framework, linter/formatter, architecture, and source/test directories, then ask yes/no/corrections via AskUserQuestion. Incorporate any corrections before continuing.
 
 ## Phase 3: Customize Each File
 
 For each file below, propose the specific changes and ask the user to confirm before applying.
 
-### 3.1 CLAUDE.md (target: under 25 non-blank lines, hard cap: 50)
+### 3.1 CLAUDE.md (target: under 25 non-blank lines)
 
-`CLAUDE.md` loads every turn for every developer. Aggressive trimming pays for itself fast.
+`CLAUDE.md` loads every turn for every developer — keep it tight.
 
-Replace the template commands with actual commands from the detected manifest:
-- **Build**: actual build command from package.json scripts, Makefile targets, etc.
-- **Test**: actual test command plus how to run a single test file.
-- **Lint/Format**: actual lint and format commands.
-- **Dev**: actual dev server command.
+Replace the template commands with actual commands from the detected manifest: **Build**, **Test** (plus how to run a single test file), **Lint/Format**, and **Dev** server.
 
-Strip every `> REPLACE:` block. They are template guidance, not content.
+Strip every `> REPLACE:` block — template guidance, not content.
 
-For each remaining section, decide on inclusion:
+Keep each remaining section only if it earns its lines, delete otherwise: **Architecture** only for a non-obvious structural decision (never a directory listing — Claude can explore); **Key Decisions** only where knowing the WHY prevents a wrong fix; **Domain Knowledge** only for terms not obvious from the code; **Workflow** only for project-specific quirks (generic lines duplicate `rules/code-quality.md`); **Don'ts** only for project-specific don'ts.
 
-| Section | Keep if... | Otherwise |
-|---|---|---|
-| **Architecture** | The project has at least one non-obvious structural decision (a domain split, a layering rule that contradicts the file tree). | Delete. Listing source directories is duplicative. Claude can explore. |
-| **Key Decisions** | At least one decision exists where knowing the WHY would prevent a wrong fix (`auth tokens in httpOnly cookies because XSS`). | Delete. |
-| **Domain Knowledge** | At least one term, abbreviation, or concept is non-obvious from the code. | Delete. |
-| **Workflow** | You have project-specific workflow quirks. | Delete. Generic workflow lines duplicate `rules/code-quality.md`. |
-| **Don'ts** | At least one project-specific don't (`don't modify *.gen.ts`). | Delete. Generic don'ts belong in rules. |
-
-Most projects end up with just Commands plus three to five extra lines. That's expected. A 10-line `CLAUDE.md` is healthy.
+Most projects end up with Commands plus three to five extra lines — a 10-line `CLAUDE.md` is healthy. For further trimming, the built-in `/doctor` handles CLAUDE.md hygiene, dedup, and skill migration — defer to it rather than iterating here.
 
 ### 3.2 settings.json
 
@@ -146,6 +111,8 @@ Update permissions to match actual commands:
 - Replace `npm run` with the actual package manager (`pnpm run`, `yarn`, `bun run`, `cargo`, `go`, `make`, `python -m pytest`, etc.)
 - Add project-specific allow rules for detected scripts
 - Keep deny rules for secrets as-is (these are universal)
+
+Do not build an allowlist-mining pass here: the built-in `/doctor` can propose `auto` permission mode and read-only pre-approvals, and `/fewer-permission-prompts` covers transcript-based allowlist mining.
 
 ### 3.3 rules/code-quality.md
 
@@ -215,64 +182,38 @@ If the user wants a minimal setup, list the actual contents of `.claude/skills/`
 
 ## Phase 4: Review & Simplify
 
-After all changes are applied, run a thorough final review pass.
+After all changes are applied, run a final review pass of the finpack-specific state:
 
-### CLAUDE.md size budget (hard check)
-
-Run this Bash to count non-blank lines in `CLAUDE.md`:
-
-```bash
-grep -cv '^[[:space:]]*$' CLAUDE.md
-```
-
-Apply the budget:
-
-| Non-blank lines | Verdict | Action |
-|---|---|---|
-| Under 25 | PASS | Continue. |
-| 25 to 50 | WARN | List the longest sections by line count and ask the user via AskUserQuestion which to trim. Apply trims they confirm, then continue. |
-| Over 50 | FAIL | Block. Identify the top three biggest sections by line count and propose specific cuts. Do not continue Phase 4 until `CLAUDE.md` is at or under 50 non-blank lines. |
-
-Reasons to stay tight: every line of `CLAUDE.md` loads on every turn for every developer. A 50-line file across 50 turns/day costs roughly 1,000 tokens of always-on overhead, every day, even on a one-line bugfix.
-
-Strip any remaining `> REPLACE:` placeholder blocks. They are template guidance that should have been replaced with real content or removed during Phase 3.1.
-
-### Codebase consistency review
-
-Review the entire codebase alongside the customized `.claude/` configuration:
+- **CLAUDE.md size**: count non-blank lines with `grep -cv '^[[:space:]]*$' CLAUDE.md`. If it's 25 or more, list the longest sections and ask via AskUserQuestion which to trim; apply confirmed trims. Strip any remaining `> REPLACE:` blocks.
 - Do the rules match how the code is actually written?
 - Do the settings permissions cover the commands the project actually uses?
-- Do the security rule paths match where sensitive code actually lives?
-- Do the hook protections cover the files that actually need protecting in this project?
-- Are there project patterns, conventions, or architectural decisions not yet captured in the config?
-- Remove any redundancy introduced during customization.
-- Ensure no file contradicts another.
-- Trim any verbose instructions back to essentials.
-- Verify all YAML frontmatter is valid.
-- Verify all hook scripts referenced in settings.json exist and are executable.
+- Do the security and error-handling `paths:` match where sensitive code actually lives?
+- Do all hook scripts referenced in `.claude/settings.json` exist and are they executable? (Built-in `/doctor` does not chmod-check custom project hooks.)
+- Remove redundancy introduced during customization; ensure no file contradicts another.
 
 Present the review findings to the user. If changes are needed, confirm before applying.
 
+Generic hygiene — YAML frontmatter validity, settings parseability, verbosity trimming, unused extensions — is built-in `/doctor` territory: tell the user to run `/doctor` after setup rather than re-checking those here.
+
 ## Phase 5: Summary
 
-After everything is finalized, count `CLAUDE.md`'s non-blank lines once more and present a summary:
+After everything is finalized, present a summary:
 
 ```
 Setup complete. Here's what was customized:
 
-- Bootstrap: [yes, copied template into .claude/ | no, used existing .claude/]
-- CLAUDE.md: [N non-blank lines]. Verdict: [PASS under 25 / WARN 25-50 / FAIL over 50]. Customized commands for [stack].
+- Bootstrap: [copied template into .claude/ | used existing .claude/]
+- CLAUDE.md: [N non-blank lines], commands customized for [stack]
 - settings.json: permissions updated for [package manager]
 - rules/security.md: paths updated to [actual dirs]
 - rules/frontend.md: [kept/removed]
 - hooks/format-on-save.sh: enabled [formatter]
 - [any other changes]
-
-Files left as defaults (universal, no project-specific changes needed):
-- [list]
-
-Review pass: [any issues found and fixed, or "all clean"]
+- Files left as defaults: [list]
+- Review pass: [issues found and fixed, or "all clean"]
 ```
+
+Close by suggesting the user run the built-in `/doctor` for install health.
 
 ## Rules
 

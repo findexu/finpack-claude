@@ -9,11 +9,11 @@ End the current expedition. Record what was done, update scrolls, check for spli
 
 ## Step 1: Resolve the active quest
 
-Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
-1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
-   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
-2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
-3. If neither resolves: "No active quest. Run /new-quest first, or pass --quest." Stop.
+Resolve the quest for THIS chat (SKILL.md -> "Active-quest selection"): a `--quest
+<name-or-path>` argument wins (realm from that quest's `STRATEGY_SCROLL.md` frontmatter
+unless `--realm <realm>` was also passed); otherwise read `.claude/active-quest.txt`
+(line 1 = quest folder path, line 2 = realm).
+If neither resolves: "No active quest. Run /new-quest first, or pass --quest." Stop.
 
 The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
 and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
@@ -60,17 +60,15 @@ Findings inscribed here count as "new dangers" for Steps 5 and 9.
 ## Step 2.9: Acquire the per-quest scroll lock
 
 Steps 3–7 write this quest's `ADVENTURE_JOURNAL.md`, `STRATEGY_SCROLL.md`, and
-`TOME_OF_DANGERS.md`. Another chat can target the SAME quest concurrently (a
-parallel `/make-camp` or `/complete-quest`). ACQUIRE the per-quest lock now (SKILL.md ->
-"Concurrency" -> cross-tool-call quest lock), keyed by this quest's BASENAME, so a
-concurrent writer cannot interleave a lost-update append between your write
-and the Step 7 split rewrite.
+`TOME_OF_DANGERS.md`. ACQUIRE the per-quest lock now (SKILL.md -> "Concurrency" ->
+cross-tool-call quest lock), keyed by this quest's BASENAME, so a concurrent writer
+cannot interleave a lost-update append between your write and the Step 7 split rewrite.
 
 If the lock cannot be acquired within the budget, report "quest {quest-name} busy
 (another chat is writing its scrolls) — retry shortly" and STOP. The lock is held
-across Steps 3–7 and RELEASED in Step 7.5 on every exit path (including a failed
-Edit). World-map (Step 6 is fine inside too), context.md (Step 8), and XP (Step 9)
-run AFTER release.
+across Steps 3–7 (Step 6's world-map write is fine inside too) and RELEASED in
+Step 7.5 on every exit path (including a failed Edit). context.md (Step 8) and XP
+(Step 9) run AFTER release.
 
 ## Step 3: Update ADVENTURE_JOURNAL.md
 
@@ -148,26 +146,11 @@ After every write, count lines in each modified scroll file (index files only fo
 
 For each file that exceeds 500 lines:
 1. Announce: "📜 {filename} has grown beyond 500 lines. Splitting into subfiles..."
-2. Apply split rules:
-   | Scroll | Split folder | Split by |
-   |---|---|---|
-   | TOME_OF_DANGERS.md | dangers/ | category: rendering, memory, swift-concurrency, ui, file-io |
-   | STRATEGY_SCROLL.md | strategy/ | one file per major module |
-   | ADVENTURE_JOURNAL.md | journal/ | one file per month: YYYY-MM.md |
-   | WORLD_MAP.md | map/ | area: navigation, data-flow, key-files |
-   | ADVENTURERS_HANDBOOK.md | never splits | — |
-3. Create the split subfolder if it does not exist.
-4. Move content into subfiles according to the split rules for that scroll type.
-5. Rewrite the main file as a lightweight index:
-   - Keep YAML frontmatter (update `last-updated`)
-   - Keep summary / overview (~50 lines max)
-   - Add `## Content Index` table pointing to each subfile
-   - STRATEGY_SCROLL: always keep battle status table AND the `## Planned Expeditions`
-     checklist in the index (the dashboard parses the checklist from the index only —
-     never strand it in a module subfile)
-   - ADVENTURE_JOURNAL: keep last 3 entries in the index
-   - TOME_OF_DANGERS: keep 3 most critical dangers as fast-read summary
-6. Confirm: "Split complete. {filename} → {list of subfiles created}."
+2. Apply SKILL.md -> "Split rules" (split targets + index format), with this
+   command-side caveat: the STRATEGY_SCROLL index always keeps the battle status
+   table AND the `## Planned Expeditions` checklist (the dashboard parses the
+   checklist from the index only — never strand it in a module subfile).
+3. Confirm: "Split complete. {filename} → {list of subfiles created}."
 
 ## Step 7.5: Release the per-quest scroll lock
 
@@ -235,9 +218,8 @@ SKILL.md -> "XP derivation (the fold)".
    ```bash
    printf '%s\n' "{YYYY-MM-DD}|state|{quest-name}|phase=at-camp" >> .claude/quest-xp/lifecycle.log
    ```
-   This flips the dashboard from "Embarked" back to "At Camp" the moment camp is made.
-   The next code edit re-bumps to "Embarked" via the `quest-lifecycle-bump.sh` hook,
-   so "At Camp" reads as "no work since last camp" rather than a stuck phase.
+   This flips the dashboard to "At Camp"; the next code edit re-bumps to "Embarked"
+   via the `quest-lifecycle-bump.sh` hook.
 
 ## Step 10: Confirm
 

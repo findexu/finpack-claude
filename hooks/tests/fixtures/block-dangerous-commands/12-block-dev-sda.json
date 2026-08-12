@@ -1,5 +1,12 @@
 {
   "name": "block write to raw device /dev/sda",
-  "stdin": { "tool_input": { "command": "cat file > /dev/sda" } },
-  "expect_exit": 2
+  "stdin": {
+    "tool_input": {
+      "command": "cat file > /dev/sda"
+    }
+  },
+  "expect_exit": 0,
+  "expect_stdout_contains": [
+    "\"permissionDecision\":\"deny\""
+  ]
 }

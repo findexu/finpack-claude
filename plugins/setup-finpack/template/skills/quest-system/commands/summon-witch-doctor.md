@@ -22,10 +22,10 @@ reports no active quest).
 
 ## Step 1: Resolve the active quest
 
-Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
-1. If a `--quest <name-or-path>` argument was given, diagnose THAT quest; read its realm
-   from its `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
-2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
+Resolve the quest for THIS chat (SKILL.md -> "Active-quest selection"): a `--quest
+<name-or-path>` argument wins — diagnose THAT quest (realm from its `STRATEGY_SCROLL.md`
+frontmatter unless `--realm <realm>` was also passed); otherwise read
+`.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
 
 All checks below apply to the RESOLVED quest folder (not necessarily the pointer).
 `{quest-name}` is the basename of the resolved folder path.
@@ -193,110 +193,8 @@ Repeat for any other orphan quest folders found under `.ai-context/` root.
 
 ### Scroll repairs
 
-- **MISSING**: recreate using the appropriate template below.
-  Fill in quest name, realm, and today's date.
-
-  WORLD_MAP.md:
-  ```
-  ---
-  quest: {quest-name}
-  realm: {realm}
-  scroll: WORLD_MAP
-  last-updated: {date}
-  ---
-  # World Map — {quest-name}
-  ## Realm
-  All work this quest is scoped to **{realm}** only.
-  ## Module Map
-  (to be charted)
-  ## Navigation Flow
-  (to be charted)
-  ## Data Flow
-  (to be charted)
-  ## Key Files
-  | File | Role |
-  |---|---|
-  ## Retired Files
-  (none yet)
-  ```
-
-  STRATEGY_SCROLL.md:
-  ```
-  ---
-  quest: {quest-name}
-  realm: {realm}
-  scroll: STRATEGY_SCROLL
-  last-updated: {date}
-  ---
-  # Strategy Scroll — {quest-name}
-  ## Battle Status
-  | Module | Status |
-  |---|---|
-  ## Oaths Sworn (Resolved Decisions)
-  (none yet)
-  ## Fallen Strategies (Rejected Approaches)
-  (none yet)
-  ## Scouting Findings (Audit Results)
-  (none yet)
-  ## Open Riddles (Decisions Needed)
-  (none yet)
-  ## The Battle Plan (Implementation Sequence)
-  (to be written)
-  ```
-
-  ADVENTURE_JOURNAL.md:
-  ```
-  ---
-  quest: {quest-name}
-  realm: {realm}
-  scroll: ADVENTURE_JOURNAL
-  last-updated: {date}
-  ---
-  # Adventure Journal — {quest-name}
-  Append-only. One entry per expedition. Never rewrite history.
-  ```
-
-  TOME_OF_DANGERS.md:
-  ```
-  ---
-  quest: {quest-name}
-  realm: {realm}
-  scroll: TOME_OF_DANGERS
-  last-updated: {date}
-  ---
-  # Tome of Dangers — {quest-name}
-  ## Confirmed Safe Paths
-  (to be discovered)
-  ## Known Dangers
-  | Danger | Impact | Remedy |
-  |---|---|---|
-  ## Fallen Strategies (Tried and Abandoned)
-  (none yet)
-  ## Unsolved Riddles (Open Verification Items)
-  (none yet)
-  ```
-
-  ADVENTURERS_HANDBOOK.md:
-  ```
-  ---
-  quest: {quest-name}
-  realm: {realm}
-  scroll: ADVENTURERS_HANDBOOK
-  last-updated: {date}
-  ---
-  # Adventurer's Handbook — How to Use the Scrolls
-  ## WORLD_MAP.md
-  The map of the realm — codebase structure, key files, retired files.
-  ## STRATEGY_SCROLL.md
-  Battle plan — status, oaths, strategies, open riddles.
-  ## ADVENTURE_JOURNAL.md
-  Append-only chronicle. Never rewrite history.
-  ## TOME_OF_DANGERS.md
-  Every confirmed danger and remedy. Update immediately when found.
-  ## Sacred Laws
-  - Not in the scrolls = does not exist as shared knowledge
-  - ADVENTURE_JOURNAL.md is append-only — history is sacred
-  ```
+- **MISSING**: recreate the scroll from SKILL.md -> "Scroll templates" (the template
+  for that scroll type), filling in quest name, realm, and today's date.
 - **WARN — missing frontmatter keys**: add the missing keys with placeholder values
   and append `<!-- repaired by /summon-witch-doctor -->`.
 - **WARN — missing headings**: append the missing headings at the end of the file

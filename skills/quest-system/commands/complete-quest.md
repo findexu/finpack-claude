@@ -10,11 +10,11 @@ and the commander confirms there is no remaining work.
 
 ## Step 1: Resolve the active quest
 
-Resolve the quest for THIS chat (see SKILL.md -> "Active-quest selection"):
-1. If a `--quest <name-or-path>` argument was given, use it; read its realm from that
-   quest's `STRATEGY_SCROLL.md` frontmatter unless `--realm <realm>` was also passed.
-2. Otherwise read `.claude/active-quest.txt` (line 1 = quest folder path, line 2 = realm).
-3. If neither resolves: "No active quest to complete. Pass --quest." Stop.
+Resolve the quest for THIS chat (SKILL.md -> "Active-quest selection"): a `--quest
+<name-or-path>` argument wins (realm from that quest's `STRATEGY_SCROLL.md` frontmatter
+unless `--realm <realm>` was also passed); otherwise read `.claude/active-quest.txt`
+(line 1 = quest folder path, line 2 = realm).
+If neither resolves: "No active quest to complete. Pass --quest." Stop.
 
 The shared pointer is UNTRUSTED in multi-chat — carry this chat's quest in-conversation
 and pass it as `--quest`. `{quest-name}` is the basename of the resolved folder path.
@@ -51,21 +51,17 @@ Summarize CONFIRMED findings (ignore style nitpicks). Then ask:
 
 ## Step 2.9: Acquire the per-quest scroll lock
 
-Steps 3–6 read this quest's scrolls and then ARCHIVE (move) the folder. Another
-chat can target the SAME quest concurrently (a parallel `/make-camp`). ACQUIRE the
+Steps 3–6 read this quest's scrolls and then ARCHIVE (move) the folder. ACQUIRE the
 per-quest lock (SKILL.md -> "Concurrency" -> cross-tool-call quest lock), keyed by
-this quest's BASENAME, so the archive cannot move the folder out from under an
-in-flight write.
+this quest's BASENAME, so a concurrent chat's in-flight write cannot race the archive.
 
 If the lock cannot be acquired within the budget, report "quest {quest-name} busy —
 another chat is writing to it; retry shortly" and STOP.
 
-LOCK ORDER (avoids deadlock): this per-quest lock is the OUTER lock. The registry
-locks in Steps 3–4 (`DANGER_REGISTRY.md` / `DECISIONS_LOG.md`) are acquired and
-released INSIDE their single-bash invocations — always after this one, never around
-it. A command holds at most one per-quest lock; the registry lock only ever nests
-within it, so no lock-ordering cycle exists. RELEASE this lock in Step 6.5 on every
-exit path.
+LOCK ORDER: this per-quest lock is the OUTER lock; the registry locks in Steps 3–4
+are acquired and released INSIDE their single-bash invocations — always nested within
+it, never around it, so no lock-ordering cycle exists. RELEASE this lock in Step 6.5
+on every exit path.
 
 ## Step 3: Distill TOME_OF_DANGERS → DANGER_REGISTRY.md
 
@@ -82,33 +78,8 @@ Extract every entry from `## Known Dangers` and `## Confirmed Safe Paths`.
 Skip entries marked as superseded or resolved.
 
 Append to `.ai-context/DANGER_REGISTRY.md`:
-- If it does not exist yet, create it with this template:
-  ```
-  ---
-  type: danger-registry
-  last-updated: {date}
-  ---
-  # Project Danger Registry
-
-  Distilled from completed quests. Read before proposing any strategy.
-  Each entry survived at least one real quest — do not ignore.
-
-  ## Rendering Dangers
-  | Danger | Impact | Remedy | Quest |
-  |---|---|---|---|
-
-  ## Memory Dangers
-  | Danger | Impact | Remedy | Quest |
-  |---|---|---|---|
-
-  ## Concurrency Dangers
-  | Danger | Impact | Remedy | Quest |
-  |---|---|---|---|
-
-  ## Architecture Dangers
-  | Danger | Impact | Remedy | Quest |
-  |---|---|---|---|
-  ```
+- If it does not exist yet, create it from SKILL.md -> "DANGER_REGISTRY.md template"
+  (fill `{date}`).
 - Add each danger to the appropriate category section.
 - Set the `Quest` column to the quest name.
 - Update `last-updated` in YAML frontmatter.
@@ -123,20 +94,8 @@ Extract every entry from `## Oaths Sworn (Resolved Decisions)`.
 Skip entries that are implementation details rather than architectural decisions.
 
 Append to `.ai-context/DECISIONS_LOG.md`:
-- If it does not exist yet, create it with this template:
-  ```
-  ---
-  type: decisions-log
-  last-updated: {date}
-  ---
-  # Project Decisions Log
-
-  Architectural decisions locked during completed quests.
-  These are oaths — do not re-open without the commander's explicit order.
-
-  | Decision | Reason | Quest | Date |
-  |---|---|---|---|
-  ```
+- If it does not exist yet, create it from SKILL.md -> "DECISIONS_LOG.md template"
+  (fill `{date}`).
 - Add each decision as a row: Decision | Reason | Quest | Date.
 - Update `last-updated` in YAML frontmatter.
 
