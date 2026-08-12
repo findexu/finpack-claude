@@ -1,7 +1,9 @@
 {
   "name": "explain",
+  "displayName": "Explain",
   "version": "0.3.0",
   "description": "Explain code. Default is a one-sentence summary plus a mental model. Add --verbose for an ASCII diagram, key details, and a modification guide. Add --interactive (alias --html, --visual) for a self-contained interactive HTML explainer. Plain words like \"detailed\" or \"visualised\" work too.",
+  "keywords": ["explain", "code", "default", "sentence", "summary", "plus", "mental", "model"],
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",

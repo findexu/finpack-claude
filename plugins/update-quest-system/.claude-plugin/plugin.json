@@ -1,7 +1,10 @@
 {
   "name": "update-quest-system",
-  "version": "0.1.0",
+  "displayName": "Update Quest System",
+  "version": "0.2.0",
   "description": "Update quest-system to the latest version by running the install script (install is idempotent — same script installs and updates). Prefers a local finpack-claude clone, otherwise runs the allow-listed curl one-liner. The script self-cleans renamed/removed commands and agents via its manifest. Run after pulling finpack-claude updates. Requires quest-system to already be installed (/install-quest-system).",
+  "keywords": ["update", "quest", "system", "latest", "version", "running", "install", "script"],
+  "dependencies": ["quest-system"],
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",

@@ -14,32 +14,60 @@ cd "$ROOT"
 
 shopt -s nullglob
 
-# 1. Sync agents: agents/<name>.md -> plugins/<name>/agents/<name>.md
-#    Also (re)generate the plugin manifest from the agent's frontmatter so the
-#    .claude-plugin/plugin.json never drifts from the agent it describes.
+# JSON keywords array derived from a description: significant lowercase words,
+# stopwords and short words dropped, deduped in order, capped at 8. Purely
+# deterministic so re-running sync never churns the generated manifests.
+keywords_json() {
+  local w out=""
+  while IFS= read -r w; do
+    out="$out${out:+, }\"$w\""
+  done < <(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '\n' |
+    awk 'length($0) >= 3 && !seen[$0]++ && $0 !~ /^(the|and|for|with|that|this|from|into|are|not|its|your|any|all|one|per|via|use|used|uses|when|then|also|has|have|only|can|non|out|but|nine|focused|every|each|both|you|get|like|real|step|first)$/' |
+    head -8)
+  printf '[%s]' "$out"
+}
+
+# displayName from a plugin name: "quest-system" -> "Quest System"; "fp" stays
+# an acronym ("fp-agents" -> "FP Agents").
+display_name() {
+  local w out=""
+  for w in ${1//-/ }; do
+    if [ "$w" = "fp" ]; then w="FP"; else w="$(printf '%s' "${w:0:1}" | tr '[:lower:]' '[:upper:]')${w:1}"; fi
+    out="$out${out:+ }$w"
+  done
+  printf '%s' "$out"
+}
+
+# 1. Sync agents: agents/fp-*.md -> plugins/fp-agents/agents/ — ONE consolidated
+#    plugin carrying the whole agent suite (the 9 per-agent fp-* plugins were
+#    retired 2026-08-12; installed agent names become fp-agents:fp-<name>).
+#    The manifest is (re)generated every sync; its version comes from
+#    agents/VERSION — bump that file to ship an agent change. The agents dir is
+#    removed first so agents deleted from agents/ drop out of the mirror too.
+rm -rf "plugins/fp-agents/agents"
+mkdir -p "plugins/fp-agents/agents" "plugins/fp-agents/.claude-plugin"
 for f in agents/*.md; do
   name="$(basename "$f" .md)"
   [ "$name" = "README" ] && continue
-  mkdir -p "plugins/$name/agents" "plugins/$name/.claude-plugin"
-  cp "$f" "plugins/$name/agents/$name.md"
-  # Pull the first `description:` value from the agent frontmatter; JSON-escape it.
-  desc="$(sed -n 's/^description:[[:space:]]*//p' "$f" | head -1 | sed 's/\\/\\\\/g; s/"/\\"/g')"
-  # Version from the agent frontmatter (default 0.1.0). Stamped into plugin.json so
-  # `claude plugin update` can detect changes; bump the frontmatter `version:` to ship.
-  ver="$(sed -n 's/^version:[[:space:]]*//p' "$f" | head -1)"; ver="${ver:-0.1.0}"
-  cat > "plugins/$name/.claude-plugin/plugin.json" <<JSON
+  cp "$f" "plugins/fp-agents/agents/$name.md"
+  echo "  agent  fp-agents <- $name"
+done
+agents_ver="$( { tr -d '[:space:]' < agents/VERSION; } 2>/dev/null || true)"
+agents_ver="${agents_ver:-1.0.0}"
+agents_desc="Nine focused engineering agents: code/security/performance/doc/plan review, frontend + SwiftUI design, architecture, exploration."
+cat > "plugins/fp-agents/.claude-plugin/plugin.json" <<JSON
 {
-  "name": "$name",
-  "version": "$ver",
-  "description": "$desc",
+  "name": "fp-agents",
+  "displayName": "$(display_name fp-agents)",
+  "version": "$agents_ver",
+  "description": "$agents_desc",
+  "keywords": $(keywords_json "$agents_desc"),
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",
   "repository": "https://github.com/findexu/finpack-claude"
 }
 JSON
-  echo "  agent  $name"
-done
 
 # 2. Sync skills: skills/<name>/SKILL.md -> plugins/<name>/skills/<name>/SKILL.md
 #    Also sync skills/<name>/commands/*.md -> plugins/<name>/skills/<name>/commands/*.md
@@ -67,11 +95,21 @@ for d in skills/*/; do
   # Version from the skill frontmatter (default 0.1.0). Stamped into plugin.json so
   # `claude plugin update` can detect changes; bump the frontmatter `version:` to ship.
   ver="$(sed -n 's/^version:[[:space:]]*//p' "${d}SKILL.md" | head -1)"; ver="${ver:-0.1.0}"
+  # The two quest-system wrappers operate on an installed quest-system, so they
+  # declare it as a plugin dependency (validated shape: array of names —
+  # `claude plugin validate --strict`, CLI 2.1.228).
+  deps=""
+  case "$name" in
+    install-quest-system|update-quest-system) deps='
+  "dependencies": ["quest-system"],' ;;
+  esac
   cat > "plugins/$name/.claude-plugin/plugin.json" <<JSON
 {
   "name": "$name",
+  "displayName": "$(display_name "$name")",
   "version": "$ver",
   "description": "$desc",
+  "keywords": $(keywords_json "$desc"),$deps
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",

@@ -1,9 +1,0 @@
-{
-  "name": "fp-doc-reviewer",
-  "version": "0.2.0",
-  "description": "Reviews documentation for accuracy, completeness, and clarity. Cross-references docs against the actual source code.",
-  "author": { "name": "findexu" },
-  "license": "MIT",
-  "homepage": "https://github.com/findexu/finpack-claude",
-  "repository": "https://github.com/findexu/finpack-claude"
-}

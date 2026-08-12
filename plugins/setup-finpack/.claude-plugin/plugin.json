@@ -1,7 +1,9 @@
 {
   "name": "setup-finpack",
+  "displayName": "Setup Finpack",
   "version": "0.2.0",
   "description": "Set up finpack-claude in any project end-to-end. Bootstrap `.claude/` from the bundled template if missing, then customize every config file to match the project's actual tech stack, conventions, and patterns.",
+  "keywords": ["set", "finpack", "claude", "project", "end", "bootstrap", "bundled", "template"],
   "author": { "name": "findexu" },
   "license": "MIT",
   "homepage": "https://github.com/findexu/finpack-claude",

@@ -1,5 +1,6 @@
 ---
 name: update-quest-system
+version: 0.2.0
 description: >
   Update quest-system to the latest version by running the install script
   (install is idempotent — same script installs and updates). Prefers a local
@@ -15,6 +16,13 @@ The install script is idempotent — it installs AND updates, prunes orphaned
 command/agent files (manifest-diff), refreshes permissions, and retries on
 transient network errors. Updating just means re-running it. This skill picks
 the right invocation and runs it; it does NOT copy files itself.
+
+> **Installed as a plugin instead?** If quest-system came from the
+> finpack-claude marketplace (`/plugin install quest-system@finpack-claude`),
+> update it natively: `claude plugin update quest-system`. Plugin manifests are
+> sync-stamped from SKILL.md versions, so a version bump is the update signal.
+> This skill remains the path for template-file installs (`.claude/commands/`)
+> and consumer-repo migrations like Step 4.5 below.
 
 ## Step 1: Check installation
 

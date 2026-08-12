@@ -45,18 +45,10 @@ all overridable. Install the whole kit in one step, or pick individual plugins.<
 /setup-finpack          # run inside your project</code></pre>
 <p>Want just one piece? <code>/plugin install &lt;name&gt;@finpack-claude</code>.</p>
 
-<h2>Plugins (15)</h2>
+<h2>Plugins (7)</h2>
 <table>
   <tr><th>Plugin</th><th>Does</th></tr>
-  <tr><td><code>fp-code-reviewer</code></td><td>Reviews code for real bugs: off-by-ones, null derefs, race conditions, swallowed errors.</td></tr>
-  <tr><td><code>fp-security-reviewer</code></td><td>OWASP-style review: injection, auth, data exposure, weak crypto. Severity-ranked with file:line + fix.</td></tr>
-  <tr><td><code>fp-performance-reviewer</code></td><td>Finds real bottlenecks: DB N+1, memory leaks, blocking calls, re-renders.</td></tr>
-  <tr><td><code>fp-doc-reviewer</code></td><td>Cross-references docs against actual source. Flags drift, missing params, dead references.</td></tr>
-  <tr><td><code>fp-plan-reviewer</code></td><td>Reviews a plan for executable completeness, risk, and scope drift. Returns READY | REVISE.</td></tr>
-  <tr><td><code>fp-frontend-designer</code></td><td>Builds production-grade UI. Tokens-first, anti-AI-slop aesthetics.</td></tr>
-  <tr><td><code>fp-swiftui-designer</code></td><td>Polished SwiftUI UI/UX for iPhone and iPad. HIG-driven, Dynamic Type and VoiceOver ready.</td></tr>
-  <tr><td><code>fp-code-architect</code></td><td>Designs a feature-architecture blueprint by analyzing existing codebase patterns.</td></tr>
-  <tr><td><code>fp-code-explorer</code></td><td>Analyzes existing features by tracing execution paths and mapping architecture layers.</td></tr>
+  <tr><td><code>fp-agents</code></td><td>All nine <code>fp-*</code> engineering agents in one plugin: code/security/performance/doc/plan review, frontend + SwiftUI design, architecture, exploration. Installed agent names become <code>fp-agents:fp-&lt;name&gt;</code>.</td></tr>
   <tr><td><code>setup-finpack</code></td><td>Bootstrap and customize finpack-claude in any project, tuned to your stack.</td></tr>
   <tr><td><code>explain</code></td><td>Explain code with a one-sentence summary, mental model, ASCII diagram, and modification guide.</td></tr>
   <tr><td><code>summon-seer</code></td><td>Divines recurring friction in recent sessions, proposes new skills, automations, and CLAUDE.md fixes.</td></tr>

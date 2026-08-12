@@ -18,7 +18,7 @@ Recommended — marketplace:
 
 Want just one piece? `/plugin install <name>@finpack-claude`.
 
-**Plugins (15):** `fp-code-reviewer` `fp-security-reviewer` `fp-performance-reviewer` `fp-doc-reviewer` `fp-plan-reviewer` `fp-code-architect` `fp-code-explorer` `fp-frontend-designer` `fp-swiftui-designer` `setup-finpack` `explain` `summon-seer` `quest-system` `install-quest-system` `update-quest-system`
+**Plugins (7):** `fp-agents` (all nine `fp-*` agents in one plugin — installed agent names become `fp-agents:fp-<name>`) `setup-finpack` `explain` `summon-seer` `quest-system` `install-quest-system` `update-quest-system`
 
 <details><summary>Alternative — clone instead of the marketplace</summary>
 
